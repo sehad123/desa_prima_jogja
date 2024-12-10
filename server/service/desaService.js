@@ -20,6 +20,17 @@ const getAllDesa = async (kabupatenFilter = null) => {
   });
 };
 
+const createDesa = async (data) => {
+  const { tahun_pembentukan, ...rest } = data;
+
+  return await prisma.desa.create({
+    data: {
+      ...rest,
+      tahun_pembentukan: new Date(tahun_pembentukan),
+    },
+  });
+};
+
 const getDesaById = async (id) => {
   return await prisma.desa.findUnique({
     where: { id: parseInt(id) },
@@ -37,17 +48,6 @@ const getNotulensiByDesaId = async (desaId) => {
 const getGaleriByDesaId = async (desaId) => {
   return await prisma.galeri.findMany({
     where: { desaId: parseInt(desaId) },
-  });
-};
-
-const createDesa = async (data) => {
-  const { tahun_pembentukan, ...rest } = data;
-
-  return await prisma.desa.create({
-    data: {
-      ...rest,
-      tahun_pembentukan: new Date(tahun_pembentukan),
-    },
   });
 };
 

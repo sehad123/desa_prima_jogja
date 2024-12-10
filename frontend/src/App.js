@@ -80,12 +80,14 @@ import DetailDesaPage from "./components/DetailDesaPage"; // Halaman detail desa
 import KabupatenPage from "./components/KabupatenPage";
 import KabupatenDetail from "./components/KabupatenDetail";
 import KelompokDesa from "./components/KelompokDesaPage";
+import PetaDesa from "./components/PetaDesa";
 
 function App() {
   return (
     <Router>
       <Routes>
         <Route path="/" element={<LoginPage />} />
+        <Route path="/peta-desa" element={<PetaDesa />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/kelompok-desa" element={<KelompokDesa />} />
         <Route path="/kabupaten-page" element={<KabupatenPage />} />

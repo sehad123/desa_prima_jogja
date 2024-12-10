@@ -262,6 +262,17 @@ router.get("/", async (req, res) => {
   }
 });
 
+// Create a new desa
+router.post("/", async (req, res) => {
+  try {
+    const newDesa = await createDesa(req.body); // Data sudah termasuk kategori dari frontend
+    res.status(201).json(newDesa);
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(400).json({ error: "Gagal menyimpan data desa." });
+  }
+});
+
 // Get desa by ID
 router.get("/:id", async (req, res) => {
   try {
@@ -273,17 +284,6 @@ router.get("/:id", async (req, res) => {
     }
   } catch (error) {
     res.status(500).json({ error: "Gagal mengambil data desa" });
-  }
-});
-
-// Create a new desa
-router.post("/", async (req, res) => {
-  try {
-    const newDesa = await createDesa(req.body); // Data sudah termasuk kategori dari frontend
-    res.status(201).json(newDesa);
-  } catch (error) {
-    console.error("Error:", error);
-    res.status(400).json({ error: "Gagal menyimpan data desa." });
   }
 });
 

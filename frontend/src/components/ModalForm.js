@@ -18,6 +18,8 @@ const ModalForm = ({ onClose, selectedDesa }) => {
     jumlah_anggota_awal: "",
     jumlah_anggota_sekarang: "",
     pengurus: "",
+    latitude: "", // Tambahan latitude
+    longitude: "", //
   });
 
   const [kabupatenList, setKabupatenList] = useState([]);
@@ -26,7 +28,7 @@ const ModalForm = ({ onClose, selectedDesa }) => {
   const [categoryNotification, setCategoryNotification] = useState("");
   const [showCategoryNotification, setShowCategoryNotification] = useState(false);
 
-  const numberFields = ["jumlah_hibah_diterima", "jumlah_dana_sekarang", "jumlah_anggota_awal", "jumlah_anggota_sekarang"];
+  const numberFields = ["jumlah_hibah_diterima", "jumlah_dana_sekarang", "jumlah_anggota_awal", "jumlah_anggota_sekarang", "latitude", "longitude"];
 
   useEffect(() => {
     if (selectedDesa) {
@@ -41,6 +43,8 @@ const ModalForm = ({ onClose, selectedDesa }) => {
         jumlah_anggota_awal: selectedDesa.jumlah_anggota_awal,
         jumlah_anggota_sekarang: selectedDesa.jumlah_anggota_sekarang,
         pengurus: selectedDesa.pengurus || "",
+        latitude: selectedDesa.latitude || "",
+        longitude: selectedDesa.longitude || "",
       });
     }
 
@@ -70,7 +74,7 @@ const ModalForm = ({ onClose, selectedDesa }) => {
 
     setFormData({
       ...formData,
-      [name]: numberFields.includes(name) ? parseInt(value, 10) || "" : value,
+      [name]: name === "latitude" || name === "longitude" ? value : numberFields.includes(name) ? parseInt(value, 10) || "" : value,
     });
 
     if (name === "kabupaten") {
@@ -111,7 +115,7 @@ const ModalForm = ({ onClose, selectedDesa }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const { jumlah_anggota_sekarang, jumlah_dana_sekarang } = formData;
+    const { jumlah_anggota_sekarang, jumlah_dana_sekarang, latitude, longitude } = formData;
 
     // Categorize based on the rules
     let kategori = "";
@@ -132,6 +136,8 @@ const ModalForm = ({ onClose, selectedDesa }) => {
       kabupaten: formData.kabupatenNama, // Kirimkan nama Kabupaten
       kecamatan: formData.kecamatanNama, // Kirimkan nama Kecamatan
       kelurahan: formData.kelurahanNama, // Kirimkan nama Kelurahan
+      latitude: parseFloat(latitude), // Konversi latitude ke float
+      longitude: parseFloat(longitude), // Konversi longitude ke float
     };
 
     try {
@@ -164,6 +170,8 @@ const ModalForm = ({ onClose, selectedDesa }) => {
         jumlah_anggota_awal: "",
         jumlah_anggota_sekarang: "",
         pengurus: "",
+        latitude: "",
+        longitude: "",
       });
 
       onClose(true);
@@ -182,7 +190,7 @@ const ModalForm = ({ onClose, selectedDesa }) => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium mb-1">Kelompok Desa</label>
-                <input type="text" name="kelompok_desa" value={formData.kelompok_desa} onChange={handleChange} className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500" placeholder=" Kelompok Desa" required />
+                <input type="text" name="kelompok_desa" value={formData.kelompok_desa} onChange={handleChange} className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500" placeholder="Kelompok Desa" required />
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">Kabupaten</label>
@@ -219,15 +227,7 @@ const ModalForm = ({ onClose, selectedDesa }) => {
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">Tanggal Pembentukan</label>
-                <input
-                  type="date"
-                  name="tahun_pembentukan"
-                  value={formData.tahun_pembentukan}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500"
-                  placeholder=" Tahun Pembentukan"
-                  required
-                />
+                <input type="date" name="tahun_pembentukan" value={formData.tahun_pembentukan} onChange={handleChange} className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500" required />
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">Jumlah Hibah Diterima</label>
@@ -237,7 +237,7 @@ const ModalForm = ({ onClose, selectedDesa }) => {
                   value={formData.jumlah_hibah_diterima}
                   onChange={handleChange}
                   className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500"
-                  placeholder=" Jumlah Hibah Diterima"
+                  placeholder="Jumlah Hibah Diterima"
                 />
               </div>
               <div>
@@ -248,7 +248,7 @@ const ModalForm = ({ onClose, selectedDesa }) => {
                   value={formData.jumlah_dana_sekarang}
                   onChange={handleChange}
                   className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500"
-                  placeholder=" Jumlah Dana Sekarang"
+                  placeholder="Jumlah Dana Sekarang"
                 />
               </div>
               <div>
@@ -259,7 +259,7 @@ const ModalForm = ({ onClose, selectedDesa }) => {
                   value={formData.jumlah_anggota_awal}
                   onChange={handleChange}
                   className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500"
-                  placeholder=" Jumlah Anggota Awal"
+                  placeholder="Jumlah Anggota Awal"
                 />
               </div>
               <div>
@@ -270,12 +270,21 @@ const ModalForm = ({ onClose, selectedDesa }) => {
                   value={formData.jumlah_anggota_sekarang}
                   onChange={handleChange}
                   className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500"
-                  placeholder=" Jumlah Anggota Sekarang"
+                  placeholder="Jumlah Anggota Sekarang"
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">Pengurus</label>
                 <input type="text" name="pengurus" value={formData.pengurus} onChange={handleChange} className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500" placeholder="Nama Pengurus" />
+              </div>
+              {/* Latitude dan Longitude */}
+              <div>
+                <label className="block text-sm font-medium mb-1">Latitude</label>
+                <input type="text" step="0.000001" name="latitude" value={formData.latitude} onChange={handleChange} className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500" placeholder="Latitude" required />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Longitude</label>
+                <input type="text" step="0.000001" name="longitude" value={formData.longitude} onChange={handleChange} className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500" placeholder="Longitude" required />
               </div>
             </div>
             <div className="flex justify-end gap-4 mt-6">

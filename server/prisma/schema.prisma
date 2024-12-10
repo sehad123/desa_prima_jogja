@@ -31,6 +31,8 @@ model Desa {
   jumlah_dana_sekarang   Int
   jumlah_anggota_awal    Int
   jumlah_anggota_sekarang Int
+  latitude               Float?  // Tambahkan latitude
+  longitude              Float?  // Tambahkan longitude
   kategori               String
   pengurus               String
   notulensi   Notulensi[]

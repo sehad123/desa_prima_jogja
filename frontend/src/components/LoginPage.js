@@ -41,7 +41,8 @@ const LoginPage = () => {
 
       // Navigate to the target page after successful login
       // navigate("/beranda"); // Replace with your target page after login
-      navigate("/kabupaten-page"); // Replace with your target page after login
+      // navigate("/kabupaten-page"); // Replace with your target page after login
+      navigate("/peta-desa"); // Replace with your target page after login
     } catch (error) {
       // Handle error, show error toast notification
       if (error.response && error.response.status === 401) {
