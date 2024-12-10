@@ -1,0 +1,67 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql" // Sesuaikan jika menggunakan provider lain seperti PostgreSQL
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  role      String
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Desa {
+  id                     Int      @id @default(autoincrement())
+  kelompok_desa              String
+  kabupaten            String
+  kabupatenNama            String?
+  kecamatan            String
+  kecamatanNama            String?
+  kelurahan            String
+  kelurahanNama            String
+  tahun_pembentukan      DateTime
+  jumlah_hibah_diterima  Int
+  jumlah_dana_sekarang   Int
+  jumlah_anggota_awal    Int
+  jumlah_anggota_sekarang Int
+  kategori               String
+  pengurus               String
+  notulensi   Notulensi[]
+  galeri      Galeri[]
+}
+
+model kabupaten {
+  id        Int      @id @default(autoincrement())
+  nama_kabupaten String
+  jumlah_desa Int
+  periode_awal      DateTime
+  periode_akhir      DateTime
+  ketua_forum String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+}
+
+model Notulensi {
+  id        Int      @id @default(autoincrement())
+  desaId    Int
+  file      String
+  catatan   String
+  createdAt DateTime @default(now())
+  desa      Desa     @relation(fields: [desaId], references: [id])
+}
+
+model Galeri {
+  id        Int      @id @default(autoincrement())
+  desaId    Int
+  gambar    String
+  createdAt DateTime @default(now())
+  desa      Desa     @relation(fields: [desaId], references: [id])
+}
