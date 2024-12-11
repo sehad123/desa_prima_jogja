@@ -127,7 +127,7 @@ const ModalForm = ({ onClose, selectedDesa }) => {
     } else if (jumlah_anggota_sekarang > 35 && jumlah_dana_sekarang > 40000000) {
       kategori = "Maju";
     } else {
-      kategori = "Dalam Proses";
+      kategori = "Tumbuh";
     }
 
     const updatedFormData = {
@@ -192,43 +192,50 @@ const ModalForm = ({ onClose, selectedDesa }) => {
                 <label className="block text-sm font-medium mb-1">Kelompok Desa</label>
                 <input type="text" name="kelompok_desa" value={formData.kelompok_desa} onChange={handleChange} className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500" placeholder="Kelompok Desa" required />
               </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Kabupaten</label>
-                <select name="kabupaten" value={formData.kabupaten} onChange={handleChange} className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500" required>
-                  <option value="">Pilih Kabupaten</option>
-                  {kabupatenList.map((kabupaten) => (
-                    <option key={kabupaten.id} value={kabupaten.id}>
-                      {kabupaten.nama}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Kecamatan</label>
-                <select name="kecamatan" value={formData.kecamatan} onChange={handleChange} className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500" required>
-                  <option value="">Pilih Kecamatan</option>
-                  {kecamatanList.map((kecamatan) => (
-                    <option key={kecamatan.id} value={kecamatan.id}>
-                      {kecamatan.nama}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Kelurahan</label>
-                <select name="kelurahan" value={formData.kelurahan} onChange={handleChange} className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500" required>
-                  <option value="">Pilih Kelurahan</option>
-                  {kelurahanList.map((kelurahan) => (
-                    <option key={kelurahan.id} value={kelurahan.id}>
-                      {kelurahan.nama}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Tanggal Pembentukan</label>
-                <input type="date" name="tahun_pembentukan" value={formData.tahun_pembentukan} onChange={handleChange} className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500" required />
-              </div>
+
+              {/* Conditional rendering for Kabupaten */}
+              {!selectedDesa && (
+                <>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Kabupaten</label>
+                    <select name="kabupaten" value={formData.kabupaten} onChange={handleChange} className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500" required>
+                      <option value="">Pilih Kabupaten</option>
+                      {kabupatenList.map((kabupaten) => (
+                        <option key={kabupaten.id} value={kabupaten.id}>
+                          {kabupaten.nama}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Kecamatan</label>
+                    <select name="kecamatan" value={formData.kecamatan} onChange={handleChange} className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500" required>
+                      <option value="">Pilih Kecamatan</option>
+                      {kecamatanList.map((kecamatan) => (
+                        <option key={kecamatan.id} value={kecamatan.id}>
+                          {kecamatan.nama}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Kelurahan</label>
+                    <select name="kelurahan" value={formData.kelurahan} onChange={handleChange} className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500" required>
+                      <option value="">Pilih Kelurahan</option>
+                      {kelurahanList.map((kelurahan) => (
+                        <option key={kelurahan.id} value={kelurahan.id}>
+                          {kelurahan.nama}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Tanggal Pembentukan</label>
+                    <input type="date" name="tahun_pembentukan" value={formData.tahun_pembentukan} onChange={handleChange} className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500" required />
+                  </div>
+                </>
+              )}
+
               <div>
                 <label className="block text-sm font-medium mb-1">Jumlah Hibah Diterima</label>
                 <input
@@ -277,6 +284,7 @@ const ModalForm = ({ onClose, selectedDesa }) => {
                 <label className="block text-sm font-medium mb-1">Pengurus</label>
                 <input type="text" name="pengurus" value={formData.pengurus} onChange={handleChange} className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500" placeholder="Nama Pengurus" />
               </div>
+
               {/* Latitude dan Longitude */}
               <div>
                 <label className="block text-sm font-medium mb-1">Latitude</label>
@@ -287,6 +295,7 @@ const ModalForm = ({ onClose, selectedDesa }) => {
                 <input type="text" step="0.000001" name="longitude" value={formData.longitude} onChange={handleChange} className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500" placeholder="Longitude" required />
               </div>
             </div>
+
             <div className="flex justify-end gap-4 mt-6">
               <button type="button" onClick={onClose} className="px-4 py-2 bg-gray-300 rounded-md hover:bg-gray-400">
                 Batal

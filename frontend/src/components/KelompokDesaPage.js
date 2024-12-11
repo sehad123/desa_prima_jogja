@@ -16,7 +16,7 @@ const KelompokDesa = () => {
   const [selectedDesa, setSelectedDesa] = useState(null);
   const [search, setSearch] = useState({ kategori: "", kelompok_desa: "", kecamatanNama: "", kelurahanNama: "" });
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(10);
+  const [itemsPerPage] = useState(6);
   const [startDate, setStartDate] = useState(""); // Tambahkan state untuk tanggal awal
   const [endDate, setEndDate] = useState("");
   const navigate = useNavigate();
@@ -142,7 +142,10 @@ const KelompokDesa = () => {
       <Header onLogout={handleLogout} />
 
       {/* Flex container for two columns */}
-      <div className="flex gap-4">
+      <div className="absolute top-26 left-10 ">
+        <h2 className="text-2xl font-bold">{getKabupatenFromQuery() || "Kabupaten Tidak Ditemukan"}</h2>
+      </div>
+      <div className="flex gap-4 mt-16">
         {/* Left Container: Filter Section */}
         <div className="w-full md:w-1/4 bg-white p-4 border rounded-lg shadow-md">
           <h2 className="text-lg font-semibold mb-4">Filter Pencarian</h2>

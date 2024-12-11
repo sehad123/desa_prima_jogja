@@ -138,18 +138,27 @@ const KabupatenPage = () => {
 
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-gray-800">Data Kabupaten</h1>
-        <button onClick={() => openModal()} className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 flex items-center">
+        {/* <button onClick={() => openModal()} className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 flex items-center">
           <FaPlus className="mr-2" />
           Tambah Data
-        </button>
+        </button> */}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 cursor-pointer">
         {kabupatenList.map((kabupaten) => {
           const counts = kabupaten.counts || {};
           const totalKelompok = (counts.maju || 0) + (counts.berkembang || 0) + (counts.tumbuh || 0);
           const percentage = kabupaten.jumlah_desa ? ((totalKelompok / kabupaten.jumlah_desa) * 100).toFixed(2) : 0;
           const formattedPeriode = kabupaten.periode_awal && kabupaten.periode_akhir ? `${formatTanggal(kabupaten.periode_awal)} - ${formatTanggal(kabupaten.periode_akhir)}` : "Periode tidak tersedia";
+
+          let percentageColor = "";
+          if (percentage < 50) {
+            percentageColor = "text-red-600";
+          } else if (percentage >= 50 && percentage <= 75) {
+            percentageColor = "text-yellow-600";
+          } else {
+            percentageColor = "text-green-600";
+          }
 
           return (
             <div key={kabupaten.id} className="bg-white rounded-lg shadow-lg p-6 border-l-4 border-blue-500 relative" onClick={() => navigate(`/detail/${kabupaten.id}`)}>
@@ -163,7 +172,7 @@ const KabupatenPage = () => {
                 >
                   <FaEdit />
                 </button>
-                <button
+                {/* <button
                   onClick={(e) => {
                     e.stopPropagation();
                     confirmDeleteKabupaten(kabupaten);
@@ -171,10 +180,12 @@ const KabupatenPage = () => {
                   className="text-red-600 hover:text-red-800"
                 >
                   <FaTrash />
-                </button>
+                </button> */}
               </div>
-
-              <h2 className="text-xl font-bold text-blue-600">{kabupaten.nama_kabupaten}</h2>
+              <div className="flex items-center mb-2">
+                <div className="text-green-900 text-lg mr-2">✔</div>
+                <h2 className="text-xl font-semibold text-gray-800">{kabupaten.nama_kabupaten}</h2>
+              </div>{" "}
               <p className="text-gray-500 text-sm mb-4">{formattedPeriode}</p>
               <div className="mb-4">
                 <p className="text-gray-700">
@@ -196,8 +207,9 @@ const KabupatenPage = () => {
                   <strong>Total Kelompok:</strong> {totalKelompok}
                 </p>
               </div>
-              <div className="text-center">
-                <p className={`text-lg font-bold ${percentage === 0 ? "text-red-600" : "text-green-600"}`}>{percentage}%</p>
+              {/* Persentase */}
+              <div className="mt-4 text-center">
+                <p className={`text-lg font-bold ${percentageColor}`}>{percentage}%</p>
               </div>
             </div>
           );

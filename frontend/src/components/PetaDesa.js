@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { MapContainer, TileLayer, GeoJSON, Marker, Popup } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { useNavigate } from "react-router-dom";
@@ -8,7 +8,6 @@ import Header from "./Header";
 
 const PetaDesa = () => {
   const [desaList, setDesaList] = useState([]);
-  const [geoJsonData, setGeoJsonData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [kabupatenData, setKabupatenData] = useState([]);
@@ -22,20 +21,12 @@ const PetaDesa = () => {
   const fetchDesaData = async () => {
     try {
       const response = await axios.get("http://localhost:5000/api/desa");
+      console.log(response.data); // Log untuk mengecek struktur data
       setDesaList(response.data);
       setLoading(false);
     } catch (err) {
       setError("Gagal memuat data desa.");
       setLoading(false);
-    }
-  };
-
-  const fetchGeoJson = async () => {
-    try {
-      const response = await axios.get("/geojson/kabupaten-yogyakarta2.json");
-      setGeoJsonData(response.data);
-    } catch (err) {
-      console.error("Gagal memuat data GeoJSON:", err);
     }
   };
 
@@ -55,27 +46,8 @@ const PetaDesa = () => {
       .catch((err) => console.error(err));
   };
 
-  const getStyle = (feature) => {
-    const kabupaten = feature.properties.kabupaten;
-    switch (kabupaten) {
-      case "KAB. SLEMAN":
-        return { fillColor: "red", color: "black", weight: 1, fillOpacity: 0.6 };
-      case "KAB. KULON PROGO":
-        return { fillColor: "yellow", color: "black", weight: 1, fillOpacity: 0.6 };
-      case "KAB. GUNUNGKIDUL":
-        return { fillColor: "darkgreen", color: "black", weight: 1, fillOpacity: 0.6 };
-      case "KAB. BANTUL":
-        return { fillColor: "blue", color: "black", weight: 1, fillOpacity: 0.6 };
-      case "KOTA YOGYAKARTA":
-        return { fillColor: "orange", color: "black", weight: 1, fillOpacity: 0.6 };
-      default:
-        return { fillColor: "gray", color: "black", weight: 1, fillOpacity: 0.6 };
-    }
-  };
-
   useEffect(() => {
     fetchDesaData();
-    fetchGeoJson();
     fetchKabupatenData();
   }, []);
 
@@ -86,26 +58,34 @@ const PetaDesa = () => {
   }, [selectedKabupaten]);
 
   const handleKabupatenChange = (e) => {
-    const selectedKabupaten = e.target.value;
-    setSelectedKabupaten(selectedKabupaten);
-    setSelectedKecamatan(""); // Reset kecamatan when kabupaten changes
-    setKecamatanList([]); // Clear kecamatan list until it's fetched
+    const value = e.target.value;
+    console.log("Kabupaten Selected:", value);
+    setSelectedKabupaten(value);
   };
 
   const handleKecamatanChange = (e) => {
-    setSelectedKecamatan(e.target.value);
+    const value = e.target.value;
+    console.log("Kecamatan Selected:", value);
+    setSelectedKecamatan(value);
   };
 
   const handleKategoriChange = (e) => {
-    setSelectedKategori(e.target.value);
+    const value = e.target.value;
+    console.log("Kategori Selected:", value);
+    setSelectedKategori(value);
   };
+
+  console.log("Selected Kabupaten:", selectedKabupaten);
+  console.log("Selected Kecamatan:", selectedKecamatan);
+  console.log("Selected Kategori:", selectedKategori);
 
   const filterDesa = () => {
     return desaList.filter((desa) => {
-      const matchKabupaten = selectedKabupaten ? desa.kabupatenId === parseInt(selectedKabupaten, 10) : true;
-      const matchKecamatan = selectedKecamatan ? desa.kecamatanNama.toLowerCase().includes(selectedKecamatan.toLowerCase()) : true;
+      const matchKabupaten = selectedKabupaten ? `${desa.kabupatenId}` === selectedKabupaten : true;
+      const matchKecamatan = selectedKecamatan ? desa.kecamatanNama?.toLowerCase() === selectedKecamatan.toLowerCase() : true;
       const matchKategori = selectedKategori ? desa.kelompok_desa === selectedKategori : true;
 
+      // Desa harus cocok dengan semua kondisi yang dipilih
       return matchKabupaten && matchKecamatan && matchKategori;
     });
   };
@@ -148,7 +128,7 @@ const PetaDesa = () => {
           <option value="">Kecamatan</option>
           {kecamatanList &&
             kecamatanList.map((kecamatan) => (
-              <option key={kecamatan.id} value={kecamatan.name}>
+              <option key={kecamatan.id} value={kecamatan.nama}>
                 {kecamatan.nama}
               </option>
             ))}
@@ -165,51 +145,27 @@ const PetaDesa = () => {
         <MapContainer center={[-7.7956, 110.3695]} zoom={10} scrollWheelZoom={true} style={{ height: "100%", width: "100%" }}>
           <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
 
-          {geoJsonData && (
-            <GeoJSON
-              data={geoJsonData}
-              style={getStyle}
-              onEachFeature={(feature, layer) => {
-                layer.bindPopup(`Kabupaten: ${feature.properties.kabupaten}`);
-              }}
-            />
+          {filterDesa().length === 0 ? (
+            <p>Tidak ada desa yang sesuai dengan filter.</p>
+          ) : (
+            filterDesa().map((desa) => (
+              <Marker
+                key={desa.id}
+                position={[desa.latitude, desa.longitude]}
+                icon={L.icon({
+                  iconUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png",
+                  iconSize: [25, 41],
+                  iconAnchor: [12, 41],
+                })}
+              >
+                <Popup>
+                  <strong>{desa.kelompok_desa}</strong>
+                  <br />
+                  {desa.kabupatenNama}, Kec. {desa.kecamatanNama}, Kel. {desa.kelurahanNama}
+                </Popup>
+              </Marker>
+            ))
           )}
-
-          {filterDesa().map((desa) => (
-            <Marker
-              key={desa.id}
-              position={[desa.latitude, desa.longitude]}
-              icon={L.icon({
-                iconUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png",
-                iconSize: [25, 41],
-                iconAnchor: [12, 41],
-              })}
-            >
-              <Popup>
-                <strong>{desa.kelompok_desa}</strong>
-                <br />
-                {desa.kabupatenNama}, Kec. {desa.kecamatanNama}, Kel. {desa.kelurahanNama}
-              </Popup>
-            </Marker>
-          ))}
-
-          {filterDesa().map((desa) => (
-            <Marker
-              key={desa.id}
-              position={[desa.latitude, desa.longitude]}
-              icon={L.icon({
-                iconUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png",
-                iconSize: [25, 41],
-                iconAnchor: [12, 41],
-              })}
-            >
-              <Popup>
-                <strong>{desa.kelompok_desa}</strong>
-                <br />
-                {desa.kabupatenNama}, Kec. {desa.kecamatanNama}, Kel. {desa.kelurahanNama}
-              </Popup>
-            </Marker>
-          ))}
         </MapContainer>
       </div>
     </div>

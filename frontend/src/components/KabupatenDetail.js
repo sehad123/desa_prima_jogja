@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import axios from "axios";
 import { Line, Doughnut } from "react-chartjs-2";
@@ -29,6 +29,8 @@ const formatKabupatenName = (kabupatenName) => {
 };
 
 const KabupatenDetail = () => {
+  const lineChartRef = useRef(null);
+  const doughnutChartRef = useRef(null);
   const { id } = useParams();
   const [kabupaten, setKabupaten] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -109,6 +111,18 @@ const KabupatenDetail = () => {
     ],
   };
 
+  const downloadChartImage = (chartRef, filename) => {
+    const chart = chartRef.current;
+    if (!chart) return;
+
+    // Konversi grafik ke gambar (Base64)
+    const base64Image = chart.toBase64Image();
+    const link = document.createElement("a");
+    link.href = base64Image;
+    link.download = filename || "chart.png";
+    link.click();
+  };
+
   const handleLogout = () => {
     localStorage.removeItem("authToken");
     navigate("/");
@@ -174,22 +188,31 @@ const KabupatenDetail = () => {
       {/* Bagian Bawah */}
       <div className="mt-6 grid grid-cols-2 gap-6">
         {/* Grafik Periodik */}
-        <div className="bg-white shadow-md p-4 rounded-md">
-          <h2 className="text-xl font-bold mb-4">Grafik Periodik</h2>
-          <Line data={lineChartData} />
+        <div id="line-chart-container" className="bg-white shadow-md p-4 rounded-md relative">
+          <h2 className="text-xl font-bold mb-4">Jumlah kelompok Desa Prima Berdasarkan Kategori Secara Periodik</h2>
+          <Line ref={lineChartRef} data={lineChartData} />
+          <button onClick={() => downloadChartImage(lineChartRef, "line_chart.png")} className="absolute top-4 right-4 text-blue-500 hover:text-blue-700" title="Unduh Grafik">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" className="w-6 h-6" viewBox="0 0 24 24">
+              <path d="M12 16l4-5h-3V3h-2v8H8l4 5zm-7 2v2h14v-2H5z" />
+            </svg>
+          </button>
         </div>
 
         {/* Diagram */}
-        <div className="bg-white shadow-md p-6 rounded-md">
-          <h2 className="text-xl font-bold mb-4">Jumlah Kelompok Desa Prima Berdasarkan Kategori</h2>
-          {/* Perkecil ukuran diagram dengan style */}
+        <div id="doughnut-chart-container" className="bg-white shadow-md p-6 rounded-md relative">
+          <h2 className="text-xl font-bold mb-4 text-center">Jumlah Kelompok Desa Prima Berdasarkan Kategori</h2>
           <div className="relative w-1/2 mx-auto">
-            <Doughnut data={doughnutChartData} />
+            <Doughnut ref={doughnutChartRef} data={doughnutChartData} />
             <div className="absolute inset-0 flex flex-col items-center justify-center">
               <p className="text-2xl mt-[50px] font-bold">{percentage}%</p>
               <p className="text-sm text-gray-500">Desa</p>
             </div>
           </div>
+          <button onClick={() => downloadChartImage(doughnutChartRef, "doughnut_chart.png")} className="absolute top-4 right-4 text-blue-500 hover:text-blue-700" title="Unduh Diagram">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" className="w-6 h-6" viewBox="0 0 24 24">
+              <path d="M12 16l4-5h-3V3h-2v8H8l4 5zm-7 2v2h14v-2H5z" />
+            </svg>
+          </button>
         </div>
       </div>
     </div>
