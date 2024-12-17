@@ -72,30 +72,75 @@
 // export default App;
 
 import React from "react";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { 
+  BrowserRouter as Router, 
+  Route, 
+  Routes,
+  useLocation } from "react-router-dom";
 import LoginPage from "./components/LoginPage";
 import RegisterPage from "./components/RegisterPage";
 import FormPage from "./components/FormPage";
-import DetailDesaPage from "./components/DetailDesaPage"; // Halaman detail desa
-import KabupatenPage from "./components/KabupatenPage";
-import KabupatenDetail from "./components/KabupatenDetail";
-import KelompokDesa from "./components/KelompokDesaPage";
-import PetaDesa from "./components/PetaDesa";
+import KelompokDetail from "./page/KelompokDetail"; // Halaman detail desa
+import Kabupaten from "./page/Kabupaten";
+import KabupatenDetail from "./page/KabDetail";
+import KelompokDesa from "./page/KelompokDesa";
+import PetaDesaPage from "./page/PetaDesaPage";
+import { ColorSchemeScript, MantineProvider } from "@mantine/core";
+import "./App.css";
+import "@mantine/core/styles.css";
+import "@mantine/charts/styles.css";
+
+const TitleUpdater = () => {
+  const location = useLocation();
+
+  React.useEffect(() => {
+    const pathTitles = {
+      "/": "Login - Desa Prima",
+      "/peta-desa": "Dashboard - Desa Prima",
+      "/register": "Registrasi - Desa Prima",
+      "/kabupaten-page": "Kabupaten/Kota - Desa Prima",
+      "/kelompok-desa": "Kelompok - Desa Prima",
+      "/detail/:id": "Detail Kabupaten/Kota - Desa Prima",
+      "/desa/:id": "Detail Kelompok - Desa Prima",
+    };
+
+    const getTitle = (path) => {
+      for (const [pattern, title] of Object.entries(pathTitles)) {
+        const regex = new RegExp(`^${pattern.replace(/:\w+/g, "\\w+")}$`);
+        if (path.match(regex)) {
+          return title;
+        }
+      }
+
+      return "Halaman Tidak Ditemukan - Desa Prima";
+    };
+
+    document.title = getTitle(location.pathname);
+  }, [location.pathname]);
+
+  return null;
+};
 
 function App() {
   return (
+    <>
+    <ColorSchemeScript />
+    <MantineProvider withGlobalStyles withNormalizeCSS>
     <Router>
+    <TitleUpdater />
       <Routes>
         <Route path="/" element={<LoginPage />} />
-        <Route path="/peta-desa" element={<PetaDesa />} />
+        <Route path="/peta-desa" element={<PetaDesaPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/kelompok-desa" element={<KelompokDesa />} />
-        <Route path="/kabupaten-page" element={<KabupatenPage />} />
+        <Route path="/kabupaten-page" element={<Kabupaten />} />
         <Route path="/detail/:id" element={<KabupatenDetail />} />
-        <Route path="/desa/:id" element={<DetailDesaPage />} />
+        <Route path="/desa/:id" element={<KelompokDetail />} />
         <Route path="/form" element={<FormPage />} />
       </Routes>
     </Router>
+    </MantineProvider>
+    </>
   );
 }
 

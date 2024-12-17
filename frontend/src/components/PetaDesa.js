@@ -5,6 +5,7 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { useNavigate } from "react-router-dom";
 import Header from "./Header";
+import { Audio } from "react-loader-spinner";
 
 const PetaDesa = () => {
   const [desaList, setDesaList] = useState([]);
@@ -90,23 +91,23 @@ const PetaDesa = () => {
     });
   };
 
+  // Halaman loading
   if (loading) {
-    return <div className="text-center text-xl text-gray-600">Memuat data...</div>;
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <Audio type="Bars" color="#3FA2F6" height={80} width={80} />
+      </div>
+    );
   }
 
   if (error) {
     return <div className="text-center text-xl text-red-500">{error}</div>;
   }
 
-  const handleLogout = () => {
-    localStorage.removeItem("authToken");
-    navigate("/");
-  };
-
   return (
+    <>
+    <Header/>
     <div className="p-5">
-      <Header onLogout={handleLogout} />
-
       <div className=" mx-10 flex justify-between items-center mb-5">
         <h1 className="text-2xl font-bold">Sebaran Kelompok Desa Prima Berdasarkan Kategori</h1>
         <button className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600" onClick={() => navigate("/kabupaten-page")}>
@@ -141,7 +142,7 @@ const PetaDesa = () => {
         </select>
       </div>
 
-      <div className="w-full px-40 h-[600px]">
+      <div className="w-full px-20 h-[600px]">
         <MapContainer center={[-7.7956, 110.3695]} zoom={10} scrollWheelZoom={true} style={{ height: "100%", width: "100%" }}>
           <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
 
@@ -169,6 +170,7 @@ const PetaDesa = () => {
         </MapContainer>
       </div>
     </div>
+    </>
   );
 };
 
