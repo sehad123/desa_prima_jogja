@@ -25,11 +25,12 @@ const LoginPage = () => {
         password: formData.password,
       });
 
-      const { token, email, role } = response.data;
+      const { token, email, role, nip } = response.data;
 
       // Save token, email, and role to localStorage
       localStorage.setItem("authToken", token);
       localStorage.setItem("userEmail", email);
+      localStorage.setItem("userEmail", nip);
       localStorage.setItem("userRole", role);
 
       // Show success toast notification

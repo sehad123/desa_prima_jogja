@@ -111,16 +111,16 @@ const DashboardPage = () => {
 
   return (
     <>
-    <Header />
-    <Informasi />
-    <div className="mt-6 grid grid-cols-3 gap-6">
+      <Header />
+      <Informasi />
+      <div className="mt-6 grid grid-cols-3 gap-6">
         <LineChart />
         <DoughnutChart />
-    </div>
-    
-    <div className="px-10">
-    <PetaDesa />
-    </div>
+      </div>
+
+      <div className="px-10">
+        <PetaDesa />
+      </div>
     </>
   );
 };

@@ -44,7 +44,7 @@ const KelompokDesa = () => {
     danaDari: "",
     danaSampai: "",
   });
-  
+
   const isMobile = useMediaQuery("(max-width: 768px)");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(6);
@@ -68,9 +68,7 @@ const KelompokDesa = () => {
     try {
       const kabupatenName = getKabupatenFromQuery(); // Mendapatkan kabupaten dari URL
       if (kabupatenName) {
-        const response = await axios.get(
-          `http://localhost:5000/api/desa?kabupaten=${kabupatenName}`
-        );
+        const response = await axios.get(`http://localhost:5000/api/desa?kabupaten=${kabupatenName}`);
         setDesaList(response.data);
       } else {
         const response = await axios.get("http://localhost:5000/api/desa");
@@ -89,52 +87,24 @@ const KelompokDesa = () => {
 
   useEffect(() => {
     const filteredData = desaList.filter((desa) => {
-      const isKategoriMatch =
-        search.kategori.length > 0
-          ? search.kategori.includes(desa.kategori)
-          : true;
-  
-      const isKecamatanMatch =
-        search.kecamatanNama.length > 0
-          ? search.kecamatanNama.includes(desa.kecamatanNama)
-          : true;
-  
-      const isKelompokMatch = search.kelompok_desa
-        ? desa.kelompok_desa
-            .toLowerCase()
-            .includes(search.kelompok_desa.toLowerCase())
-        : true;
-  
-      const isKelurahanMatch = search.kelurahanNama
-        ? desa.kelurahanNama
-            .toLowerCase()
-            .includes(search.kelurahanNama.toLowerCase())
-        : true;
-  
+      const isKategoriMatch = search.kategori.length > 0 ? search.kategori.includes(desa.kategori) : true;
+
+      const isKecamatanMatch = search.kecamatanNama.length > 0 ? search.kecamatanNama.includes(desa.kecamatanNama) : true;
+
+      const isKelompokMatch = search.kelompok_desa ? desa.kelompok_desa.toLowerCase().includes(search.kelompok_desa.toLowerCase()) : true;
+
+      const isKelurahanMatch = search.kelurahanNama ? desa.kelurahanNama.toLowerCase().includes(search.kelurahanNama.toLowerCase()) : true;
+
       const desaTanggal = new Date(desa.tahun_pembentukan);
-      const isDateInRange =
-        (!startDate || new Date(startDate) <= desaTanggal) &&
-        (!endDate || desaTanggal <= new Date(endDate));
-  
-      const isAnggotaInRange =
-        (!search.anggotaDari || desa.jumlah_anggota_sekarang >= search.anggotaDari) &&
-        (!search.anggotaSampai || desa.jumlah_anggota_sekarang <= search.anggotaSampai);
-  
-      const isDanaInRange =
-        (!search.danaDari || desa.jumlah_dana_sekarang >= search.danaDari) &&
-        (!search.danaSampai || desa.jumlah_dana_sekarang <= search.danaSampai);
-  
-      return (
-        isKategoriMatch &&
-        isKecamatanMatch &&
-        isKelompokMatch &&
-        isKelurahanMatch &&
-        isDateInRange &&
-        isAnggotaInRange &&
-        isDanaInRange
-      );
+      const isDateInRange = (!startDate || new Date(startDate) <= desaTanggal) && (!endDate || desaTanggal <= new Date(endDate));
+
+      const isAnggotaInRange = (!search.anggotaDari || desa.jumlah_anggota_sekarang >= search.anggotaDari) && (!search.anggotaSampai || desa.jumlah_anggota_sekarang <= search.anggotaSampai);
+
+      const isDanaInRange = (!search.danaDari || desa.jumlah_dana_sekarang >= search.danaDari) && (!search.danaSampai || desa.jumlah_dana_sekarang <= search.danaSampai);
+
+      return isKategoriMatch && isKecamatanMatch && isKelompokMatch && isKelurahanMatch && isDateInRange && isAnggotaInRange && isDanaInRange;
     });
-  
+
     setFilteredDesaList(filteredData);
   }, [search, startDate, endDate, desaList]);
 
@@ -151,30 +121,24 @@ const KelompokDesa = () => {
     return () => {
       document.removeEventListener("click", handleClickOutside);
     };
-  }, []);  
-  
+  }, []);
+
   useEffect(() => {
     const filteredData = desaList.filter((desa) => {
       const keyword = search.keyword ? search.keyword.toLowerCase() : "";
-  
+
       return (
         (desa.kelompok_desa && desa.kelompok_desa.toLowerCase().includes(keyword)) ||
         (desa.alamat && desa.alamat.toLowerCase().includes(keyword)) ||
         (desa.kategori && desa.kategori.toLowerCase().includes(keyword)) ||
-        (desa.jumlah_anggota_sekarang &&
-          desa.jumlah_anggota_sekarang.toString().includes(keyword)) ||
-        (desa.jumlah_dana_sekarang &&
-          desa.jumlah_dana_sekarang.toString().includes(keyword)) ||
-        (desa.tahun_pembentukan &&
-          new Date(desa.tahun_pembentukan)
-            .toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })
-            .toLowerCase()
-            .includes(keyword))
+        (desa.jumlah_anggota_sekarang && desa.jumlah_anggota_sekarang.toString().includes(keyword)) ||
+        (desa.jumlah_dana_sekarang && desa.jumlah_dana_sekarang.toString().includes(keyword)) ||
+        (desa.tahun_pembentukan && new Date(desa.tahun_pembentukan).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" }).toLowerCase().includes(keyword))
       );
     });
-  
+
     setFilteredDesaList(filteredData);
-  }, [search.keyword, desaList]);  
+  }, [search.keyword, desaList]);
 
   const handleModalClose = (isSuccess) => {
     setIsModalOpen(false);
@@ -229,12 +193,10 @@ const KelompokDesa = () => {
   };
 
   const userRole = getUserRole();
-  const showAddButton = userRole === "admin";
+  const showAddButton = userRole === "Ketua Forum";
 
   if (loading) {
-    return (
-      <div className="text-center text-xl text-gray-600">Memuat data...</div>
-    );
+    return <div className="text-center text-xl text-gray-600">Memuat data...</div>;
   }
 
   if (error) {
@@ -250,10 +212,7 @@ const KelompokDesa = () => {
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = filteredDesaList.slice(
-    indexOfFirstItem,
-    indexOfLastItem
-  );
+  const currentItems = filteredDesaList.slice(indexOfFirstItem, indexOfLastItem);
   const totalPages = Math.ceil(filteredDesaList.length / itemsPerPage);
 
   const breadcrumbItems = [
@@ -274,196 +233,141 @@ const KelompokDesa = () => {
       <Breadcrumb items={breadcrumbItems} />
       {/* Flex container for two columns */}
       <div className="absolute top-26 left-10 ">
-        <h2 className="text-2xl font-bold">
-          {getKabupatenFromQuery() || "Kabupaten Tidak Ditemukan"}
-        </h2>
+        <h2 className="text-2xl font-bold">{getKabupatenFromQuery() || "Kabupaten Tidak Ditemukan"}</h2>
       </div>
       <div className="flex gap-4 mt-16">
         {/* Left Container: Filter Section */}
         <div className="w-full md:w-1/4 bg-white p-4 border rounded-lg shadow-md">
-  <h2 className="text-lg font-semibold mb-4">Filter Pencarian</h2>
-  <div className="flex flex-col gap-4">
-    {/* Kategori */}
-    <div className="relative">
-      <button
-        className="w-full text-left p-2 border rounded-lg"
-        onClick={(e) => {
-          e.stopPropagation();
-          setShowKategoriDropdown((prev) => !prev);
-        }}
-      >
-        Kategori
-        <span className="float-right">{showKategoriDropdown ? "▲" : "▼"}</span>
-      </button>
-      {showKategoriDropdown && (
-        <div
-          className="mt-2 bg-white border rounded-lg shadow-md p-2"
-          onClick={(e) => e.stopPropagation()} // Mencegah dropdown menutup ketika klik di dalamnya
-        >
-          {["Maju", "Tumbuh", "Berkembang"].map((kategori) => (
-            <label key={kategori} className="block px-4 py-1">
-              <input
-                type="checkbox"
-                name="kategori"
-                value={kategori}
-                checked={search.kategori.includes(kategori)}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  const isChecked = e.target.checked;
-                  setSearch((prev) => ({
-                    ...prev,
-                    kategori: isChecked
-                      ? [...prev.kategori, value]
-                      : prev.kategori.filter((item) => item !== value),
-                  }));
+          <h2 className="text-lg font-semibold mb-4">Filter Pencarian</h2>
+          <div className="flex flex-col gap-4">
+            {/* Kategori */}
+            <div className="relative">
+              <button
+                className="w-full text-left p-2 border rounded-lg"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowKategoriDropdown((prev) => !prev);
                 }}
-              />
-              <span className="ml-2">{kategori}</span>
-            </label>
-          ))}
+              >
+                Kategori
+                <span className="float-right">{showKategoriDropdown ? "▲" : "▼"}</span>
+              </button>
+              {showKategoriDropdown && (
+                <div
+                  className="mt-2 bg-white border rounded-lg shadow-md p-2"
+                  onClick={(e) => e.stopPropagation()} // Mencegah dropdown menutup ketika klik di dalamnya
+                >
+                  {["Maju", "Tumbuh", "Berkembang"].map((kategori) => (
+                    <label key={kategori} className="block px-4 py-1">
+                      <input
+                        type="checkbox"
+                        name="kategori"
+                        value={kategori}
+                        checked={search.kategori.includes(kategori)}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          const isChecked = e.target.checked;
+                          setSearch((prev) => ({
+                            ...prev,
+                            kategori: isChecked ? [...prev.kategori, value] : prev.kategori.filter((item) => item !== value),
+                          }));
+                        }}
+                      />
+                      <span className="ml-2">{kategori}</span>
+                    </label>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Kecamatan */}
+            <div className="relative">
+              <button
+                className="w-full text-left p-2 border rounded-lg"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowKecamatanDropdown((prev) => !prev);
+                }}
+              >
+                Kecamatan
+                <span className="float-right">{showKecamatanDropdown ? "▲" : "▼"}</span>
+              </button>
+              {showKecamatanDropdown && (
+                <div
+                  className="mt-2 bg-white border rounded-lg shadow-md p-2"
+                  onClick={(e) => e.stopPropagation()} // Mencegah dropdown menutup ketika klik di dalamnya
+                >
+                  {desaList
+                    .map((desa) => desa.kecamatanNama)
+                    .filter((value, index, self) => self.indexOf(value) === index) // Remove duplicates
+                    .map((kecamatan) => (
+                      <label key={kecamatan} className="block px-4 py-1">
+                        <input
+                          type="checkbox"
+                          name="kecamatanNama"
+                          value={kecamatan}
+                          checked={search.kecamatanNama.includes(kecamatan)}
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            const isChecked = e.target.checked;
+                            setSearch((prev) => ({
+                              ...prev,
+                              kecamatanNama: isChecked ? [...prev.kecamatanNama, value] : prev.kecamatanNama.filter((item) => item !== value),
+                            }));
+                          }}
+                        />
+                        <span className="ml-2">{kecamatan}</span>
+                      </label>
+                    ))}
+                </div>
+              )}
+            </div>
+
+            {/* Tanggal */}
+            <div>
+              <label className="block font-medium text-gray-700">Tanggal</label>
+              <p className="pb-2 block text-sm text-gray-500">Dari</p>
+              <input type="date" name="startDate" value={startDate} onChange={handleStartDateChange} className="p-2 border border-gray-300 rounded-lg w-full" placeholder="Dari" />
+              <p className="pt-2 block text-sm text-gray-500">Sampai</p>
+              <input type="date" name="endDate" value={endDate} onChange={handleEndDateChange} className="p-2 border border-gray-300 rounded-lg w-full mt-2" placeholder="Sampai" />
+            </div>
+
+            {/* Jumlah Anggota */}
+            <div>
+              <label className="block font-medium text-gray-700">Jumlah Anggota</label>
+              <p className="pb-2 block text-sm text-gray-500">Dari</p>
+              <input type="number" name="anggotaDari" value={search.anggotaDari} onChange={handleSearchChange} className="p-2 border border-gray-300 rounded-lg w-full" placeholder="0" />
+              <p className="pt-2 block text-sm text-gray-500">Sampai</p>
+              <input type="number" name="anggotaSampai" value={search.anggotaSampai} onChange={handleSearchChange} className="p-2 border border-gray-300 rounded-lg w-full mt-2" placeholder="0" />
+            </div>
+
+            {/* Jumlah Dana */}
+            <div>
+              <label className="block font-medium text-gray-700">Jumlah Dana</label>
+              <p className="pb-2 block text-sm text-gray-500">Dari</p>
+              <input type="number" name="danaDari" value={search.danaDari} onChange={handleSearchChange} className="p-2 border border-gray-300 rounded-lg w-full" placeholder="0" />
+              <p className="pt-2 block text-sm text-gray-500">Sampai</p>
+              <input type="number" name="danaSampai" value={search.danaSampai} onChange={handleSearchChange} className="p-2 border border-gray-300 rounded-lg w-full mt-2" placeholder="0" />
+            </div>
+          </div>
         </div>
-      )}
-    </div>
-
-    {/* Kecamatan */}
-    <div className="relative">
-      <button
-        className="w-full text-left p-2 border rounded-lg"
-        onClick={(e) => {
-          e.stopPropagation();
-          setShowKecamatanDropdown((prev) => !prev);
-        }}
-      >
-        Kecamatan
-        <span className="float-right">{showKecamatanDropdown ? "▲" : "▼"}</span>
-      </button>
-      {showKecamatanDropdown && (
-        <div
-          className="mt-2 bg-white border rounded-lg shadow-md p-2"
-          onClick={(e) => e.stopPropagation()} // Mencegah dropdown menutup ketika klik di dalamnya
-        >
-          {desaList
-            .map((desa) => desa.kecamatanNama)
-            .filter((value, index, self) => self.indexOf(value) === index) // Remove duplicates
-            .map((kecamatan) => (
-              <label key={kecamatan} className="block px-4 py-1">
-                <input
-                  type="checkbox"
-                  name="kecamatanNama"
-                  value={kecamatan}
-                  checked={search.kecamatanNama.includes(kecamatan)}
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    const isChecked = e.target.checked;
-                    setSearch((prev) => ({
-                      ...prev,
-                      kecamatanNama: isChecked
-                        ? [...prev.kecamatanNama, value]
-                        : prev.kecamatanNama.filter((item) => item !== value),
-                    }));
-                  }}
-                />
-                <span className="ml-2">{kecamatan}</span>
-              </label>
-            ))}
-        </div>
-      )}
-    </div>
-
-    {/* Tanggal */}
-    <div>
-      <label className="block font-medium text-gray-700">Tanggal</label>
-      <p className="pb-2 block text-sm text-gray-500">Dari</p>
-      <input
-        type="date"
-        name="startDate"
-        value={startDate}
-        onChange={handleStartDateChange}
-        className="p-2 border border-gray-300 rounded-lg w-full"
-        placeholder="Dari"
-      />
-      <p className="pt-2 block text-sm text-gray-500">Sampai</p>
-      <input
-        type="date"
-        name="endDate"
-        value={endDate}
-        onChange={handleEndDateChange}
-        className="p-2 border border-gray-300 rounded-lg w-full mt-2"
-        placeholder="Sampai"
-      />
-    </div>
-
-    {/* Jumlah Anggota */}
-    <div>
-      <label className="block font-medium text-gray-700">Jumlah Anggota</label>
-      <p className="pb-2 block text-sm text-gray-500">Dari</p>
-      <input
-        type="number"
-        name="anggotaDari"
-        value={search.anggotaDari}
-        onChange={handleSearchChange}
-        className="p-2 border border-gray-300 rounded-lg w-full"
-        placeholder="0"
-      />
-      <p className="pt-2 block text-sm text-gray-500">Sampai</p>
-      <input
-        type="number"
-        name="anggotaSampai"
-        value={search.anggotaSampai}
-        onChange={handleSearchChange}
-        className="p-2 border border-gray-300 rounded-lg w-full mt-2"
-        placeholder="0"
-      />
-    </div>
-
-    {/* Jumlah Dana */}
-    <div>
-      <label className="block font-medium text-gray-700">Jumlah Dana</label>
-      <p className="pb-2 block text-sm text-gray-500">Dari</p>
-      <input
-        type="number"
-        name="danaDari"
-        value={search.danaDari}
-        onChange={handleSearchChange}
-        className="p-2 border border-gray-300 rounded-lg w-full"
-        placeholder="0"
-      />
-      <p className="pt-2 block text-sm text-gray-500">Sampai</p>
-      <input
-        type="number"
-        name="danaSampai"
-        value={search.danaSampai}
-        onChange={handleSearchChange}
-        className="p-2 border border-gray-300 rounded-lg w-full mt-2"
-        placeholder="0"
-      />
-    </div>
-  </div>
-</div>
-
 
         {/* Right Container: Data Display Section */}
         <div className="w-full md:w-3/4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
             <div className="p-4 bg-blue-100 text-blue-800 rounded-lg shadow-md text-center">
               <h3 className="text-lg font-semibold">Kategori Maju</h3>
-              <p className="text-2xl font-bold">
-                {calculateCategoryPercentage("Maju")}%
-              </p>
+              <p className="text-2xl font-bold">{calculateCategoryPercentage("Maju")}%</p>
             </div>
 
             <div className="p-4 bg-green-100 text-green-800 rounded-lg shadow-md text-center">
               <h3 className="text-lg font-semibold">Kategori Berkembang</h3>
-              <p className="text-2xl font-bold">
-                {calculateCategoryPercentage("Berkembang")}%
-              </p>
+              <p className="text-2xl font-bold">{calculateCategoryPercentage("Berkembang")}%</p>
             </div>
 
             <div className="p-4 bg-yellow-100 text-yellow-800 rounded-lg shadow-md text-center">
               <h3 className="text-lg font-semibold">Kategori Tumbuh</h3>
-              <p className="text-2xl font-bold">
-                {calculateCategoryPercentage("Tumbuh")}%
-              </p>
+              <p className="text-2xl font-bold">{calculateCategoryPercentage("Tumbuh")}%</p>
             </div>
           </div>
 
@@ -475,32 +379,25 @@ const KelompokDesa = () => {
 
                 {/* Tombol Tambah Data di kanan */}
                 {showAddButton && (
-                  <button
-                    onClick={() => setIsModalOpen(true)}
-                    className="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none transition-all duration-300 ease-in-out"
-                  >
+                  <button onClick={() => setIsModalOpen(true)} className="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none transition-all duration-300 ease-in-out">
                     + Tambah Data
                   </button>
                 )}
               </div>
 
-               {/* Pencarian */}
-    <div className="flex items-center mt-4">
-      <input
-        type="text"
-        placeholder="Masukkan kata kunci"
-        value={search.keyword || ""}
-        onChange={(e) =>
-          setSearch({ ...search, keyword: e.target.value.toLowerCase() })
-        }
-        className="text-sm px-3 py-2 w-full border rounded-lg focus:outline-none"
-      />
-    </div>
+              {/* Pencarian */}
+              <div className="flex items-center mt-4">
+                <input
+                  type="text"
+                  placeholder="Masukkan kata kunci"
+                  value={search.keyword || ""}
+                  onChange={(e) => setSearch({ ...search, keyword: e.target.value.toLowerCase() })}
+                  className="text-sm px-3 py-2 w-full border rounded-lg focus:outline-none"
+                />
+              </div>
 
               {desaList.length === 0 ? (
-                <p className="text-center text-lg text-gray-500">
-                  Tidak ada data desa.
-                </p>
+                <p className="text-center text-lg text-gray-500">Tidak ada data desa.</p>
               ) : (
                 <div className="overflow-x-auto mt-5 w-full">
                   <Table
@@ -509,9 +406,7 @@ const KelompokDesa = () => {
                       ...desa,
                       no: index + 1,
                       alamat: `${desa.kabupaten}, ${desa.kecamatan}, ${desa.kelurahan}`,
-                      tahun_pembentukan: new Date(
-                        desa.tahun_pembentukan
-                      ).toLocaleDateString("id-ID", {
+                      tahun_pembentukan: new Date(desa.tahun_pembentukan).toLocaleDateString("id-ID", {
                         day: "numeric",
                         month: "long",
                         year: "numeric",
@@ -530,9 +425,7 @@ const KelompokDesa = () => {
         </div>
       </div>
 
-      {isModalOpen && (
-        <Modal onClose={handleModalClose} selectedDesa={selectedDesa} />
-      )}
+      {isModalOpen && <Modal onClose={handleModalClose} selectedDesa={selectedDesa} />}
 
       <ToastContainer />
     </div>

@@ -13,6 +13,7 @@ model User {
   role      String
   email     String   @unique
   password  String
+  nip  Int?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -37,6 +38,8 @@ model Desa {
   pengurus               String
   notulensi   Notulensi[]
   galeri      Galeri[]
+  produk      Produk[]
+  pengelola    Pengelola[]
 }
 
 model kabupaten {
@@ -64,6 +67,27 @@ model Galeri {
   id        Int      @id @default(autoincrement())
   desaId    Int
   gambar    String
+  createdAt DateTime @default(now())
+  desa      Desa     @relation(fields: [desaId], references: [id])
+}
+
+model Produk{
+  id        Int      @id @default(autoincrement())
+  desaId    Int
+  nama String
+  harga Int
+  foto String
+  deskripsi String
+  createdAt DateTime @default(now())
+  desa      Desa     @relation(fields: [desaId], references: [id])
+}
+
+model Pengelola {
+  id        Int      @id @default(autoincrement())
+  desaId    Int
+  nama String
+  jabatan String
+  nohp Int
   createdAt DateTime @default(now())
   desa      Desa     @relation(fields: [desaId], references: [id])
 }

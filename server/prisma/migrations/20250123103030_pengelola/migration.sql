@@ -1,0 +1,33 @@
+-- AlterTable
+ALTER TABLE `user` ADD COLUMN `nip` INTEGER NULL;
+
+-- CreateTable
+CREATE TABLE `Produk` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `desaId` INTEGER NOT NULL,
+    `nama` VARCHAR(191) NOT NULL,
+    `harga` INTEGER NOT NULL,
+    `foto` VARCHAR(191) NOT NULL,
+    `deskripsi` VARCHAR(191) NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `Pengelola` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `desaId` INTEGER NOT NULL,
+    `nama` VARCHAR(191) NOT NULL,
+    `jabatan` VARCHAR(191) NOT NULL,
+    `nohp` INTEGER NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- AddForeignKey
+ALTER TABLE `Produk` ADD CONSTRAINT `Produk_desaId_fkey` FOREIGN KEY (`desaId`) REFERENCES `Desa`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Pengelola` ADD CONSTRAINT `Pengelola_desaId_fkey` FOREIGN KEY (`desaId`) REFERENCES `Desa`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
