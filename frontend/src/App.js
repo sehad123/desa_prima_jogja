@@ -84,7 +84,7 @@ import KelompokDetail from "./page/KelompokDetail"; // Halaman detail desa
 import Kabupaten from "./page/Kabupaten";
 import KabupatenDetail from "./page/KabDetail";
 import KelompokDesa from "./page/KelompokDesa";
-import PetaDesaPage from "./page/PetaDesaPage";
+import Dashboard from "./page/Dashboard";
 import { ColorSchemeScript, MantineProvider } from "@mantine/core";
 import "./App.css";
 import "@mantine/core/styles.css";
@@ -130,7 +130,7 @@ function App() {
     <TitleUpdater />
       <Routes>
         <Route path="/" element={<LoginPage />} />
-        <Route path="/peta-desa" element={<PetaDesaPage />} />
+        <Route path="/peta-desa" element={<Dashboard />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/kelompok-desa" element={<KelompokDesa />} />
         <Route path="/kabupaten-page" element={<Kabupaten />} />

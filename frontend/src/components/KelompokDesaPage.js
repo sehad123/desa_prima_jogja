@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import Modal from "./ModalForm";
-import Header from "./Header";
+import Header from "./Dashboard/Header";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import useMediaQuery from "./useMediaQuery";
 import Table from "./Table";
+import Breadcrumb from "./Breadcrumb";
 
 const columns = [
   { id: "no", label: "No" },
@@ -34,11 +35,16 @@ const KelompokDesa = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedDesa, setSelectedDesa] = useState(null);
   const [search, setSearch] = useState({
-    kategori: "",
+    kategori: [], // Array untuk menyimpan kategori yang dipilih
+    kecamatanNama: [], // Array untuk menyimpan kecamatan yang dipilih
     kelompok_desa: "",
-    kecamatanNama: "",
     kelurahanNama: "",
+    anggotaDari: "",
+    anggotaSampai: "",
+    danaDari: "",
+    danaSampai: "",
   });
+  
   const isMobile = useMediaQuery("(max-width: 768px)");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(6);
@@ -46,11 +52,18 @@ const KelompokDesa = () => {
   const [endDate, setEndDate] = useState("");
   const navigate = useNavigate();
   const location = useLocation(); // Hook untuk mengambil URL location
+  const { id } = useParams(); // Ambil 'id' dari parameter URL
+
+  const [showKategoriDropdown, setShowKategoriDropdown] = useState(false);
+  const [showKecamatanDropdown, setShowKecamatanDropdown] = useState(false);
 
   const getKabupatenFromQuery = () => {
     const params = new URLSearchParams(location.search);
     return params.get("kabupaten"); // Mengambil parameter 'kabupaten' dari URL
   };
+
+  const kabupatenName = getKabupatenFromQuery(); // Mendapatkan kabupaten untuk breadcrumb
+
   const fetchDesaData = async () => {
     try {
       const kabupatenName = getKabupatenFromQuery(); // Mendapatkan kabupaten dari URL
@@ -76,40 +89,92 @@ const KelompokDesa = () => {
 
   useEffect(() => {
     const filteredData = desaList.filter((desa) => {
-      const isKategoriMatch = search.kategori
-        ? desa.kategori.toLowerCase().includes(search.kategori.toLowerCase())
-        : true;
+      const isKategoriMatch =
+        search.kategori.length > 0
+          ? search.kategori.includes(desa.kategori)
+          : true;
+  
+      const isKecamatanMatch =
+        search.kecamatanNama.length > 0
+          ? search.kecamatanNama.includes(desa.kecamatanNama)
+          : true;
+  
       const isKelompokMatch = search.kelompok_desa
         ? desa.kelompok_desa
             .toLowerCase()
             .includes(search.kelompok_desa.toLowerCase())
         : true;
-      const isKecamatanMatch = search.kecamatanNama
-        ? desa.kecamatanNama
-            .toLowerCase()
-            .includes(search.kecamatanNama.toLowerCase())
-        : true;
+  
       const isKelurahanMatch = search.kelurahanNama
         ? desa.kelurahanNama
             .toLowerCase()
             .includes(search.kelurahanNama.toLowerCase())
         : true;
-
-      const desaTanggal = new Date(desa.tahun_pembentukan); // Ubah tanggal pembentukan ke format Date
+  
+      const desaTanggal = new Date(desa.tahun_pembentukan);
       const isDateInRange =
         (!startDate || new Date(startDate) <= desaTanggal) &&
-        (!endDate || desaTanggal <= new Date(endDate)); // Filter berdasarkan rentang tanggal
-
+        (!endDate || desaTanggal <= new Date(endDate));
+  
+      const isAnggotaInRange =
+        (!search.anggotaDari || desa.jumlah_anggota_sekarang >= search.anggotaDari) &&
+        (!search.anggotaSampai || desa.jumlah_anggota_sekarang <= search.anggotaSampai);
+  
+      const isDanaInRange =
+        (!search.danaDari || desa.jumlah_dana_sekarang >= search.danaDari) &&
+        (!search.danaSampai || desa.jumlah_dana_sekarang <= search.danaSampai);
+  
       return (
         isKategoriMatch &&
-        isKelompokMatch &&
         isKecamatanMatch &&
+        isKelompokMatch &&
         isKelurahanMatch &&
-        isDateInRange
+        isDateInRange &&
+        isAnggotaInRange &&
+        isDanaInRange
       );
     });
+  
     setFilteredDesaList(filteredData);
   }, [search, startDate, endDate, desaList]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (!event.target.closest(".dropdown-kategori")) {
+        setShowKategoriDropdown(false);
+      }
+      if (!event.target.closest(".dropdown-kecamatan")) {
+        setShowKecamatanDropdown(false);
+      }
+    };
+    document.addEventListener("click", handleClickOutside);
+    return () => {
+      document.removeEventListener("click", handleClickOutside);
+    };
+  }, []);  
+  
+  useEffect(() => {
+    const filteredData = desaList.filter((desa) => {
+      const keyword = search.keyword ? search.keyword.toLowerCase() : "";
+  
+      return (
+        (desa.kelompok_desa && desa.kelompok_desa.toLowerCase().includes(keyword)) ||
+        (desa.alamat && desa.alamat.toLowerCase().includes(keyword)) ||
+        (desa.kategori && desa.kategori.toLowerCase().includes(keyword)) ||
+        (desa.jumlah_anggota_sekarang &&
+          desa.jumlah_anggota_sekarang.toString().includes(keyword)) ||
+        (desa.jumlah_dana_sekarang &&
+          desa.jumlah_dana_sekarang.toString().includes(keyword)) ||
+        (desa.tahun_pembentukan &&
+          new Date(desa.tahun_pembentukan)
+            .toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })
+            .toLowerCase()
+            .includes(keyword))
+      );
+    });
+  
+    setFilteredDesaList(filteredData);
+  }, [search.keyword, desaList]);  
 
   const handleModalClose = (isSuccess) => {
     setIsModalOpen(false);
@@ -191,8 +256,22 @@ const KelompokDesa = () => {
   );
   const totalPages = Math.ceil(filteredDesaList.length / itemsPerPage);
 
+  const breadcrumbItems = [
+    { label: "Beranda", path: "/peta-desa" },
+    { label: "Kabupaten/Kota", path: "/kabupaten-page" },
+    {
+      label: kabupatenName,
+      path: `/detail/${id}`, // Tambahkan path ke halaman detail kabupaten
+    },
+    {
+      label: `Kelompok Desa - ${kabupatenName}`,
+      path: null, // Halaman saat ini
+    },
+  ];
+
   return (
     <div className="p-5">
+      <Breadcrumb items={breadcrumbItems} />
       {/* Flex container for two columns */}
       <div className="absolute top-26 left-10 ">
         <h2 className="text-2xl font-bold">
@@ -202,64 +281,166 @@ const KelompokDesa = () => {
       <div className="flex gap-4 mt-16">
         {/* Left Container: Filter Section */}
         <div className="w-full md:w-1/4 bg-white p-4 border rounded-lg shadow-md">
-          <h2 className="text-lg font-semibold mb-4">Filter Pencarian</h2>
-          <div className="flex flex-col gap-4">
-            <input
-              type="text"
-              name="kelompok_desa"
-              value={search.kelompok_desa}
-              onChange={handleSearchChange}
-              placeholder="Cari Kelompok Desa"
-              className="p-2 border border-gray-300 rounded-lg"
-            />
-            <input
-              type="text"
-              name="kecamatanNama"
-              value={search.kecamatanNama}
-              onChange={handleSearchChange}
-              placeholder="Cari Kecamatan"
-              className="p-2 border border-gray-300 rounded-lg"
-            />
-            <input
-              type="text"
-              name="kelurahanNama"
-              value={search.kelurahanNama}
-              onChange={handleSearchChange}
-              placeholder="Cari Kelurahan"
-              className="p-2 border border-gray-300 rounded-lg"
-            />
-            <select
-              name="kategori"
-              value={search.kategori}
-              onChange={handleSearchChange}
-              className="p-2 border border-gray-300 rounded-lg"
-            >
-              <option value="">Pilih Kategori</option>
-              <option value="Maju">Maju</option>
-              <option value="Tumbuh">Tumbuh</option>
-              <option value="Berkembang">Berkembang</option>
-            </select>
-            {/* Input Rentang Tanggal */}
-            <label className="block">
-              <p className=" text-gray-600 ">Dari</p>
+  <h2 className="text-lg font-semibold mb-4">Filter Pencarian</h2>
+  <div className="flex flex-col gap-4">
+    {/* Kategori */}
+    <div className="relative">
+      <button
+        className="w-full text-left p-2 border rounded-lg"
+        onClick={(e) => {
+          e.stopPropagation();
+          setShowKategoriDropdown((prev) => !prev);
+        }}
+      >
+        Kategori
+        <span className="float-right">{showKategoriDropdown ? "▲" : "▼"}</span>
+      </button>
+      {showKategoriDropdown && (
+        <div
+          className="mt-2 bg-white border rounded-lg shadow-md p-2"
+          onClick={(e) => e.stopPropagation()} // Mencegah dropdown menutup ketika klik di dalamnya
+        >
+          {["Maju", "Tumbuh", "Berkembang"].map((kategori) => (
+            <label key={kategori} className="block px-4 py-1">
               <input
-                type="date"
-                value={startDate}
-                onChange={handleStartDateChange}
-                className="p-2 w-full border border-gray-300 rounded-lg"
+                type="checkbox"
+                name="kategori"
+                value={kategori}
+                checked={search.kategori.includes(kategori)}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  const isChecked = e.target.checked;
+                  setSearch((prev) => ({
+                    ...prev,
+                    kategori: isChecked
+                      ? [...prev.kategori, value]
+                      : prev.kategori.filter((item) => item !== value),
+                  }));
+                }}
               />
+              <span className="ml-2">{kategori}</span>
             </label>
-            <label className="block">
-              <p className=" text-gray-600">Sampai</p>
-              <input
-                type="date"
-                value={endDate}
-                onChange={handleEndDateChange}
-                className="p-2 w-full border border-gray-300 rounded-lg"
-              />
-            </label>
-          </div>
+          ))}
         </div>
+      )}
+    </div>
+
+    {/* Kecamatan */}
+    <div className="relative">
+      <button
+        className="w-full text-left p-2 border rounded-lg"
+        onClick={(e) => {
+          e.stopPropagation();
+          setShowKecamatanDropdown((prev) => !prev);
+        }}
+      >
+        Kecamatan
+        <span className="float-right">{showKecamatanDropdown ? "▲" : "▼"}</span>
+      </button>
+      {showKecamatanDropdown && (
+        <div
+          className="mt-2 bg-white border rounded-lg shadow-md p-2"
+          onClick={(e) => e.stopPropagation()} // Mencegah dropdown menutup ketika klik di dalamnya
+        >
+          {desaList
+            .map((desa) => desa.kecamatanNama)
+            .filter((value, index, self) => self.indexOf(value) === index) // Remove duplicates
+            .map((kecamatan) => (
+              <label key={kecamatan} className="block px-4 py-1">
+                <input
+                  type="checkbox"
+                  name="kecamatanNama"
+                  value={kecamatan}
+                  checked={search.kecamatanNama.includes(kecamatan)}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    const isChecked = e.target.checked;
+                    setSearch((prev) => ({
+                      ...prev,
+                      kecamatanNama: isChecked
+                        ? [...prev.kecamatanNama, value]
+                        : prev.kecamatanNama.filter((item) => item !== value),
+                    }));
+                  }}
+                />
+                <span className="ml-2">{kecamatan}</span>
+              </label>
+            ))}
+        </div>
+      )}
+    </div>
+
+    {/* Tanggal */}
+    <div>
+      <label className="block font-medium text-gray-700">Tanggal</label>
+      <p className="pb-2 block text-sm text-gray-500">Dari</p>
+      <input
+        type="date"
+        name="startDate"
+        value={startDate}
+        onChange={handleStartDateChange}
+        className="p-2 border border-gray-300 rounded-lg w-full"
+        placeholder="Dari"
+      />
+      <p className="pt-2 block text-sm text-gray-500">Sampai</p>
+      <input
+        type="date"
+        name="endDate"
+        value={endDate}
+        onChange={handleEndDateChange}
+        className="p-2 border border-gray-300 rounded-lg w-full mt-2"
+        placeholder="Sampai"
+      />
+    </div>
+
+    {/* Jumlah Anggota */}
+    <div>
+      <label className="block font-medium text-gray-700">Jumlah Anggota</label>
+      <p className="pb-2 block text-sm text-gray-500">Dari</p>
+      <input
+        type="number"
+        name="anggotaDari"
+        value={search.anggotaDari}
+        onChange={handleSearchChange}
+        className="p-2 border border-gray-300 rounded-lg w-full"
+        placeholder="0"
+      />
+      <p className="pt-2 block text-sm text-gray-500">Sampai</p>
+      <input
+        type="number"
+        name="anggotaSampai"
+        value={search.anggotaSampai}
+        onChange={handleSearchChange}
+        className="p-2 border border-gray-300 rounded-lg w-full mt-2"
+        placeholder="0"
+      />
+    </div>
+
+    {/* Jumlah Dana */}
+    <div>
+      <label className="block font-medium text-gray-700">Jumlah Dana</label>
+      <p className="pb-2 block text-sm text-gray-500">Dari</p>
+      <input
+        type="number"
+        name="danaDari"
+        value={search.danaDari}
+        onChange={handleSearchChange}
+        className="p-2 border border-gray-300 rounded-lg w-full"
+        placeholder="0"
+      />
+      <p className="pt-2 block text-sm text-gray-500">Sampai</p>
+      <input
+        type="number"
+        name="danaSampai"
+        value={search.danaSampai}
+        onChange={handleSearchChange}
+        className="p-2 border border-gray-300 rounded-lg w-full mt-2"
+        placeholder="0"
+      />
+    </div>
+  </div>
+</div>
+
 
         {/* Right Container: Data Display Section */}
         <div className="w-full md:w-3/4">
@@ -270,7 +451,7 @@ const KelompokDesa = () => {
                 {calculateCategoryPercentage("Maju")}%
               </p>
             </div>
-            
+
             <div className="p-4 bg-green-100 text-green-800 rounded-lg shadow-md text-center">
               <h3 className="text-lg font-semibold">Kategori Berkembang</h3>
               <p className="text-2xl font-bold">
@@ -302,6 +483,19 @@ const KelompokDesa = () => {
                   </button>
                 )}
               </div>
+
+               {/* Pencarian */}
+    <div className="flex items-center mt-4">
+      <input
+        type="text"
+        placeholder="Masukkan kata kunci"
+        value={search.keyword || ""}
+        onChange={(e) =>
+          setSearch({ ...search, keyword: e.target.value.toLowerCase() })
+        }
+        className="text-sm px-3 py-2 w-full border rounded-lg focus:outline-none"
+      />
+    </div>
 
               {desaList.length === 0 ? (
                 <p className="text-center text-lg text-gray-500">

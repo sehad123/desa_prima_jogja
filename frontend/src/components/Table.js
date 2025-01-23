@@ -5,25 +5,20 @@ import {
   faChevronRight,
   faAngleDoubleLeft,
   faAngleDoubleRight,
-  faArrowUp,
-  faArrowDown,
-  faMapMarkerAlt,
-  faCalendarAlt,
-  faUserTag,
-  faPeopleGroup,
-  faMagnifyingGlass,
-  faPenToSquare,
+  faCheck,
+  faBan,
 } from "@fortawesome/free-solid-svg-icons";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 const Table = ({ columns = [], data = [], isMobile }) => {
-  const navigate = useNavigate();
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [sortConfig, setSortConfig] = useState({
     key: "no",
     direction: "ascending",
   });
+  const [rowStatus, setRowStatus] = useState({});
+  const [rowNotes, setRowNotes] = useState({});
 
   const handleChangePage = (newPage) => {
     setPage(newPage);
@@ -45,10 +40,8 @@ const Table = ({ columns = [], data = [], isMobile }) => {
     let sortableData = [...data];
     if (sortConfig !== null) {
       sortableData.sort((a, b) => {
-        const aValue =
-          sortConfig.key === "date" ? new Date(a.rawDate) : a[sortConfig.key];
-        const bValue =
-          sortConfig.key === "date" ? new Date(b.rawDate) : b[sortConfig.key];
+        const aValue = a[sortConfig.key];
+        const bValue = b[sortConfig.key];
         if (aValue < bValue) {
           return sortConfig.direction === "ascending" ? -1 : 1;
         }
@@ -67,6 +60,20 @@ const Table = ({ columns = [], data = [], isMobile }) => {
       direction = "descending";
     }
     setSortConfig({ key, direction });
+  };
+
+  const handleStatusChange = (id, status) => {
+    setRowStatus((prev) => ({
+      ...prev,
+      [id]: status,
+    }));
+  };
+
+  const handleNoteChange = (id, note) => {
+    setRowNotes((prev) => ({
+      ...prev,
+      [id]: note,
+    }));
   };
 
   const renderPageNumbers = () => {
@@ -149,38 +156,25 @@ const Table = ({ columns = [], data = [], isMobile }) => {
               {columns.map((column) => (
                 <th
                   key={column.id}
-                  className="text-center py-3 px-4 font-semibold border-b-8 border-base cursor-pointer whitespace-nowrap relative"
+                  className="py-3 px-4 font-semibold border-b-8 border-base cursor-pointer whitespace-nowrap text-center"
                   onClick={() => {
                     if (column.id !== "actions") requestSort(column.id);
                   }}
                 >
-                  <div className="flex items-center">
-                    {column.id !== "actions" && (
-                      <FontAwesomeIcon
-                        icon={
-                          sortConfig.key === column.id
-                            ? sortConfig.direction === "ascending"
-                              ? faArrowUp
-                              : faArrowDown
-                            : faArrowUp
-                        }
-                        className={`absolute left-4 ${
-                          sortConfig.key === column.id
-                            ? "text-black"
-                            : "text-gray-400"
-                        }`}
-                      />
-                    )}
-                    <span
-                      className={`ml-${column.id !== "actions" ? "6" : "0"}`}
-                    >
-                      {column.label}
-                    </span>
-                  </div>
+                  {column.label}
                 </th>
               ))}
-              <th className="text-center py-3 px-4 font-semibold border-b-8 border-base cursor-pointer sticky right-0 bg-white z-10">
-                Tindakan
+              <th className="py-3 px-4 font-semibold border-b-8 border-base text-center">
+                Status
+              </th>
+              <th className="py-3 px-4 font-semibold border-b-8 border-base text-center">
+                Catatan
+              </th>
+              <th
+                className="py-3 px-4 font-semibold border-b-8 border-base text-center sticky right-0 bg-white"
+                style={{ zIndex: 1 }}
+              >
+                Aksi
               </th>
             </tr>
           </thead>
@@ -195,27 +189,51 @@ const Table = ({ columns = [], data = [], isMobile }) => {
                         key={column.id}
                         className="py-3 px-4 text-center border-b-8 font-light border-base whitespace-nowrap"
                       >
-                        {column.id === "kategori" ? (
-                          <span
-                            className={`${
-                              row[column.id] === "Tumbuh"
-                                ? "bg-yellow-200 text-yellow-900"
-                                : row[column.id] === "Berkembang"
-                                ? "bg-green-200 text-green-900"
-                                : row[column.id] === "Maju"
-                                ? "bg-blue-200 text-blue-900"
-                                : "text-gray-500" // Default text color if none match
-                            } px-2 py-1 rounded-md font-normal`}
-                          >
-                            {row[column.id]?.toString() || ""}
-                          </span>
-                        ) : (
-                          row[column.id]?.toString() || ""
-                        )}
+                        {truncateText(row[column.id]?.toString() || "", 70)}
                       </td>
                     ))}
-
-                    <td className="py-3 px-4 border-b-8 font-light border-base sticky right-0 bg-white z-10">
+                    <td
+                      className="py-3 px-4 text-center border-b-8 font-light border-base"
+                      style={{ whiteSpace: "nowrap" }}
+                    >
+                      <div className="flex justify-center space-x-2">
+                        <button
+                          className={`py-1 px-2 rounded-md ${
+                            rowStatus[row.id] === "accepted"
+                              ? "bg-green-500 text-white"
+                              : "bg-gray-300"
+                          }`}
+                          onClick={() => handleStatusChange(row.id, "accepted")}
+                        >
+                          <FontAwesomeIcon icon={faCheck} />
+                        </button>
+                        <button
+                          className={`py-1 px-2 rounded-md ${
+                            rowStatus[row.id] === "rejected"
+                              ? "bg-red-500 text-white"
+                              : "bg-gray-300"
+                          }`}
+                          onClick={() => handleStatusChange(row.id, "rejected")}
+                        >
+                          <FontAwesomeIcon icon={faBan} />
+                        </button>
+                      </div>
+                    </td>
+                    <td className="py-3 px-4 text-center border-b-8 font-light border-base">
+                      <input
+                        type="text"
+                        className="p-2 border border-gray-300 rounded-md w-full"
+                        placeholder="Tambahkan catatan"
+                        value={rowNotes[row.id] || ""}
+                        onChange={(e) =>
+                          handleNoteChange(row.id, e.target.value)
+                        }
+                      />
+                    </td>
+                    <td
+                      className="py-3 px-4 text-center border-b-8 font-light border-base sticky right-0 bg-white"
+                      style={{ zIndex: 1 }}
+                    >
                       <Link to={`/desa/${row.id}`}>
                         <button className="bg-blue-500 text-white py-1 px-2 rounded-md">
                           Detail
@@ -227,15 +245,10 @@ const Table = ({ columns = [], data = [], isMobile }) => {
             ) : (
               <tr>
                 <td
-                  colSpan={columns.length + 1}
+                  colSpan={columns.length + 3}
                   className="text-center py-3 px-4"
                 >
-                  <FontAwesomeIcon
-                    icon={faMagnifyingGlass}
-                    className="text-gray-500 mr-2"
-                  />
-                  Data Tidak Ditemukan, silahkan hapus beberapa filter atau
-                  ganti kata pencarian
+                  Data Tidak Ditemukan
                 </td>
               </tr>
             )}

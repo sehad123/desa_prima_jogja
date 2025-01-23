@@ -20,7 +20,7 @@ const Header = () => {
     const fetchProfil = async () => {
       try {
         const response = await axios.get("http://localhost:5000/users");
-        setProfil(response.data); // Sesuaikan dengan struktur data API Anda
+        setProfil(response.data); 
       } catch (error) {
         console.error("Gagal mengambil profil:", error);
       }

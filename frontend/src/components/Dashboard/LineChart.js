@@ -13,7 +13,6 @@ import {
   Legend,
 } from "chart.js";
 import { useNavigate } from "react-router-dom";
-import Breadcrumb from "./Breadcrumb";
 
 // Daftarkan elemen dan skala yang dibutuhkan
 ChartJS.register(
@@ -58,7 +57,7 @@ const formatKabupatenName = (kabupatenName) => {
     .replace(/^(\w)/, (match) => match.toUpperCase()); // Mengubah huruf pertama menjadi huruf kapital
 };
 
-const KabupatenDetail = () => {
+const LineChart = () => {
   const lineChartRef = useRef(null);
   const doughnutChartRef = useRef(null);
   const { id } = useParams();
@@ -182,99 +181,9 @@ const KabupatenDetail = () => {
     kabupaten.jumlah_tumbuh;
   const percentage = ((totalDesa / kabupaten.jumlah_desa) * 100).toFixed(1);
 
-  const breadcrumbItems = [
-    { label: "Beranda", path: "/peta-desa" },
-    { label: "Kabupaten/Kota", path: "/kabupaten-page" },
-    { label: kabupaten.nama_kabupaten, path: null },
-  ];
-
   return (
-    <div className="p-5">
-      <Breadcrumb items={breadcrumbItems} />
-      <div className="pt-4">
-        <div className="bg-white p-4 rounded-md">
-          <div className="px-2 flex justify-between items-center mb-4">
-            <h1 className="text-2xl font-medium">
-              {kabupaten.nama_kabupaten === "Kota Yogyakarta"
-                ? kabupaten.nama_kabupaten
-                : `Kabupaten ${kabupaten.nama_kabupaten}`}
-            </h1>
-            <Link
-              to={`/kelompok-desa?kabupaten=${
-                kabupaten.nama_kabupaten === "Kota Yogyakarta"
-                  ? kabupaten.nama_kabupaten
-                  : `KAB. ${kabupaten.nama_kabupaten.toUpperCase()}`
-              }`}
-            >
-              <button className="bg-blue-700 text-white py-2 px-4 rounded-md shadow-md">
-                Daftar Desa
-              </button>
-            </Link>
-          </div>
-
-          {/* Layout Grid 4 Bagian */}
-          <div className="px-4 pb-2 grid grid-cols-3 gap-6">
-            {/* Bagian Atas Kiri: Informasi Kabupaten dalam bentuk Card */}
-            <div className="col-span-2 grid grid-cols-2 gap-4">
-              <div className="bg-blue-500 text-white p-4 rounded-md shadow-md">
-                <h2 className="text-lg font-bold mb-2">Ketua Forum</h2>
-                <p>{kabupaten.ketua_forum}</p>
-              </div>
-              <div className="bg-blue-500 text-white p-4 rounded-md shadow-md">
-                <h2 className="text-lg font-bold mb-2">Jumlah Desa</h2>
-                <p>{kabupaten.jumlah_desa}</p>
-              </div>
-              <div className="bg-blue-500 text-white p-4 rounded-md shadow-md">
-                <h2 className="text-lg font-bold mb-2">Periode Pembentukan</h2>
-                <p>
-                  {formatDate(kabupaten.periode_awal)} —{" "}
-                  {formatDate(kabupaten.periode_akhir)}
-                </p>
-              </div>
-              <div className="bg-blue-500 text-white p-4 rounded-md shadow-md">
-                <h2 className="text-lg font-bold mb-2">Kelompok Desa Prima</h2>
-                <p>
-                  {kabupaten.jumlah_maju +
-                    kabupaten.jumlah_berkembang +
-                    kabupaten.jumlah_tumbuh}
-                </p>
-              </div>
-            </div>
-
-            {/* Bagian Atas Kanan: Informasi Kategori dalam bentuk Card */}
-            <div className="col-span-1 bg-white p-6 rounded-md shadow-md border-[1px]">
-              <h2 className="text-lg font-bold mb-4 text-center">
-                Jumlah Kelompok Berdasarkan Kategori
-              </h2>
-              <div className="flex flex-col items-center space-y-4">
-                <div className="flex justify-between w-1/2">
-                  <span className="text-gray-600">Maju</span>
-                  <span className="bg-green-200 text-green-800 px-4 py-1 rounded-md">
-                    {kabupaten.jumlah_maju || 0}
-                  </span>
-                </div>
-                <div className="flex justify-between w-1/2">
-                  <span className="text-gray-600">Berkembang</span>
-                  <span className="bg-blue-200 text-blue-800 px-4 py-1 rounded-md">
-                    {kabupaten.jumlah_berkembang || 0}
-                  </span>
-                </div>
-                <div className="flex justify-between w-1/2">
-                  <span className="text-gray-600">Tumbuh</span>
-                  <span className="bg-orange-200 text-orange-800 px-4 py-1 rounded-md">
-                    {kabupaten.jumlah_tumbuh || 0}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Bagian Bawah */}
-      <div className="mt-4 grid grid-cols-3 gap-6">
-        {/* Grafik Periodik */}
-
+    <>   
+     {/* Grafik Periodik */}
         <div
           id="line-chart-container"
           className="col-span-2 bg-white shadow-md p-4 rounded-md relative"
@@ -298,50 +207,8 @@ const KabupatenDetail = () => {
             </svg>
           </button>
         </div>
-
-        {/* Diagram */}
-        <div
-          id="doughnut-chart-container"
-          className="col-span-1 bg-white shadow-md p-6 rounded-md relative flex flex-col items-center"
-        >
-          {/* Header */}
-          <h2 className="text-xl font-bold mb-4 text-center">
-            Jumlah Kelompok Desa Prima Berdasarkan Kategori
-          </h2>
-
-          {/* Chart Container */}
-          <div className="relative w-[300px] h-[300px] flex items-center justify-center">
-            {/* Doughnut Chart */}
-            <Doughnut ref={doughnutChartRef} data={doughnutChartData} />
-
-            {/* Centered Label */}
-            <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <p className="text-3xl font-bold mt-14">{percentage}%</p>
-              <p className="text-sm text-gray-500 mt-1">Desa</p>
-            </div>
-          </div>
-
-          {/* Download Button */}
-          <button
-            onClick={() =>
-              downloadChartImage(doughnutChartRef, "doughnut_chart.png")
-            }
-            className="absolute top-4 right-4 text-blue-500 hover:text-blue-700"
-            title="Unduh Diagram"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="currentColor"
-              className="w-6 h-6"
-              viewBox="0 0 24 24"
-            >
-              <path d="M12 16l4-5h-3V3h-2v8H8l4 5zm-7 2v2h14v-2H5z" />
-            </svg>
-          </button>
-        </div>
-      </div>
-    </div>
+        </> 
   );
 };
 
-export default KabupatenDetail;
+export default LineChart;

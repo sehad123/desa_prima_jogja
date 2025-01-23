@@ -4,10 +4,15 @@ import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { useNavigate } from "react-router-dom";
-import Header from "./Header";
 import { Audio } from "react-loader-spinner";
+import Header from "./Header";
+import DoughnutChart from "./DoughnutChart";
+import Informasi from "./Informasi";
+import LineChart from "./LineChart";
+import PetaDesa from "./PetaDesa";
+import Breadcrumb from "../Breadcrumb";
 
-const PetaDesa = () => {
+const DashboardPage = () => {
   const [desaList, setDesaList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -106,72 +111,18 @@ const PetaDesa = () => {
 
   return (
     <>
-    <Header/>
-    <div className="p-5">
-      <div className=" mx-10 flex justify-between items-center mb-5">
-        <h1 className="text-2xl font-bold">Sebaran Kelompok Desa Prima Berdasarkan Kategori</h1>
-        <button className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600" onClick={() => navigate("/kabupaten-page")}>
-          Daftar Kabupaten/Kota
-        </button>
-      </div>
-
-      <div className="flex ml-10 gap-4 mb-5">
-        <select className="border border-gray-300 rounded px-4 py-2" onChange={handleKabupatenChange} value={selectedKabupaten}>
-          <option value="">Kabupaten</option>
-          {kabupatenData &&
-            kabupatenData.map((kabupaten) => (
-              <option key={kabupaten.id} value={kabupaten.id}>
-                {kabupaten.nama}
-              </option>
-            ))}
-        </select>
-        <select className="border border-gray-300 rounded px-4 py-2" onChange={handleKecamatanChange} value={selectedKecamatan}>
-          <option value="">Kecamatan</option>
-          {kecamatanList &&
-            kecamatanList.map((kecamatan) => (
-              <option key={kecamatan.id} value={kecamatan.nama}>
-                {kecamatan.nama}
-              </option>
-            ))}
-        </select>
-        <select className="border border-gray-300 rounded px-4 py-2" onChange={handleKategoriChange} value={selectedKategori}>
-          <option value="">Kategori</option>
-          <option value="Maju">Maju</option>
-          <option value="Berkembang">Berkembang</option>
-          <option value="Tumbuh">Tumbuh</option>
-        </select>
-      </div>
-
-      <div className="w-full px-20 h-[600px]">
-        <MapContainer center={[-7.7956, 110.3695]} zoom={10} scrollWheelZoom={true} style={{ height: "100%", width: "100%" }}>
-          <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-
-          {filterDesa().length === 0 ? (
-            <p>Tidak ada desa yang sesuai dengan filter.</p>
-          ) : (
-            filterDesa().map((desa) => (
-              <Marker
-                key={desa.id}
-                position={[desa.latitude, desa.longitude]}
-                icon={L.icon({
-                  iconUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png",
-                  iconSize: [25, 41],
-                  iconAnchor: [12, 41],
-                })}
-              >
-                <Popup>
-                  <strong>{desa.kelompok_desa}</strong>
-                  <br />
-                  {desa.kabupatenNama}, Kec. {desa.kecamatanNama}, Kel. {desa.kelurahanNama}
-                </Popup>
-              </Marker>
-            ))
-          )}
-        </MapContainer>
-      </div>
+    <Header />
+    <Informasi />
+    <div className="mt-6 grid grid-cols-3 gap-6">
+        <LineChart />
+        <DoughnutChart />
+    </div>
+    
+    <div className="px-10">
+    <PetaDesa />
     </div>
     </>
   );
 };
 
-export default PetaDesa;
+export default DashboardPage;

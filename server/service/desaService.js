@@ -204,6 +204,18 @@ const countYogyakartaTumbuh = async () => {
   return await countByKabupatenAndKategori("YOGYAKARTA", "Tumbuh");
 };
 
+const countMaju = async() => {
+  return Desa.countDocuments({ kategori: "Maju" }); // Gunakan MongoDB atau ORM yang sesuai
+};
+
+const countBerkembang = async() => {
+  return Desa.countDocuments({ kategori: "Berkembang" });
+};
+
+const countTumbuh = async() => {
+  return Desa.countDocuments({ kategori: "Tumbuh" });
+};
+
 module.exports = {
   getAllDesa,
   getDesaById,
@@ -232,4 +244,7 @@ module.exports = {
   countYogyakartaMaju,
   countYogyakartaBerkembang,
   countYogyakartaTumbuh,
+  countMaju,
+  countTumbuh,
+  countBerkembang
 };
