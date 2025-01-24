@@ -3,91 +3,98 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql" // Sesuaikan jika menggunakan provider lain seperti PostgreSQL
+  provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id        Int      @id @default(autoincrement())
-  name      String
-  role      String
-  email     String   @unique
-  password  String
-  nip  Int?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model Desa {
-  id                     Int      @id @default(autoincrement())
-  kelompok_desa              String
-  kabupaten            String
-  kabupatenNama            String?
-  kecamatan            String
-  kecamatanNama            String?
-  kelurahan            String
-  kelurahanNama            String
-  tahun_pembentukan      DateTime
-  jumlah_hibah_diterima  Int
-  jumlah_dana_sekarang   Int
-  jumlah_anggota_awal    Int
-  jumlah_anggota_sekarang Int
-  latitude               Float?  // Tambahkan latitude
-  longitude              Float?  // Tambahkan longitude
-  kategori               String
-  pengurus               String
-  notulensi   Notulensi[]
-  galeri      Galeri[]
-  produk      Produk[]
-  pengelola    Pengelola[]
-}
-
 model kabupaten {
-  id        Int      @id @default(autoincrement())
+  id             Int      @id @default(autoincrement())
   nama_kabupaten String
-  jumlah_desa Int
-  periode_awal      DateTime
-  periode_akhir      DateTime
-  ketua_forum String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
+  jumlah_desa    Int
+  periode_awal   DateTime
+  periode_akhir  DateTime
+  ketua_forum    String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 }
 
-model Notulensi {
+model desa {
+  id                      Int         @id @default(autoincrement())
+  jumlah_dana_sekarang    Int
+  jumlah_anggota_awal     Int
+  jumlah_anggota_sekarang Int
+  kategori                String
+  jumlah_hibah_diterima   Int
+  kabupaten               String
+  kecamatan               String
+  kelompok_desa           String
+  kelurahan               String
+  pengurus                String
+  tahun_pembentukan       DateTime
+  kabupatenNama           String?
+  kecamatanNama           String?
+  kelurahanNama           String
+  latitude                Float?
+  longitude               Float?
+  galeri                  galeri[]
+  notulensi               notulensi[]
+  pengelola               pengelola[]
+  produk                  produk[]
+}
+
+model galeri {
+  id        Int      @id @default(autoincrement())
+  desaId    Int
+  gambar    String
+  createdAt DateTime @default(now())
+  desa      desa     @relation(fields: [desaId], references: [id], map: "Galeri_desaId_fkey")
+
+  @@index([desaId], map: "Galeri_desaId_fkey")
+}
+
+model notulensi {
   id        Int      @id @default(autoincrement())
   desaId    Int
   file      String
   catatan   String
   createdAt DateTime @default(now())
-  desa      Desa     @relation(fields: [desaId], references: [id])
+  desa      desa     @relation(fields: [desaId], references: [id], map: "Notulensi_desaId_fkey")
+
+  @@index([desaId], map: "Notulensi_desaId_fkey")
 }
 
-model Galeri {
+model pengelola {
   id        Int      @id @default(autoincrement())
   desaId    Int
-  gambar    String
+  nama      String
+  jabatan   String
+  nohp      Int
   createdAt DateTime @default(now())
-  desa      Desa     @relation(fields: [desaId], references: [id])
+  desa      desa     @relation(fields: [desaId], references: [id], map: "Pengelola_desaId_fkey")
+
+  @@index([desaId], map: "Pengelola_desaId_fkey")
 }
 
-model Produk{
+model produk {
   id        Int      @id @default(autoincrement())
   desaId    Int
-  nama String
-  harga Int
-  foto String
+  nama      String
+  harga     Int
+  foto      String
   deskripsi String
   createdAt DateTime @default(now())
-  desa      Desa     @relation(fields: [desaId], references: [id])
+  desa      desa     @relation(fields: [desaId], references: [id], map: "Produk_desaId_fkey")
+
+  @@index([desaId], map: "Produk_desaId_fkey")
 }
 
-model Pengelola {
+model user {
   id        Int      @id @default(autoincrement())
-  desaId    Int
-  nama String
-  jabatan String
-  nohp Int
+  name      String
+  role      String
+  email     String   @unique(map: "User_email_key")
+  password  String
   createdAt DateTime @default(now())
-  desa      Desa     @relation(fields: [desaId], references: [id])
+  updatedAt DateTime
+  nip       Int?
 }

@@ -37,6 +37,15 @@ const updateKabupaten = async (id, data) => {
   });
 };
 
+const getTotalJumlahDesa = async () => {
+  const result = await prisma.kabupaten.aggregate({
+    _sum: {
+      jumlah_desa: true,
+    },
+  });
+  return result._sum.jumlah_desa;
+};
+
 const deleteKabupaten = async (id) => {
   return await prisma.kabupaten.delete({
     where: { id: Number(id) },
@@ -49,4 +58,5 @@ module.exports = {
   createKabupaten,
   updateKabupaten,
   deleteKabupaten,
+  getTotalJumlahDesa, // Tambahkan ini
 };

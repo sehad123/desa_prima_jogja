@@ -28,7 +28,13 @@ const {
   countYogyakartaMaju,
   countYogyakartaBerkembang,
   countYogyakartaTumbuh,
+  getTotalDesaCount,
+  desaMaju,
+  desaBerkembang,
+  desaTumbuh,
 } = require("../service/desaService");
+
+const desaService = require("../service/desaService");
 
 const router = express.Router();
 
@@ -166,6 +172,34 @@ router.get("/count/yogyakarta/tumbuh", async (req, res) => {
     res.json({ kabupaten: "Yogyakarta", kategori: "Tumbuh", count });
   } catch (error) {
     res.status(500).json({ error: "Gagal menghitung data" });
+  }
+});
+
+// Routes untuk menghitung jumlah desa berdasarkan kategori
+router.get("/count/desa/maju", async (req, res) => {
+  try {
+    const count = await desaService.countAllDesaMaju();
+    res.json({ kategori: "Maju", count });
+  } catch (error) {
+    res.status(500).json({ error: "Gagal menghitung desa kategori Maju" });
+  }
+});
+
+router.get("/count/desa/berkembang", async (req, res) => {
+  try {
+    const count = await desaService.countAllDesaBerkembang();
+    res.json({ kategori: "Berkembang", count });
+  } catch (error) {
+    res.status(500).json({ error: "Gagal menghitung desa kategori Berkembang" });
+  }
+});
+
+router.get("/count/desa/tumbuh", async (req, res) => {
+  try {
+    const count = await desaService.countAllDesaTumbuh();
+    res.json({ kategori: "Tumbuh", count });
+  } catch (error) {
+    res.status(500).json({ error: "Gagal menghitung desa kategori Tumbuh" });
   }
 });
 

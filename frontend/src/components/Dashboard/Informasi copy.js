@@ -3,18 +3,8 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { Line, Doughnut } from "react-chartjs-2";
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, ArcElement, Tooltip, Legend } from "chart.js";
-import ChartDataLabels from "chartjs-plugin-datalabels"; // Import plugin untuk menampilkan persentase
 
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  ArcElement,
-  Tooltip,
-  Legend,
-  ChartDataLabels // Registrasi plugin
-);
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, ArcElement, Tooltip, Legend);
 
 const formatDate = (dateString) => {
   if (!dateString) return "Tidak tersedia";
@@ -35,6 +25,8 @@ const Informasi = () => {
   const [desaMaju, setDesaMaju] = useState(0);
   const [desaBerkembang, setDesaBerkembang] = useState(0);
   const [desaTumbuh, setDesaTumbuh] = useState(0);
+
+  const percentage = ((totalJumlahDesa / totalDesa) * 100).toFixed(1);
 
   useEffect(() => {
     const fetchProfil = async () => {
@@ -90,6 +82,21 @@ const Informasi = () => {
     fetchData();
   }, []);
 
+  const downloadChartImage = (chartRef, filename) => {
+    const chart = chartRef.current;
+    if (!chart) return;
+
+    const base64Image = chart.toBase64Image();
+    const link = document.createElement("a");
+    link.href = base64Image;
+    link.download = filename || "chart.png";
+    link.click();
+  };
+
+  if (loading) {
+    return <div className="p-8 text-center">Memuat data...</div>;
+  }
+
   const lineChartData = {
     labels: ["05/01/2024", "12/01/2024", "19/01/2024", "26/01/2024", "02/02/2024", "09/02/2024", "29/02/2024"],
     datasets: [
@@ -119,43 +126,6 @@ const Informasi = () => {
       },
     ],
   };
-
-  const doughnutChartOptions = {
-    plugins: {
-      tooltip: {
-        callbacks: {
-          label: (context) => {
-            const dataset = context.dataset;
-            const total = dataset.data.reduce((acc, value) => acc + value, 0);
-            const value = dataset.data[context.dataIndex];
-            const percentage = ((value / total) * 100).toFixed(1);
-            return `${context.label}: ${value} (${percentage}%)`;
-          },
-        },
-      },
-      legend: {
-        position: "top",
-      },
-      datalabels: {
-        display: true,
-        color: "#fff",
-        font: {
-          size: 14,
-          weight: "bold",
-        },
-        formatter: (value, context) => {
-          const dataset = context.chart.data.datasets[0];
-          const total = dataset.data.reduce((acc, data) => acc + data, 0);
-          const percentage = ((value / total) * 100).toFixed(1);
-          return `${percentage}%`;
-        },
-      },
-    },
-  };
-
-  if (loading) {
-    return <div className="p-8 text-center">Memuat data...</div>;
-  }
 
   return (
     <div className="p-8 space-y-8">
@@ -209,7 +179,8 @@ const Informasi = () => {
         </div>
         <div className="bg-white shadow-md p-6 rounded-md flex flex-col items-center">
           <h2 className="text-xl font-bold mb-4">Desa Berdasarkan Kategori</h2>
-          <Doughnut ref={doughnutChartRef} data={doughnutChartData} options={doughnutChartOptions} />
+          <Doughnut ref={doughnutChartRef} data={doughnutChartData} />
+          <p className="text-center text-3xl font-bold mt-4">{percentage}%</p>
         </div>
       </div>
     </div>

@@ -63,39 +63,6 @@ const DashboardPage = () => {
     }
   }, [selectedKabupaten]);
 
-  const handleKabupatenChange = (e) => {
-    const value = e.target.value;
-    console.log("Kabupaten Selected:", value);
-    setSelectedKabupaten(value);
-  };
-
-  const handleKecamatanChange = (e) => {
-    const value = e.target.value;
-    console.log("Kecamatan Selected:", value);
-    setSelectedKecamatan(value);
-  };
-
-  const handleKategoriChange = (e) => {
-    const value = e.target.value;
-    console.log("Kategori Selected:", value);
-    setSelectedKategori(value);
-  };
-
-  console.log("Selected Kabupaten:", selectedKabupaten);
-  console.log("Selected Kecamatan:", selectedKecamatan);
-  console.log("Selected Kategori:", selectedKategori);
-
-  const filterDesa = () => {
-    return desaList.filter((desa) => {
-      const matchKabupaten = selectedKabupaten ? `${desa.kabupatenId}` === selectedKabupaten : true;
-      const matchKecamatan = selectedKecamatan ? desa.kecamatanNama?.toLowerCase() === selectedKecamatan.toLowerCase() : true;
-      const matchKategori = selectedKategori ? desa.kelompok_desa === selectedKategori : true;
-
-      // Desa harus cocok dengan semua kondisi yang dipilih
-      return matchKabupaten && matchKecamatan && matchKategori;
-    });
-  };
-
   // Halaman loading
   if (loading) {
     return (
@@ -113,10 +80,10 @@ const DashboardPage = () => {
     <>
       <Header />
       <Informasi />
-      <div className="mt-6 grid grid-cols-3 gap-6">
+      {/* <div className="mt-6 grid grid-cols-3 gap-6">
         <LineChart />
         <DoughnutChart />
-      </div>
+      </div> */}
 
       <div className="px-10">
         <PetaDesa />

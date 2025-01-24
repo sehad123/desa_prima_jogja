@@ -13,6 +13,16 @@ router.get("/", async (req, res) => {
   }
 });
 
+// Get total jumlah_desa
+router.get("/total-desa", async (req, res) => {
+  try {
+    const totalJumlahDesa = await kabupatenService.getTotalJumlahDesa();
+    res.status(200).json({ totalJumlahDesa });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 // Get kabupaten by ID
 router.get("/:id", async (req, res) => {
   try {

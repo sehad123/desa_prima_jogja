@@ -204,19 +204,47 @@ const countYogyakartaTumbuh = async () => {
   return await countByKabupatenAndKategori("YOGYAKARTA", "Tumbuh");
 };
 
-const countMaju = async() => {
+const countMaju = async () => {
   return Desa.countDocuments({ kategori: "Maju" }); // Gunakan MongoDB atau ORM yang sesuai
 };
 
-const countBerkembang = async() => {
+const countBerkembang = async () => {
   return Desa.countDocuments({ kategori: "Berkembang" });
 };
 
-const countTumbuh = async() => {
+const countTumbuh = async () => {
   return Desa.countDocuments({ kategori: "Tumbuh" });
 };
 
+const countDesaByKategori = async (kategori) => {
+  return await prisma.desa.count({
+    where: { kategori: kategori },
+  });
+};
+
+// Fungsi untuk menghitung jumlah semua desa dengan kategori "Maju"
+const countAllDesaMaju = async () => {
+  return await countDesaByKategori("Maju");
+};
+
+// Fungsi untuk menghitung jumlah semua desa dengan kategori "Berkembang"
+const countAllDesaBerkembang = async () => {
+  return await countDesaByKategori("Berkembang");
+};
+
+// Fungsi untuk menghitung jumlah semua desa dengan kategori "Tumbuh"
+const countAllDesaTumbuh = async () => {
+  return await countDesaByKategori("Tumbuh");
+};
+
+// Fungsi untuk menghitung total baris pada tabel kabupaten
+// Service - Menambahkan log dan error handling
+
 module.exports = {
+  countDesaByKategori,
+  countAllDesaMaju,
+  countAllDesaBerkembang,
+  countAllDesaTumbuh,
   getAllDesa,
   getDesaById,
   createDesa,
@@ -246,5 +274,5 @@ module.exports = {
   countYogyakartaTumbuh,
   countMaju,
   countTumbuh,
-  countBerkembang
+  countBerkembang,
 };
