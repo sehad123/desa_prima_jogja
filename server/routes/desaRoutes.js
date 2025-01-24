@@ -2,6 +2,14 @@ const express = require("express");
 const multer = require("multer"); // Untuk menangani upload file
 const path = require("path");
 const {
+  editPengurusDesa,
+  editProdukDesa,
+  addPengurusDesa,
+  getPengurusByDesaId,
+  deletePengurusDesa,
+  addProdukDesa,
+  getProdukByDesaId,
+  deleteProdukDesa,
   updateDesaCatatan,
   updateDesaStatus,
   getAllDesa,
@@ -235,6 +243,92 @@ router.delete("/:desaId/galeri/:id", async (req, res) => {
     res.json(deletedImage);
   } catch (error) {
     res.status(500).json({ error: "Gagal menghapus gambar dari galeri desa" });
+  }
+});
+
+// Route untuk mendapatkan semua produk desa berdasarkan desaId
+router.get("/:desaId/produk", async (req, res) => {
+  try {
+    const produk = await getProdukByDesaId(req.params.desaId);
+    res.json(produk);
+  } catch (error) {
+    res.status(500).json({ error: "Gagal mengambil produk desa" });
+  }
+});
+
+// Route untuk mendapatkan semua pengurus desa berdasarkan desaId
+router.get("/:desaId/pengurus", async (req, res) => {
+  try {
+    const pengurus = await getPengurusByDesaId(req.params.desaId);
+    res.json(pengurus);
+  } catch (error) {
+    res.status(500).json({ error: "Gagal mengambil pengurus desa" });
+  }
+});
+
+// Route untuk menambahkan produk desa
+router.post("/:desaId/produk", upload.single("foto"), async (req, res) => {
+  try {
+    const imagePath = req.file ? `/uploads/${req.file.filename}` : null;
+    const { nama, harga, deskripsi } = req.body;
+    const newProduk = await addProdukDesa(req.params.desaId, imagePath, nama, parseInt(harga), deskripsi);
+    res.status(201).json(newProduk);
+  } catch (error) {
+    res.status(500).json({ error: "Gagal menambahkan produk desa" });
+  }
+});
+
+// Route untuk menambahkan pengurus desa
+router.post("/:desaId/pengurus", async (req, res) => {
+  try {
+    const { nama, nohp, jabatan } = req.body;
+    const newProduk = await addPengurusDesa(req.params.desaId, nama, parseInt(nohp), jabatan);
+    res.status(201).json(newProduk);
+  } catch (error) {
+    res.status(500).json({ error: "Gagal menambahkan pengurus desa" });
+  }
+});
+
+// Route untuk menghapus produk desa
+router.delete("/:desaId/produk/:id", async (req, res) => {
+  try {
+    const deletedProduk = await deleteProdukDesa(req.params.id);
+    res.json(deletedProduk);
+  } catch (error) {
+    res.status(500).json({ error: "Gagal menghapus produk desa" });
+  }
+});
+
+// Route untuk menghapus pengurus desa
+router.delete("/:desaId/pengurus/:id", async (req, res) => {
+  try {
+    const deletedPengurus = await deletePengurusDesa(req.params.id);
+    res.json(deletedPengurus);
+  } catch (error) {
+    res.status(500).json({ error: "Gagal menghapus pengurus desa" });
+  }
+});
+
+// Route untuk mengedit produk desa
+router.put("/:desaId/produk/:id", upload.single("foto"), async (req, res) => {
+  try {
+    const imagePath = req.file ? `/uploads/${req.file.filename}` : null;
+    const { nama, harga, deskripsi } = req.body;
+    const updatedProduk = await editProdukDesa(req.params.id, req.params.desaId, imagePath, nama, parseInt(harga), deskripsi);
+    res.json(updatedProduk);
+  } catch (error) {
+    res.status(500).json({ error: "Gagal mengedit produk desa" });
+  }
+});
+
+// Route untuk mengedit pengurus desa
+router.put("/:desaId/pengurus/:id", async (req, res) => {
+  try {
+    const { nama, jabatan, nohp } = req.body;
+    const updatedPengurus = await editPengurusDesa(req.params.id, req.params.desaId, nama, jabatan, nohp);
+    res.json(updatedPengurus);
+  } catch (error) {
+    res.status(500).json({ error: "Gagal mengedit pengurus desa" });
   }
 });
 

@@ -5,7 +5,7 @@ import ModalForm from "./ModalForm"; // Modal for adding data
 import ModalDetail from "./ModalDetail"; // Modal for viewing details
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { FaPlus, FaFile, FaTrashAlt } from "react-icons/fa"; // Plus icon for adding data
+import { FaPlus, FaFile, FaTrashAlt, FaEdit } from "react-icons/fa"; // Plus icon for adding data
 import Breadcrumb from "./Breadcrumb";
 
 const DetailDesaPage = () => {
@@ -23,6 +23,8 @@ const DetailDesaPage = () => {
   const [deleteItemType, setDeleteItemType] = useState(null); // Tipe data yang dihapus: galeri atau notulensi
 
   const [galeri, setGaleri] = useState([]);
+  const [produk, setProduk] = useState([]);
+  const [pengurus, setPengurus] = useState([]);
   const [notulensi, setNotulensi] = useState([]);
   const [isDeleteItemModalOpen, setIsDeleteItemModalOpen] = useState(false); // Modal konfirmasi hapus item
 
@@ -48,6 +50,8 @@ const DetailDesaPage = () => {
     try {
       const response = await axios.get(`http://localhost:5000/api/desa/${id}/galeri`);
       setGaleri(response.data);
+      setGaleri(response.data);
+      setGaleri(response.data);
     } catch (err) {
       console.error("Gagal memuat galeri", err);
     }
@@ -61,6 +65,22 @@ const DetailDesaPage = () => {
       console.error("Gagal memuat notulensi", err);
     }
   };
+  const fetchProduk = async () => {
+    try {
+      const response = await axios.get(`http://localhost:5000/api/desa/${id}/produk`);
+      setProduk(response.data);
+    } catch (err) {
+      console.error("Gagal memuat Produk", err);
+    }
+  };
+  const fetchPengurus = async () => {
+    try {
+      const response = await axios.get(`http://localhost:5000/api/desa/${id}/pengurus`);
+      setPengurus(response.data);
+    } catch (err) {
+      console.error("Gagal memuat Pengurus", err);
+    }
+  };
 
   useEffect(() => {
     fetchDesaDetail();
@@ -71,6 +91,10 @@ const DetailDesaPage = () => {
       fetchGaleri();
     } else if (activeTab === "notulensiMateri") {
       fetchNotulensi();
+    } else if (activeTab === "uraianProduk") {
+      fetchProduk();
+    } else if (activeTab === "pengurusDesa") {
+      fetchPengurus();
     }
   }, [activeTab]);
 
@@ -84,6 +108,10 @@ const DetailDesaPage = () => {
         fetchGaleri(); // Reload galeri jika tab galeri sedang aktif
       } else if (activeTab === "notulensiMateri") {
         fetchNotulensi(); // Reload notulensi jika tab notulensi sedang aktif
+      } else if (activeTab === "uraianProduk") {
+        fetchProduk(); // Reload notulensi jika tab notulensi sedang aktif
+      } else if (activeTab === "pengurusDesa") {
+        fetchPengurus(); // Reload notulensi jika tab notulensi sedang aktif
       }
     }
     fetchDesaDetail();
@@ -119,6 +147,14 @@ const DetailDesaPage = () => {
         await axios.delete(`http://localhost:5000/api/desa/${id}/notulensi/${itemToDelete.id}`);
         toast.success("Notulensi berhasil dihapus!");
         fetchNotulensi();
+      } else if (deleteItemType === "produk") {
+        await axios.delete(`http://localhost:5000/api/desa/${id}/produk/${itemToDelete.id}`);
+        toast.success("Produk berhasil dihapus!");
+        fetchProduk();
+      } else if (deleteItemType === "pengurus") {
+        await axios.delete(`http://localhost:5000/api/desa/${id}/pengurus/${itemToDelete.id}`);
+        toast.success("Pengurus berhasil dihapus!");
+        fetchPengurus();
       }
       setIsDeleteItemModalOpen(false);
     } catch (err) {
@@ -290,7 +326,7 @@ const DetailDesaPage = () => {
                 <button className={`py-2 px-3 text-sm font-medium ${activeTab === "uraianProduk" ? "text-blue-600 border-b-2 border-blue-500" : "text-gray-700"}`} onClick={() => setActiveTab("uraianProduk")}>
                   Uraian Produk
                 </button>
-                <button className={`py-2 px-3 text-sm font-medium ${activeTab === "pengurus" ? "text-blue-600 border-b-2 border-blue-500" : "text-gray-700"}`} onClick={() => setActiveTab("pengurus")}>
+                <button className={`py-2 px-3 text-sm font-medium ${activeTab === "pengurusDesa" ? "text-blue-600 border-b-2 border-blue-500" : "text-gray-700"}`} onClick={() => setActiveTab("pengurusDesa")}>
                   Pengurus
                 </button>
               </nav>
@@ -311,7 +347,7 @@ const DetailDesaPage = () => {
                   <FaPlus /> Tambah Produk
                 </button>
               )}
-              {activeTab === "pengurus" && (
+              {activeTab === "pengurusDesa" && (
                 <button onClick={() => handleAdd("pengurus", desa)} className="bg-green-500 text-white py-2 px-4 rounded-md hover:bg-green-600 flex items-center gap-2">
                   <FaPlus /> Tambah Pengurus
                 </button>
@@ -335,37 +371,27 @@ const DetailDesaPage = () => {
                         <th className="border px-2 py-1">Aksi</th>
                       </tr>
                     </thead>
-                    {/* <tbody>
-            {produk.map((item, index) => (
-              <tr key={item.id}>
-                <td className="border px-2 py-1 text-center">{index + 1}</td>
-                <td className="border px-2 py-1">{item.nama}</td>
-                <td className="border px-2 py-1">{item.harga}</td>
-                <td className="border px-2 py-1">{item.deskripsi}</td>
-                <td className="border px-2 py-1 text-center">
-                  <img
-                    src={`http://localhost:5000${item.foto}`}
-                    alt={item.nama}
-                    className="w-10 h-10 object-cover"
-                  />
-                </td>
-                <td className="border px-2 py-1 text-center">
-                  <button
-                    onClick={() => console.log("Edit produk", item.id)}
-                    className="text-blue-500 mr-2 hover:underline"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => console.log("Hapus produk", item.id)}
-                    className="text-red-500 hover:underline"
-                  >
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody> */}
+                    <tbody>
+                      {produk.map((item, index) => (
+                        <tr key={item.id}>
+                          <td className="border px-2 py-1 text-center">{index + 1}</td>
+                          <td className="border px-2 py-1">{item.nama}</td>
+                          <td className="border px-2 py-1">{item.harga}</td>
+                          <td className="border px-2 py-1">{item.deskripsi}</td>
+                          <td className="border px-2 py-1 text-center mx-auto">
+                            <img src={`http://localhost:5000${item.foto}`} alt={item.nama} className="w-10 h-10 object-cover mx-auto" />
+                          </td>
+                          <td className="border px-2 py-1 text-center">
+                            <button className=" bg-blue-500 mr-2 text-white rounded-full p-1 hover:bg-red-600" onClick={() => openDeleteItemModal(item, "produk")}>
+                              <FaEdit />
+                            </button>
+                            <button className=" bg-red-500 text-white rounded-full p-1 hover:bg-red-600" onClick={() => openDeleteItemModal(item, "produk")}>
+                              <FaTrashAlt />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
                   </table>
                 </div>
               )}
@@ -381,30 +407,24 @@ const DetailDesaPage = () => {
                         <th className="border px-2 py-1">Aksi</th>
                       </tr>
                     </thead>
-                    {/* <tbody>
-            {pengurus.map((item, index) => (
-              <tr key={item.id}>
-                <td className="border px-2 py-1 text-center">{index + 1}</td>
-                <td className="border px-2 py-1">{item.nama}</td>
-                <td className="border px-2 py-1">{item.jabatan}</td>
-                <td className="border px-2 py-1">{item.noHp}</td>
-                <td className="border px-2 py-1 text-center">
-                  <button
-                    onClick={() => console.log("Edit pengurus", item.id)}
-                    className="text-blue-500 mr-2 hover:underline"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => console.log("Hapus pengurus", item.id)}
-                    className="text-red-500 hover:underline"
-                  >
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody> */}
+                    <tbody>
+                      {pengurus.map((item, index) => (
+                        <tr key={item.id}>
+                          <td className="border px-2 py-1 text-center">{index + 1}</td>
+                          <td className="border px-2 py-1">{item.nama}</td>
+                          <td className="border px-2 py-1">{item.jabatan}</td>
+                          <td className="border px-2 py-1">{item.noHp}</td>
+                          <td className="border px-2 py-1 text-center">
+                            <button onClick={() => console.log("Edit pengurus", item.id)} className="text-blue-500 mr-2 hover:underline">
+                              Edit
+                            </button>
+                            <button onClick={() => console.log("Hapus pengurus", item.id)} className="text-red-500 hover:underline">
+                              Delete
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
                   </table>
                 </div>
               )}
@@ -439,7 +459,7 @@ const DetailDesaPage = () => {
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
             <h2 className="text-xl font-bold mb-4">Konfirmasi Hapus</h2>
-            <p>Apakah Anda yakin ingin menghapus {deleteItemType === "galeri" ? "gambar" : "notulensi"} ini?</p>
+            <p>Apakah Anda yakin ingin menghapus {deleteItemType === "galeri" ? "gambar" : deleteItemType === "notulensi" ? "notulensi" : deleteItemType === "produk" ? "produk" : "pengurus"} ini?</p>
             <div className="mt-4 flex justify-end gap-4">
               <button className="bg-gray-500 text-white py-2 px-4 rounded-md hover:bg-gray-600" onClick={() => setIsDeleteItemModalOpen(false)}>
                 Batal
@@ -454,6 +474,8 @@ const DetailDesaPage = () => {
       {isModalOpen && modalType === "form" && <ModalForm onClose={handleModalClose} selectedDesa={selectedDesa} />}
       {isModalOpen && modalType === "notulensi" && <ModalDetail onClose={handleModalClose} selectedDesa={selectedDesa} activeTab="notulensiMateri" />}
       {isModalOpen && modalType === "galeri" && <ModalDetail onClose={handleModalClose} selectedDesa={selectedDesa} activeTab="galeriFoto" />}
+      {isModalOpen && modalType === "produk" && <ModalDetail onClose={handleModalClose} selectedDesa={selectedDesa} activeTab="uraianProduk" />}
+      {isModalOpen && modalType === "pengurus" && <ModalDetail onClose={handleModalClose} selectedDesa={selectedDesa} activeTab="pengurusDesa" />}
 
       <ToastContainer />
     </div>

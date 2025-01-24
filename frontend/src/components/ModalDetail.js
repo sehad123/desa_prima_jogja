@@ -5,10 +5,36 @@ import "react-toastify/dist/ReactToastify.css";
 const ModalDetail = ({ onClose, selectedDesa, activeTab }) => {
   const [file, setFile] = useState(null);
   const [catatan, setCatatan] = useState("");
+  const [namaProduk, setNamaProduk] = useState("");
+  const [namaPengurus, setNamaPengurus] = useState("");
+  const [harga, setHarga] = useState("");
+  const [jabatan, setJabatan] = useState("");
+  const [nohp, setNohp] = useState("");
+  const [deskripsi, setDeskripsi] = useState("");
   const [error, setError] = useState(""); // Untuk menyimpan pesan error
 
   const handleFileChange = (e) => {
     setFile(e.target.files[0]);
+  };
+
+  const handleNamaProdukChange = (e) => {
+    setNamaProduk(e.target.value);
+  };
+  const handleNamaPengurusChange = (e) => {
+    setNamaPengurus(e.target.value);
+  };
+  const handleHargaChange = (e) => {
+    setHarga(e.target.value);
+  };
+  const handleJabatanChange = (e) => {
+    setJabatan(e.target.value);
+  };
+  const handleNohpChange = (e) => {
+    setNohp(e.target.value);
+  };
+
+  const handleDeskripsiChange = (e) => {
+    setDeskripsi(e.target.value);
   };
 
   const handleCatatanChange = (e) => {
@@ -16,6 +42,8 @@ const ModalDetail = ({ onClose, selectedDesa, activeTab }) => {
   };
 
   const handleSubmit = async () => {
+    setError(""); // Reset error setiap kali submit
+
     if (!selectedDesa || !selectedDesa.id) {
       setError("Desa tidak ditemukan. Pastikan desa dipilih dengan benar.");
       return;
@@ -56,6 +84,36 @@ const ModalDetail = ({ onClose, selectedDesa, activeTab }) => {
         console.error("Error uploading photo:", error);
         setError("Gagal mengunggah foto. Coba lagi.");
       }
+    } else if (activeTab === "uraianProduk") {
+      if (!file) {
+        setError("Harap unggah foto.");
+        return;
+      }
+      formData.append("nama", namaProduk);
+      formData.append("harga", harga);
+      formData.append("deskripsi", deskripsi);
+      formData.append("foto", file);
+
+      try {
+        await axios.post(`http://localhost:5000/api/desa/${selectedDesa.id}/produk`, formData);
+        toast.success("Produk berhasil ditambahkan", { position: "top-right" });
+        onClose(true); // Berikan sinyal sukses
+      } catch (error) {
+        console.error("Error uploading photo:", error);
+        setError("Gagal mengunggah foto. Coba lagi.");
+      }
+    } else if (activeTab === "pengurusDesa") {
+      formData.append("nama", namaPengurus);
+      formData.append("nohp", nohp);
+      formData.append("jabatan", jabatan);
+
+      try {
+        await axios.post(`http://localhost:5000/api/desa/${selectedDesa.id}/pengurus`, formData);
+        toast.success("Pengurus berhasil ditambahkan", { position: "top-right" });
+        onClose(true); // Berikan sinyal sukses
+      } catch (error) {
+        console.error("Error :", error);
+      }
     }
   };
 
@@ -89,7 +147,59 @@ const ModalDetail = ({ onClose, selectedDesa, activeTab }) => {
               <label htmlFor="catatan" className="block text-sm font-medium text-gray-700">
                 Catatan
               </label>
-              <textarea id="catatan" rows="4" value={catatan} onChange={handleCatatanChange} className="mt-1 block w-full border-gray-300 rounded-md"></textarea>
+              <textarea id="catatan" rows="4" value={catatan} onChange={handleCatatanChange} className="mt-1 block w-full border border-gray-700 rounded-lg"></textarea>
+            </div>
+          </>
+        )}
+
+        {activeTab === "uraianProduk" && (
+          <>
+            <div className="mb-4">
+              <label htmlFor="nama" className="block text-sm font-medium text-gray-700">
+                Nama Produk
+              </label>
+              <input type="text" id="nama" onChange={handleNamaProdukChange} className="mt-1 block w-full border border-black rounded-md px-3 py-2" />
+            </div>
+            <div className="mb-4">
+              <label htmlFor="harga" className="block text-sm font-medium text-gray-700">
+                Harga Produk
+              </label>
+              <input type="number" id="harga" onChange={handleHargaChange} className="mt-1 block w-full border border-black rounded-md px-3 py-2" />
+            </div>
+            <div className="mb-4">
+              <label htmlFor="file" className="block text-sm font-medium text-gray-700">
+                Upload Gambar Produk
+              </label>
+              <input type="file" id="file" onChange={handleFileChange} className="mt-1 block w-full border border-black rounded-md px-3 py-2" />
+            </div>
+            <div className="mb-4">
+              <label htmlFor="deskripsi" className="block text-sm font-medium text-gray-700">
+                Deskripsi
+              </label>
+              <textarea id="deskripsi" rows="4" value={deskripsi} onChange={handleDeskripsiChange} className="mt-1 block w-full border border-gray-700 rounded-lg"></textarea>
+            </div>
+          </>
+        )}
+
+        {activeTab === "pengurusDesa" && (
+          <>
+            <div className="mb-4">
+              <label htmlFor="nama" className="block text-sm font-medium text-gray-700">
+                Nama Pengurus
+              </label>
+              <input type="text" id="nama" onChange={handleNamaPengurusChange} className="mt-1 block w-full border border-black rounded-md px-3 py-2" />
+            </div>
+            <div className="mb-4">
+              <label htmlFor="nohp" className="block text-sm font-medium text-gray-700">
+                Nomor Handphone
+              </label>
+              <input type="number" id="nohp" onChange={handleNohpChange} className="mt-1 block w-full border border-black rounded-md px-3 py-2" />
+            </div>
+            <div className="mb-4">
+              <label htmlFor="jabatan" className="block text-sm font-medium text-gray-700">
+                Jabatan
+              </label>
+              <input type="text" id="jabatan" onChange={handleJabatanChange} className="mt-1 block w-full border border-black rounded-md px-3 py-2" />
             </div>
           </>
         )}

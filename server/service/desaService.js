@@ -76,6 +76,127 @@ const getNotulensiByDesaId = async (desaId) => {
   });
 };
 
+// Fetch all notulensi for a specific desa
+const getProdukByDesaId = async (desaId) => {
+  return await prisma.produk.findMany({
+    where: { desaId: parseInt(desaId) },
+  });
+};
+
+// Fetch all notulensi for a specific desa
+const getPengurusByDesaId = async (desaId) => {
+  return await prisma.pengelola.findMany({
+    where: { desaId: parseInt(desaId) },
+  });
+};
+
+const addProdukDesa = async (desaId, imagePath, nama, harga, deskripsi) => {
+  return await prisma.produk.create({
+    data: {
+      desaId: parseInt(desaId),
+      foto: imagePath,
+      nama: nama,
+      harga: harga,
+      deskripsi: deskripsi,
+    },
+  });
+};
+
+const addPengurusDesa = async (desaId, nama, nohp, jabatan) => {
+  return await prisma.produk.create({
+    data: {
+      desaId: parseInt(desaId),
+      nama: nama,
+      nohp: nohp,
+      jabatan: jabatan,
+    },
+  });
+};
+
+const deleteProdukDesa = async (id) => {
+  const galeriImage = await prisma.produk.findUnique({
+    where: { id: parseInt(id) },
+  });
+
+  if (!galeriImage) {
+    throw new Error("Gambar tidak ditemukan");
+  }
+
+  // Hapus file dari server (pastikan path gambar sudah benar)
+  const filePath = path.join(__dirname, "uploads", galeriImage.foto); // Pastikan path file sesuai
+  if (fs.existsSync(filePath)) {
+    fs.unlinkSync(filePath); // Hapus file dari server
+  }
+
+  // Hapus data galeri dari database
+  return await prisma.produk.delete({
+    where: { id: parseInt(id) },
+  });
+};
+
+const deletePengurusDesa = async (id) => {
+  const pengelola = await prisma.pengelola.findUnique({
+    where: { id: parseInt(id) },
+  });
+
+  if (!pengelola) {
+    throw new Error("File notulensi tidak ditemukan");
+  }
+};
+
+const editProdukDesa = async (id, desaId, imagePath, nama, harga, deskripsi) => {
+  // Cari produk berdasarkan ID
+  const produk = await prisma.produk.findUnique({
+    where: { id: parseInt(id) },
+  });
+
+  if (!produk) {
+    throw new Error("Produk tidak ditemukan");
+  }
+
+  // Jika ada gambar baru, hapus gambar lama dari server
+  if (imagePath && produk.foto !== imagePath) {
+    const oldFilePath = path.join(__dirname, "uploads", produk.foto);
+    if (fs.existsSync(oldFilePath)) {
+      fs.unlinkSync(oldFilePath);
+    }
+  }
+
+  // Perbarui data produk
+  return await prisma.produk.update({
+    where: { id: parseInt(id) },
+    data: {
+      desaId: parseInt(desaId),
+      foto: imagePath || produk.foto, // Gunakan gambar baru jika disediakan, atau tetap gunakan gambar lama
+      nama: nama || produk.nama,
+      harga: harga || produk.harga,
+      deskripsi: deskripsi || produk.deskripsi,
+    },
+  });
+};
+
+const editPengurusDesa = async (id, desaId, nama, jabatan, nohp) => {
+  // Cari pengurus berdasarkan ID
+  const pengurus = await prisma.pengelola.findUnique({
+    where: { id: parseInt(id) },
+  });
+
+  if (!pengurus) {
+    throw new Error("Pengurus tidak ditemukan");
+  }
+
+  // Perbarui data pengurus
+  return await prisma.pengelola.update({
+    where: { id: parseInt(id) },
+    data: {
+      desaId: parseInt(desaId) || pengurus.desaId,
+      nama: nama || pengurus.nama,
+      jabatan: jabatan || pengurus.jabatan,
+      nohp: nohp || pengurus.nohp,
+    },
+  });
+};
+
 // Fetch all galeri images for a specific desa
 const getGaleriByDesaId = async (desaId) => {
   return await prisma.galeri.findMany({
@@ -255,6 +376,12 @@ const countAllDesaTumbuh = async () => {
 // Service - Menambahkan log dan error handling
 
 module.exports = {
+  addPengurusDesa,
+  getPengurusByDesaId,
+  deletePengurusDesa,
+  addProdukDesa,
+  getProdukByDesaId,
+  deleteProdukDesa,
   updateDesaCatatan,
   updateDesaStatus,
   countDesaByKategori,
@@ -291,4 +418,6 @@ module.exports = {
   countMaju,
   countTumbuh,
   countBerkembang,
+  editPengurusDesa,
+  editProdukDesa,
 };
