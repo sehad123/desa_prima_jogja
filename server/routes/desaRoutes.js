@@ -2,6 +2,8 @@ const express = require("express");
 const multer = require("multer"); // Untuk menangani upload file
 const path = require("path");
 const {
+  updateDesaCatatan,
+  updateDesaStatus,
   getAllDesa,
   getDesaById,
   createDesa,
@@ -328,6 +330,30 @@ router.put("/:id", async (req, res) => {
     res.json(updatedDesa);
   } catch (error) {
     res.status(404).json({ error: "Desa tidak ditemukan" });
+  }
+});
+
+// Update status desa
+router.patch("/:id/status", async (req, res) => {
+  const { status } = req.body;
+  try {
+    const updatedStatus = await updateDesaStatus(req.params.id, status);
+    res.json(updatedStatus);
+  } catch (error) {
+    console.error("Error updating status:", error);
+    res.status(500).json({ error: "Gagal memperbarui status desa." });
+  }
+});
+
+// Update catatan desa
+router.patch("/:id/catatan", async (req, res) => {
+  const { catatan } = req.body;
+  try {
+    const updatedCatatan = await updateDesaCatatan(req.params.id, catatan);
+    res.json(updatedCatatan);
+  } catch (error) {
+    console.error("Error updating catatan:", error);
+    res.status(500).json({ error: "Gagal memperbarui catatan desa." });
   }
 });
 

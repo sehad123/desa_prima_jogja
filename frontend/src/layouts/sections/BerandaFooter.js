@@ -23,7 +23,7 @@ const BerandaFooter = () => {
         </div>
         <div className="flex flex-col items-center md:items-start mb-6 md:mb-0 font-light">
           <p className="font-bold">Tautan</p>
-          <a href="/home" className="hover:underline">
+          <a href="/kabupaten-page" className="hover:underline">
             Beranda
           </a>
 
@@ -53,7 +53,7 @@ const BerandaFooter = () => {
           <p>dp3ap2@jogjaprov.go.id</p>
         </div>
       </div>
-      <div className="mt-6">
+      <div className="mt-6 pb-4">
         <p className="text-l text-yellow-50 font-semibold">Dinas Pemberdayaan Perempuan, Perlindungan Anak, dan Pengendalian Penduduk Provinsi D.I. Yogyakarta</p>
       </div>
     </footer>

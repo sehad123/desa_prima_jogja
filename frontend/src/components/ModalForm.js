@@ -17,7 +17,8 @@ const ModalForm = ({ onClose, selectedDesa }) => {
     jumlah_dana_sekarang: "",
     jumlah_anggota_awal: "",
     jumlah_anggota_sekarang: "",
-    pengurus: "",
+    status: "Pending",
+    catatan: "",
     latitude: "", // Tambahan latitude
     longitude: "", //
   });
@@ -42,7 +43,7 @@ const ModalForm = ({ onClose, selectedDesa }) => {
         jumlah_dana_sekarang: selectedDesa.jumlah_dana_sekarang,
         jumlah_anggota_awal: selectedDesa.jumlah_anggota_awal,
         jumlah_anggota_sekarang: selectedDesa.jumlah_anggota_sekarang,
-        pengurus: selectedDesa.pengurus || "",
+        // pengurus: selectedDesa.pengurus || "",
         latitude: selectedDesa.latitude || "",
         longitude: selectedDesa.longitude || "",
       });
@@ -169,7 +170,8 @@ const ModalForm = ({ onClose, selectedDesa }) => {
         jumlah_dana_sekarang: "",
         jumlah_anggota_awal: "",
         jumlah_anggota_sekarang: "",
-        pengurus: "",
+        status: "Pending",
+        catatan: "",
         latitude: "",
         longitude: "",
       });
@@ -280,10 +282,10 @@ const ModalForm = ({ onClose, selectedDesa }) => {
                   placeholder="Jumlah Anggota Sekarang"
                 />
               </div>
-              <div>
+              {/* <div>
                 <label className="block text-sm font-medium mb-1">Pengurus</label>
                 <input type="text" name="pengurus" value={formData.pengurus} onChange={handleChange} className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500" placeholder="Nama Pengurus" />
-              </div>
+              </div> */}
 
               {/* Latitude dan Longitude */}
               <div>

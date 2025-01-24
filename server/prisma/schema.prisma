@@ -29,7 +29,8 @@ model desa {
   kecamatan               String
   kelompok_desa           String
   kelurahan               String
-  pengurus                String
+  status                  String?
+  catatan                 String?
   tahun_pembentukan       DateTime
   kabupatenNama           String?
   kecamatanNama           String?

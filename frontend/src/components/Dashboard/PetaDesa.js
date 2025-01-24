@@ -106,10 +106,10 @@ const PetaDesa = () => {
   return (
     <div className="p-5 bg-white rounded-md shadow-md">
       <div className=" mx-6 my-5 flex justify-between items-center">
-        <h1 className="text-2xl font-bold">Sebaran Kelompok Desa Prima Berdasarkan Kategori</h1>
-        <button className="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600" onClick={() => navigate("/kabupaten-page")}>
+        <h1 className="text-2xl font-bold mx-auto">Sebaran Kelompok Desa Prima Daerah Istimewa Yogyakarta</h1>
+        {/* <button className="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600" onClick={() => navigate("/kabupaten-page")}>
           Daftar Kabupaten/Kota
-        </button>
+        </button> */}
       </div>
 
       <div className="flex mx-6 gap-4 mb-5">

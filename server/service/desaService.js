@@ -31,6 +31,38 @@ const createDesa = async (data) => {
   });
 };
 
+const updateDesa = async (id, data) => {
+  const { tahun_pembentukan, ...rest } = data;
+
+  return await prisma.desa.update({
+    where: { id: Number(id) },
+    data: {
+      ...rest,
+      tahun_pembentukan: tahun_pembentukan ? new Date(tahun_pembentukan) : undefined,
+    },
+  });
+};
+
+const updateDesaStatus = async (id, status) => {
+  return await prisma.desa.update({
+    where: { id: Number(id) },
+    data: { status }, // Update status saja
+  });
+};
+
+const updateDesaCatatan = async (id, catatan) => {
+  return await prisma.desa.update({
+    where: { id: Number(id) },
+    data: { catatan }, // Update catatan saja
+  });
+};
+
+const deleteDesa = async (id) => {
+  return await prisma.desa.delete({
+    where: { id: parseInt(id) },
+  });
+};
+
 const getDesaById = async (id) => {
   return await prisma.desa.findUnique({
     where: { id: parseInt(id) },
@@ -48,24 +80,6 @@ const getNotulensiByDesaId = async (desaId) => {
 const getGaleriByDesaId = async (desaId) => {
   return await prisma.galeri.findMany({
     where: { desaId: parseInt(desaId) },
-  });
-};
-
-const updateDesa = async (id, data) => {
-  const { tahun_pembentukan, ...rest } = data;
-
-  return await prisma.desa.update({
-    where: { id: Number(id) },
-    data: {
-      ...rest,
-      tahun_pembentukan: tahun_pembentukan ? new Date(tahun_pembentukan) : undefined,
-    },
-  });
-};
-
-const deleteDesa = async (id) => {
-  return await prisma.desa.delete({
-    where: { id: parseInt(id) },
   });
 };
 
@@ -241,6 +255,8 @@ const countAllDesaTumbuh = async () => {
 // Service - Menambahkan log dan error handling
 
 module.exports = {
+  updateDesaCatatan,
+  updateDesaStatus,
   countDesaByKategori,
   countAllDesaMaju,
   countAllDesaBerkembang,

@@ -1,16 +1,10 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
-import L from "leaflet";
-import "leaflet/dist/leaflet.css";
 import { useNavigate } from "react-router-dom";
 import { Audio } from "react-loader-spinner";
 import Header from "./Header";
-import DoughnutChart from "./DoughnutChart";
 import Informasi from "./Informasi";
-import LineChart from "./LineChart";
 import PetaDesa from "./PetaDesa";
-import Breadcrumb from "../Breadcrumb";
 
 const DashboardPage = () => {
   const [desaList, setDesaList] = useState([]);
@@ -18,16 +12,13 @@ const DashboardPage = () => {
   const [error, setError] = useState("");
   const [kabupatenData, setKabupatenData] = useState([]);
   const [selectedKabupaten, setSelectedKabupaten] = useState("");
-  const [selectedKecamatan, setSelectedKecamatan] = useState("");
-  const [kecamatanList, setKecamatanList] = useState([]); // New state for kecamatan
-  const [selectedKategori, setSelectedKategori] = useState("");
+  const [kecamatanList, setKecamatanList] = useState([]);
 
   const navigate = useNavigate();
 
   const fetchDesaData = async () => {
     try {
       const response = await axios.get("http://localhost:5000/api/desa");
-      console.log(response.data); // Log untuk mengecek struktur data
       setDesaList(response.data);
       setLoading(false);
     } catch (err) {
@@ -48,7 +39,7 @@ const DashboardPage = () => {
   const fetchKecamatan = (kabupatenId) => {
     axios
       .get(`https://ibnux.github.io/data-indonesia/kecamatan/${kabupatenId}.json`)
-      .then((res) => setKecamatanList(res.data)) // Update kecamatanList
+      .then((res) => setKecamatanList(res.data))
       .catch((err) => console.error(err));
   };
 
@@ -59,7 +50,7 @@ const DashboardPage = () => {
 
   useEffect(() => {
     if (selectedKabupaten) {
-      fetchKecamatan(selectedKabupaten); // Fetch kecamatan when kabupaten changes
+      fetchKecamatan(selectedKabupaten);
     }
   }, [selectedKabupaten]);
 
@@ -79,12 +70,13 @@ const DashboardPage = () => {
   return (
     <>
       <Header />
+      <div className="relative">
+        {/* Tombol dipindahkan ke pojok kanan atas */}
+        <button className="absolute top-3 right-4 bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 shadow-md" onClick={() => navigate("/kabupaten-page")}>
+          Daftar Kabupaten/Kota
+        </button>
+      </div>
       <Informasi />
-      {/* <div className="mt-6 grid grid-cols-3 gap-6">
-        <LineChart />
-        <DoughnutChart />
-      </div> */}
-
       <div className="px-10">
         <PetaDesa />
       </div>

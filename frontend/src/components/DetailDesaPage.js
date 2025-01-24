@@ -46,9 +46,7 @@ const DetailDesaPage = () => {
 
   const fetchGaleri = async () => {
     try {
-      const response = await axios.get(
-        `http://localhost:5000/api/desa/${id}/galeri`
-      );
+      const response = await axios.get(`http://localhost:5000/api/desa/${id}/galeri`);
       setGaleri(response.data);
     } catch (err) {
       console.error("Gagal memuat galeri", err);
@@ -57,9 +55,7 @@ const DetailDesaPage = () => {
 
   const fetchNotulensi = async () => {
     try {
-      const response = await axios.get(
-        `http://localhost:5000/api/desa/${id}/notulensi`
-      );
+      const response = await axios.get(`http://localhost:5000/api/desa/${id}/notulensi`);
       setNotulensi(response.data);
     } catch (err) {
       console.error("Gagal memuat notulensi", err);
@@ -116,15 +112,11 @@ const DetailDesaPage = () => {
   const handleDeleteItem = async () => {
     try {
       if (deleteItemType === "galeri") {
-        await axios.delete(
-          `http://localhost:5000/api/desa/${id}/galeri/${itemToDelete.id}`
-        );
+        await axios.delete(`http://localhost:5000/api/desa/${id}/galeri/${itemToDelete.id}`);
         toast.success("Gambar berhasil dihapus!");
         fetchGaleri();
       } else if (deleteItemType === "notulensi") {
-        await axios.delete(
-          `http://localhost:5000/api/desa/${id}/notulensi/${itemToDelete.id}`
-        );
+        await axios.delete(`http://localhost:5000/api/desa/${id}/notulensi/${itemToDelete.id}`);
         toast.success("Notulensi berhasil dihapus!");
         fetchNotulensi();
       }
@@ -146,27 +138,14 @@ const DetailDesaPage = () => {
   const renderNotulensi = () => (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 -mt-6 gap-6">
       {notulensi.map((notulensiItem) => (
-        <div
-          key={notulensiItem.id}
-          className="relative flex flex-col items-center h-[160px] w-[160px] bg-white shadow-md rounded-lg p-4 border mt-6 border-gray-200"
-        >
-          <a
-            href={`http://localhost:5000/uploads/${notulensiItem.file}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-center"
-          >
+        <div key={notulensiItem.id} className="relative flex flex-col items-center h-[160px] w-[160px] bg-white shadow-md rounded-lg p-4 border mt-6 border-gray-200">
+          <a href={`http://localhost:5000/uploads/${notulensiItem.file}`} target="_blank" rel="noopener noreferrer" className="text-center">
             <div className="text-3xl flex justify-center items-center bg-blue-100 p-6 rounded-full">
               <FaFile color="blue" />
             </div>
-            <p className="text-sm mt-4 font-semibold text-gray-700 truncate">
-              {notulensiItem.catatan}
-            </p>
+            <p className="text-sm mt-4 font-semibold text-gray-700 truncate">{notulensiItem.catatan}</p>
           </a>
-          <button
-            className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
-            onClick={() => openDeleteItemModal(notulensiItem, "notulensi")}
-          >
+          <button className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600" onClick={() => openDeleteItemModal(notulensiItem, "notulensi")}>
             <FaTrashAlt />
           </button>
         </div>
@@ -178,26 +157,10 @@ const DetailDesaPage = () => {
   const renderGaleri = () => (
     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
       {galeri.map((gambar) => (
-        <div
-          key={gambar.id}
-          className="relative bg-white shadow-md rounded-lg p-4 border h-[160px] w-[200px] border-gray-200 flex flex-col items-center"
-        >
-          {gambar.gambar ? (
-            <img
-              src={`http://localhost:5000${gambar.gambar}`}
-              alt={gambar.gambar}
-              className="w-24 h-24 object-cover rounded-lg shadow-md"
-            />
-          ) : (
-            <p className="text-gray-500 italic">No Image</p>
-          )}
-          <p className="text-sm mt-2 font-semibold text-gray-700 truncate">
-            {formatTanggal(gambar.createdAt)}
-          </p>
-          <button
-            className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
-            onClick={() => openDeleteItemModal(gambar, "galeri")}
-          >
+        <div key={gambar.id} className="relative bg-white shadow-md rounded-lg p-4 border h-[160px] w-[200px] border-gray-200 flex flex-col items-center">
+          {gambar.gambar ? <img src={`http://localhost:5000${gambar.gambar}`} alt={gambar.gambar} className="w-24 h-24 object-cover rounded-lg shadow-md" /> : <p className="text-gray-500 italic">No Image</p>}
+          <p className="text-sm mt-2 font-semibold text-gray-700 truncate">{formatTanggal(gambar.createdAt)}</p>
+          <button className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600" onClick={() => openDeleteItemModal(gambar, "galeri")}>
             <FaTrashAlt />
           </button>
         </div>
@@ -240,11 +203,7 @@ const DetailDesaPage = () => {
   };
 
   if (loading) {
-    return (
-      <div className="text-center text-xl text-gray-600">
-        Memuat detail desa...
-      </div>
-    );
+    return <div className="text-center text-xl text-gray-600">Memuat detail desa...</div>;
   }
 
   if (error) {
@@ -270,56 +229,42 @@ const DetailDesaPage = () => {
     <div className="p-5">
       <Breadcrumb items={breadcrumbItems} />
 
-      <button
-        onClick={() => navigate(-1)}
-        className="bg-blue-500 text-white py-2 px-4 rounded-lg shadow-md hover:bg-blue-600 focus:outline-none"
-      >
+      <button onClick={() => navigate(-1)} className="bg-blue-500 text-white py-2 px-4 rounded-lg shadow-md hover:bg-blue-600 focus:outline-none">
         Kembali
       </button>
 
       <div className="mt-5 grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
         <div className="lg:col-span-3 flex flex-col gap-6">
           <div className="bg-white shadow-md rounded-lg p-6 border border-gray-300">
-            <h2 className="text-2xl font-bold text-gray-700 mb-4">
-              {desa.kelompok_desa}
-            </h2>
+            <h2 className="text-2xl font-bold text-gray-700 mb-4">{desa.kelompok_desa}</h2>
             <p>
-              <strong>Alamat:</strong> {desa.kabupatenNama}, Kec.{" "}
-              {desa.kecamatanNama}, Kel. {desa.kelurahanNama}
+              <strong>Alamat:</strong> {desa.kabupatenNama}, Kec. {desa.kecamatanNama}, Kel. {desa.kelurahanNama}
             </p>
             <p>
-              <strong>Tanggal Pembentukan:</strong>{" "}
-              {formatTanggal(desa.tahun_pembentukan)}
+              <strong>Tanggal Pembentukan:</strong> {formatTanggal(desa.tahun_pembentukan)}
             </p>
             <p>
-              <strong>Jumlah Hibah Diterima:</strong>{" "}
-              {formatRupiah(desa.jumlah_hibah_diterima)}
+              <strong>Jumlah Hibah Diterima:</strong> {formatRupiah(desa.jumlah_hibah_diterima)}
             </p>
             <p>
-              <strong>Jumlah Dana Sekarang:</strong>{" "}
-              {formatRupiah(desa.jumlah_dana_sekarang)}
+              <strong>Jumlah Dana Sekarang:</strong> {formatRupiah(desa.jumlah_dana_sekarang)}
             </p>
             <p>
               <strong>Jumlah Anggota Awal:</strong> {desa.jumlah_anggota_awal}
             </p>
             <p>
-              <strong>Jumlah Anggota Sekarang:</strong>{" "}
-              {desa.jumlah_anggota_sekarang}
+              <strong>Jumlah Anggota Sekarang:</strong> {desa.jumlah_anggota_sekarang}
             </p>
             <p>
               <strong>Kategori:</strong> {desa.kategori}
             </p>
             <p>
-              <strong>Pengurus:</strong> {desa.pengurus}
+              <strong>Catatan:</strong> {desa.catatan}
             </p>
+
             <div className="mt-4 flex gap-4">
-              <button className="bg-green-500 text-white py-2 px-4 rounded-md hover:bg-green-600 focus:outline-none">
-                Cetak Hasil
-              </button>
-              <button
-                onClick={() => handleEdit(desa)}
-                className="bg-blue-500 text-white py-1 px-6 rounded-md mr-2 hover:bg-blue-600 focus:outline-none"
-              >
+              <button className="bg-green-500 text-white py-2 px-4 rounded-md hover:bg-green-600 focus:outline-none">Cetak Hasil</button>
+              <button onClick={() => handleEdit(desa)} className="bg-blue-500 text-white py-1 px-6 rounded-md mr-2 hover:bg-blue-600 focus:outline-none">
                 Edit
               </button>
               <button
@@ -332,105 +277,65 @@ const DetailDesaPage = () => {
           </div>
 
           <div className="bg-white shadow-md rounded-lg p-6 border border-gray-300">
-  {/* Tab dan Tombol */}
-  <div className="flex justify-between items-center border-b border-gray-200 pb-2 mb-4">
-    {/* Tab Navigation */}
-    <nav className="flex space-x-4">
-      <button
-        className={`py-2 px-3 text-sm font-medium ${
-          activeTab === "notulensiMateri"
-            ? "text-blue-600 border-b-2 border-blue-500"
-            : "text-gray-700"
-        }`}
-        onClick={() => setActiveTab("notulensiMateri")}
-      >
-        Notulensi / Materi
-      </button>
-      <button
-        className={`py-2 px-3 text-sm font-medium ${
-          activeTab === "galeriFoto"
-            ? "text-blue-600 border-b-2 border-blue-500"
-            : "text-gray-700"
-        }`}
-        onClick={() => setActiveTab("galeriFoto")}
-      >
-        Galeri Foto
-      </button>
-      <button
-        className={`py-2 px-3 text-sm font-medium ${
-          activeTab === "uraianProduk"
-            ? "text-blue-600 border-b-2 border-blue-500"
-            : "text-gray-700"
-        }`}
-        onClick={() => setActiveTab("uraianProduk")}
-      >
-        Uraian Produk
-      </button>
-      <button
-        className={`py-2 px-3 text-sm font-medium ${
-          activeTab === "pengurus"
-            ? "text-blue-600 border-b-2 border-blue-500"
-            : "text-gray-700"
-        }`}
-        onClick={() => setActiveTab("pengurus")}
-      >
-        Pengurus
-      </button>
-    </nav>
+            {/* Tab dan Tombol */}
+            <div className="flex justify-between items-center border-b border-gray-200 pb-2 mb-4">
+              {/* Tab Navigation */}
+              <nav className="flex space-x-4">
+                <button className={`py-2 px-3 text-sm font-medium ${activeTab === "notulensiMateri" ? "text-blue-600 border-b-2 border-blue-500" : "text-gray-700"}`} onClick={() => setActiveTab("notulensiMateri")}>
+                  Notulensi / Materi
+                </button>
+                <button className={`py-2 px-3 text-sm font-medium ${activeTab === "galeriFoto" ? "text-blue-600 border-b-2 border-blue-500" : "text-gray-700"}`} onClick={() => setActiveTab("galeriFoto")}>
+                  Galeri Foto
+                </button>
+                <button className={`py-2 px-3 text-sm font-medium ${activeTab === "uraianProduk" ? "text-blue-600 border-b-2 border-blue-500" : "text-gray-700"}`} onClick={() => setActiveTab("uraianProduk")}>
+                  Uraian Produk
+                </button>
+                <button className={`py-2 px-3 text-sm font-medium ${activeTab === "pengurus" ? "text-blue-600 border-b-2 border-blue-500" : "text-gray-700"}`} onClick={() => setActiveTab("pengurus")}>
+                  Pengurus
+                </button>
+              </nav>
 
-    {/* Tombol Tambah */}
-    {activeTab === "notulensiMateri" && (
-      <button
-        onClick={() => handleAdd("notulensi", desa)}
-        className="bg-green-500 text-white py-2 px-4 rounded-md hover:bg-green-600 flex items-center gap-2"
-      >
-        <FaPlus /> Tambah Notulensi
-      </button>
-    )}
-    {activeTab === "galeriFoto" && (
-      <button
-        onClick={() => handleAdd("galeri", desa)}
-        className="bg-green-500 text-white py-2 px-4 rounded-md hover:bg-green-600 flex items-center gap-2"
-      >
-        <FaPlus /> Tambah Foto
-      </button>
-    )}
-    {activeTab === "uraianProduk" && (
-      <button
-        onClick={() => handleAdd("produk", desa)}
-        className="bg-green-500 text-white py-2 px-4 rounded-md hover:bg-green-600 flex items-center gap-2"
-      >
-        <FaPlus /> Tambah Produk
-      </button>
-    )}
-    {activeTab === "pengurus" && (
-      <button
-        onClick={() => handleAdd("pengurus", desa)}
-        className="bg-green-500 text-white py-2 px-4 rounded-md hover:bg-green-600 flex items-center gap-2"
-      >
-        <FaPlus /> Tambah Pengurus
-      </button>
-    )}
-  </div>
+              {/* Tombol Tambah */}
+              {activeTab === "notulensiMateri" && (
+                <button onClick={() => handleAdd("notulensi", desa)} className="bg-green-500 text-white py-2 px-4 rounded-md hover:bg-green-600 flex items-center gap-2">
+                  <FaPlus /> Tambah Notulensi
+                </button>
+              )}
+              {activeTab === "galeriFoto" && (
+                <button onClick={() => handleAdd("galeri", desa)} className="bg-green-500 text-white py-2 px-4 rounded-md hover:bg-green-600 flex items-center gap-2">
+                  <FaPlus /> Tambah Foto
+                </button>
+              )}
+              {activeTab === "uraianProduk" && (
+                <button onClick={() => handleAdd("produk", desa)} className="bg-green-500 text-white py-2 px-4 rounded-md hover:bg-green-600 flex items-center gap-2">
+                  <FaPlus /> Tambah Produk
+                </button>
+              )}
+              {activeTab === "pengurus" && (
+                <button onClick={() => handleAdd("pengurus", desa)} className="bg-green-500 text-white py-2 px-4 rounded-md hover:bg-green-600 flex items-center gap-2">
+                  <FaPlus /> Tambah Pengurus
+                </button>
+              )}
+            </div>
 
-  {/* Konten Tab */}
-  <div className="bg-gray-50 p-4 rounded-lg">
-    {activeTab === "notulensiMateri" && renderNotulensi()}
-    {activeTab === "galeriFoto" && renderGaleri()}
-    {activeTab === "uraianProduk" && (
-      <div>
-        <table className="w-full text-sm border-collapse">
-          <thead>
-            <tr>
-              <th className="border px-2 py-1">No</th>
-              <th className="border px-2 py-1">Nama</th>
-              <th className="border px-2 py-1">Harga</th>
-              <th className="border px-2 py-1">Deskripsi</th>
-              <th className="border px-2 py-1">Foto</th>
-              <th className="border px-2 py-1">Aksi</th>
-            </tr>
-          </thead>
-          {/* <tbody>
+            {/* Konten Tab */}
+            <div className="bg-gray-50 p-4 rounded-lg">
+              {activeTab === "notulensiMateri" && renderNotulensi()}
+              {activeTab === "galeriFoto" && renderGaleri()}
+              {activeTab === "uraianProduk" && (
+                <div>
+                  <table className="w-full text-sm border-collapse">
+                    <thead>
+                      <tr>
+                        <th className="border px-2 py-1">No</th>
+                        <th className="border px-2 py-1">Nama</th>
+                        <th className="border px-2 py-1">Harga</th>
+                        <th className="border px-2 py-1">Deskripsi</th>
+                        <th className="border px-2 py-1">Foto</th>
+                        <th className="border px-2 py-1">Aksi</th>
+                      </tr>
+                    </thead>
+                    {/* <tbody>
             {produk.map((item, index) => (
               <tr key={item.id}>
                 <td className="border px-2 py-1 text-center">{index + 1}</td>
@@ -461,22 +366,22 @@ const DetailDesaPage = () => {
               </tr>
             ))}
           </tbody> */}
-        </table>
-      </div>
-    )}
-    {activeTab === "pengurus" && (
-      <div>
-        <table className="w-full text-sm border-collapse">
-          <thead>
-            <tr>
-              <th className="border px-2 py-1">No</th>
-              <th className="border px-2 py-1">Nama</th>
-              <th className="border px-2 py-1">Jabatan</th>
-              <th className="border px-2 py-1">No HP</th>
-              <th className="border px-2 py-1">Aksi</th>
-            </tr>
-          </thead>
-          {/* <tbody>
+                  </table>
+                </div>
+              )}
+              {activeTab === "pengurus" && (
+                <div>
+                  <table className="w-full text-sm border-collapse">
+                    <thead>
+                      <tr>
+                        <th className="border px-2 py-1">No</th>
+                        <th className="border px-2 py-1">Nama</th>
+                        <th className="border px-2 py-1">Jabatan</th>
+                        <th className="border px-2 py-1">No HP</th>
+                        <th className="border px-2 py-1">Aksi</th>
+                      </tr>
+                    </thead>
+                    {/* <tbody>
             {pengurus.map((item, index) => (
               <tr key={item.id}>
                 <td className="border px-2 py-1 text-center">{index + 1}</td>
@@ -500,12 +405,11 @@ const DetailDesaPage = () => {
               </tr>
             ))}
           </tbody> */}
-        </table>
-      </div>
-    )}
-  </div>
-</div>
-
+                  </table>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
         {/* 
         <div className="bg-white shadow-md rounded-lg p-6 border border-gray-300">
@@ -520,16 +424,10 @@ const DetailDesaPage = () => {
             <h2 className="text-xl font-bold mb-4">Konfirmasi Hapus</h2>
             <p>Apakah Anda yakin ingin menghapus desa ini?</p>
             <div className="mt-4 flex justify-end gap-4">
-              <button
-                className="bg-gray-500 text-white py-2 px-4 rounded-md hover:bg-gray-600"
-                onClick={handleDeleteModalClose}
-              >
+              <button className="bg-gray-500 text-white py-2 px-4 rounded-md hover:bg-gray-600" onClick={handleDeleteModalClose}>
                 Batal
               </button>
-              <button
-                className="bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600"
-                onClick={handleDelete}
-              >
+              <button className="bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600" onClick={handleDelete}>
                 Hapus
               </button>
             </div>
@@ -541,44 +439,21 @@ const DetailDesaPage = () => {
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
             <h2 className="text-xl font-bold mb-4">Konfirmasi Hapus</h2>
-            <p>
-              Apakah Anda yakin ingin menghapus{" "}
-              {deleteItemType === "galeri" ? "gambar" : "notulensi"} ini?
-            </p>
+            <p>Apakah Anda yakin ingin menghapus {deleteItemType === "galeri" ? "gambar" : "notulensi"} ini?</p>
             <div className="mt-4 flex justify-end gap-4">
-              <button
-                className="bg-gray-500 text-white py-2 px-4 rounded-md hover:bg-gray-600"
-                onClick={() => setIsDeleteItemModalOpen(false)}
-              >
+              <button className="bg-gray-500 text-white py-2 px-4 rounded-md hover:bg-gray-600" onClick={() => setIsDeleteItemModalOpen(false)}>
                 Batal
               </button>
-              <button
-                className="bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600"
-                onClick={handleDeleteItem}
-              >
+              <button className="bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600" onClick={handleDeleteItem}>
                 Hapus
               </button>
             </div>
           </div>
         </div>
       )}
-      {isModalOpen && modalType === "form" && (
-        <ModalForm onClose={handleModalClose} selectedDesa={selectedDesa} />
-      )}
-      {isModalOpen && modalType === "notulensi" && (
-        <ModalDetail
-          onClose={handleModalClose}
-          selectedDesa={selectedDesa}
-          activeTab="notulensiMateri"
-        />
-      )}
-      {isModalOpen && modalType === "galeri" && (
-        <ModalDetail
-          onClose={handleModalClose}
-          selectedDesa={selectedDesa}
-          activeTab="galeriFoto"
-        />
-      )}
+      {isModalOpen && modalType === "form" && <ModalForm onClose={handleModalClose} selectedDesa={selectedDesa} />}
+      {isModalOpen && modalType === "notulensi" && <ModalDetail onClose={handleModalClose} selectedDesa={selectedDesa} activeTab="notulensiMateri" />}
+      {isModalOpen && modalType === "galeri" && <ModalDetail onClose={handleModalClose} selectedDesa={selectedDesa} activeTab="galeriFoto" />}
 
       <ToastContainer />
     </div>

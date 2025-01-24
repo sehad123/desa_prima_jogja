@@ -21,7 +21,7 @@ router.get("/profile", async (req, res) => {
       return res.status(404).json({ error: "User tidak ditemukan" });
     }
 
-    res.json({ name: user.name, nip: user.nip });
+    res.json({ name: user.name, nip: user.nip, role: user.role });
   } catch (error) {
     res.status(401).json({ error: "Token tidak valid" });
   }
