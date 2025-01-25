@@ -85,7 +85,7 @@ const getProdukByDesaId = async (desaId) => {
 
 // Fetch all notulensi for a specific desa
 const getPengurusByDesaId = async (desaId) => {
-  return await prisma.pengelola.findMany({
+  return await prisma.pengurus.findMany({
     where: { desaId: parseInt(desaId) },
   });
 };
@@ -102,10 +102,11 @@ const addProdukDesa = async (desaId, imagePath, nama, harga, deskripsi) => {
   });
 };
 
-const addPengurusDesa = async (desaId, nama, nohp, jabatan) => {
-  return await prisma.produk.create({
+const addPengurusDesa = async (desaId, imagePath, nama, nohp, jabatan) => {
+  return await prisma.pengurus.create({
     data: {
       desaId: parseInt(desaId),
+      foto: imagePath,
       nama: nama,
       nohp: nohp,
       jabatan: jabatan,
@@ -135,12 +136,31 @@ const deleteProdukDesa = async (id) => {
 };
 
 const deletePengurusDesa = async (id) => {
-  const pengelola = await prisma.pengelola.findUnique({
-    where: { id: parseInt(id) },
-  });
+  try {
+    // Cari data berdasarkan ID
+    const pengurus = await prisma.pengurus.findUnique({
+      where: { id: parseInt(id) },
+    });
 
-  if (!pengelola) {
-    throw new Error("File notulensi tidak ditemukan");
+    if (!pengurus) {
+      throw new Error("Data pengurus tidak ditemukan");
+    }
+
+    // Jika ada foto, coba hapus file dari server
+    if (pengurus.foto) {
+      const filePath = path.join(__dirname, "uploads", pengurus.foto); // Sesuaikan dengan struktur folder Anda
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+      }
+    }
+
+    // Hapus data dari database
+    return await prisma.pengurus.delete({
+      where: { id: parseInt(id) },
+    });
+  } catch (error) {
+    console.error("Error deleting pengurus:", error.message);
+    throw new Error("Gagal menghapus pengurus");
   }
 };
 
@@ -175,9 +195,9 @@ const editProdukDesa = async (id, desaId, imagePath, nama, harga, deskripsi) => 
   });
 };
 
-const editPengurusDesa = async (id, desaId, nama, jabatan, nohp) => {
+const editPengurusDesa = async (id, desaId, imagePath, nama, jabatan, nohp) => {
   // Cari pengurus berdasarkan ID
-  const pengurus = await prisma.pengelola.findUnique({
+  const pengurus = await prisma.pengurus.findUnique({
     where: { id: parseInt(id) },
   });
 
@@ -185,11 +205,20 @@ const editPengurusDesa = async (id, desaId, nama, jabatan, nohp) => {
     throw new Error("Pengurus tidak ditemukan");
   }
 
+  // Jika ada gambar baru, hapus gambar lama dari server
+  if (imagePath && pengurus.foto !== imagePath) {
+    const oldFilePath = path.join(__dirname, "uploads", pengurus.foto);
+    if (fs.existsSync(oldFilePath)) {
+      fs.unlinkSync(oldFilePath);
+    }
+  }
+
   // Perbarui data pengurus
-  return await prisma.pengelola.update({
+  return await prisma.pengurus.update({
     where: { id: parseInt(id) },
     data: {
       desaId: parseInt(desaId) || pengurus.desaId,
+      foto: imagePath || pengurus.foto, // Gunakan gambar baru jika disediakan, atau tetap gunakan gambar lama
       nama: nama || pengurus.nama,
       jabatan: jabatan || pengurus.jabatan,
       nohp: nohp || pengurus.nohp,

@@ -103,16 +103,22 @@ const ModalDetail = ({ onClose, selectedDesa, activeTab }) => {
         setError("Gagal mengunggah foto. Coba lagi.");
       }
     } else if (activeTab === "pengurusDesa") {
+      // if (!file) {
+      //   setError("Harap unggah foto.");
+      //   return;
+      // }
       formData.append("nama", namaPengurus);
       formData.append("nohp", nohp);
       formData.append("jabatan", jabatan);
+      formData.append("foto", file);
 
       try {
         await axios.post(`http://localhost:5000/api/desa/${selectedDesa.id}/pengurus`, formData);
-        toast.success("Pengurus berhasil ditambahkan", { position: "top-right" });
+        toast.success("pengurus berhasil ditambahkan", { position: "top-right" });
         onClose(true); // Berikan sinyal sukses
       } catch (error) {
-        console.error("Error :", error);
+        console.error("Error uploading photo:", error);
+        setError("Gagal mengunggah foto. Coba lagi.");
       }
     }
   };
@@ -122,11 +128,16 @@ const ModalDetail = ({ onClose, selectedDesa, activeTab }) => {
     setCatatan("");
     setError(""); // Reset pesan error
   };
-
+  const tabTitles = {
+    notulensiMateri: "Tambah Notulensi",
+    galeriFoto: "Tambah Foto Galeri",
+    uraianProduk: "Tambah Produk",
+    pengurusDesa: "Tambah Pengurus Desa",
+  };
   return (
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center z-50">
       <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
-        <h2 className="text-xl font-bold mb-4">{activeTab === "notulensiMateri" ? "Tambah Notulensi" : "Tambah Foto Galeri"}</h2>
+        <h2 className="text-xl font-bold mb-4">{tabTitles[activeTab] || "Tambah Data"}</h2>
 
         {/* Pesan Error */}
         {error && (
@@ -194,6 +205,12 @@ const ModalDetail = ({ onClose, selectedDesa, activeTab }) => {
                 Nomor Handphone
               </label>
               <input type="number" id="nohp" onChange={handleNohpChange} className="mt-1 block w-full border border-black rounded-md px-3 py-2" />
+            </div>
+            <div className="mb-4">
+              <label htmlFor="file" className="block text-sm font-medium text-gray-700">
+                Upload Foto Pengurus
+              </label>
+              <input type="file" id="file" onChange={handleFileChange} className="mt-1 block w-full border border-black rounded-md px-3 py-2" />
             </div>
             <div className="mb-4">
               <label htmlFor="jabatan" className="block text-sm font-medium text-gray-700">

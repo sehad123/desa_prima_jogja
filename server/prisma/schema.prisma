@@ -39,7 +39,7 @@ model desa {
   longitude               Float?
   galeri                  galeri[]
   notulensi               notulensi[]
-  pengelola               pengelola[]
+  pengurus               pengurus[]
   produk                  produk[]
 }
 
@@ -64,16 +64,17 @@ model notulensi {
   @@index([desaId], map: "Notulensi_desaId_fkey")
 }
 
-model pengelola {
+model pengurus {
   id        Int      @id @default(autoincrement())
   desaId    Int
   nama      String
+  foto      String?
   jabatan   String
   nohp      Int
   createdAt DateTime @default(now())
-  desa      desa     @relation(fields: [desaId], references: [id], map: "Pengelola_desaId_fkey")
+  desa      desa     @relation(fields: [desaId], references: [id], map: "Pengurus_desaId_fkey")
 
-  @@index([desaId], map: "Pengelola_desaId_fkey")
+  @@index([desaId], map: "Pengurus_desaId_fkey")
 }
 
 model produk {

@@ -28,6 +28,29 @@ const DetailDesaPage = () => {
   const [notulensi, setNotulensi] = useState([]);
   const [isDeleteItemModalOpen, setIsDeleteItemModalOpen] = useState(false); // Modal konfirmasi hapus item
 
+  const [profil, setProfil] = useState({});
+
+  useEffect(() => {
+    const fetchProfil = async () => {
+      try {
+        const token = localStorage.getItem("authToken");
+        if (!token) return;
+
+        const response = await axios.get("http://localhost:5000/users/profile", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        setProfil(response.data); // Set nama dan NIP ke state
+      } catch (error) {
+        console.error("Gagal mengambil profil:", error.response?.data?.error || error.message);
+      }
+    };
+
+    fetchProfil();
+  }, []);
+
   const openDeleteItemModal = (item, type) => {
     setItemToDelete(item);
     setDeleteItemType(type);
@@ -323,12 +346,18 @@ const DetailDesaPage = () => {
                 <button className={`py-2 px-3 text-sm font-medium ${activeTab === "galeriFoto" ? "text-blue-600 border-b-2 border-blue-500" : "text-gray-700"}`} onClick={() => setActiveTab("galeriFoto")}>
                   Galeri Foto
                 </button>
-                <button className={`py-2 px-3 text-sm font-medium ${activeTab === "uraianProduk" ? "text-blue-600 border-b-2 border-blue-500" : "text-gray-700"}`} onClick={() => setActiveTab("uraianProduk")}>
-                  Uraian Produk
-                </button>
-                <button className={`py-2 px-3 text-sm font-medium ${activeTab === "pengurusDesa" ? "text-blue-600 border-b-2 border-blue-500" : "text-gray-700"}`} onClick={() => setActiveTab("pengurusDesa")}>
-                  Pengurus
-                </button>
+                {profil?.role === "Pegawai" && (
+                  <>
+                    {[
+                      { key: "uraianProduk", label: "Uraian Produk" },
+                      { key: "pengurusDesa", label: "Pengurus" },
+                    ].map(({ key, label }) => (
+                      <button key={key} className={`py-2 px-3 text-sm font-medium ${activeTab === key ? "text-blue-600 border-b-2 border-blue-500" : "text-gray-700"}`} onClick={() => setActiveTab(key)}>
+                        {label}
+                      </button>
+                    ))}
+                  </>
+                )}
               </nav>
 
               {/* Tombol Tambah */}
@@ -382,9 +411,9 @@ const DetailDesaPage = () => {
                             <img src={`http://localhost:5000${item.foto}`} alt={item.nama} className="w-10 h-10 object-cover mx-auto" />
                           </td>
                           <td className="border px-2 py-1 text-center">
-                            <button className=" bg-blue-500 mr-2 text-white rounded-full p-1 hover:bg-red-600" onClick={() => openDeleteItemModal(item, "produk")}>
+                            {/* <button className=" bg-blue-500 mr-2 text-white rounded-full p-1 hover:bg-red-600" onClick={() => openDeleteItemModal(item, "produk")}>
                               <FaEdit />
-                            </button>
+                            </button> */}
                             <button className=" bg-red-500 text-white rounded-full p-1 hover:bg-red-600" onClick={() => openDeleteItemModal(item, "produk")}>
                               <FaTrashAlt />
                             </button>
@@ -395,13 +424,14 @@ const DetailDesaPage = () => {
                   </table>
                 </div>
               )}
-              {activeTab === "pengurus" && (
+              {activeTab === "pengurusDesa" && (
                 <div>
                   <table className="w-full text-sm border-collapse">
                     <thead>
                       <tr>
                         <th className="border px-2 py-1">No</th>
                         <th className="border px-2 py-1">Nama</th>
+                        <th className="border px-2 py-1">foto</th>
                         <th className="border px-2 py-1">Jabatan</th>
                         <th className="border px-2 py-1">No HP</th>
                         <th className="border px-2 py-1">Aksi</th>
@@ -409,17 +439,20 @@ const DetailDesaPage = () => {
                     </thead>
                     <tbody>
                       {pengurus.map((item, index) => (
-                        <tr key={item.id}>
+                        <tr key={item.id} className="text-center">
                           <td className="border px-2 py-1 text-center">{index + 1}</td>
                           <td className="border px-2 py-1">{item.nama}</td>
+                          <td className="border px-2 py-1 text-center mx-auto">
+                            <img src={`http://localhost:5000${item.foto}`} alt={item.nama} className="w-10 h-10 object-cover mx-auto" />
+                          </td>
                           <td className="border px-2 py-1">{item.jabatan}</td>
-                          <td className="border px-2 py-1">{item.noHp}</td>
+                          <td className="border px-2 py-1">{item.nohp}</td>
                           <td className="border px-2 py-1 text-center">
-                            <button onClick={() => console.log("Edit pengurus", item.id)} className="text-blue-500 mr-2 hover:underline">
-                              Edit
-                            </button>
-                            <button onClick={() => console.log("Hapus pengurus", item.id)} className="text-red-500 hover:underline">
-                              Delete
+                            {/* <button className=" bg-blue-500 mr-2 text-white rounded-full p-1 hover:bg-red-600" onClick={() => openDeleteItemModal(item, "produk")}>
+                                           <FaEdit />
+                                         </button> */}
+                            <button className="bg-red-500 text-white rounded-full p-1 hover:bg-red-600" onClick={() => openDeleteItemModal(item, "pengurus")}>
+                              <FaTrashAlt />
                             </button>
                           </td>
                         </tr>
@@ -431,11 +464,6 @@ const DetailDesaPage = () => {
             </div>
           </div>
         </div>
-        {/* 
-        <div className="bg-white shadow-md rounded-lg p-6 border border-gray-300">
-          <h3 className="text-lg font-bold mb-4">Detail Informasi</h3>
-          <div className="bg-gray-50 p-4 rounded-lg">{renderTabContent()}</div>
-        </div> */}
       </div>
 
       {isDeleteModalOpen && (

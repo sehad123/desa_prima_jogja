@@ -279,11 +279,12 @@ router.post("/:desaId/produk", upload.single("foto"), async (req, res) => {
 });
 
 // Route untuk menambahkan pengurus desa
-router.post("/:desaId/pengurus", async (req, res) => {
+router.post("/:desaId/pengurus", upload.single("foto"), async (req, res) => {
   try {
+    const imagePath = req.file ? `/uploads/${req.file.filename}` : null;
     const { nama, nohp, jabatan } = req.body;
-    const newProduk = await addPengurusDesa(req.params.desaId, nama, parseInt(nohp), jabatan);
-    res.status(201).json(newProduk);
+    const newPengurus = await addPengurusDesa(req.params.desaId, imagePath, nama, parseInt(nohp), jabatan);
+    res.status(201).json(newPengurus);
   } catch (error) {
     res.status(500).json({ error: "Gagal menambahkan pengurus desa" });
   }
