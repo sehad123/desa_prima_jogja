@@ -283,7 +283,7 @@ router.post("/:desaId/pengurus", upload.single("foto"), async (req, res) => {
   try {
     const imagePath = req.file ? `/uploads/${req.file.filename}` : null;
     const { nama, nohp, jabatan } = req.body;
-    const newPengurus = await addPengurusDesa(req.params.desaId, imagePath, nama, parseInt(nohp), jabatan);
+    const newPengurus = await addPengurusDesa(req.params.desaId, imagePath, nama, nohp, jabatan);
     res.status(201).json(newPengurus);
   } catch (error) {
     res.status(500).json({ error: "Gagal menambahkan pengurus desa" });
@@ -312,21 +312,25 @@ router.delete("/:desaId/pengurus/:id", async (req, res) => {
 
 // Route untuk mengedit produk desa
 router.put("/:desaId/produk/:id", upload.single("foto"), async (req, res) => {
+  console.log("File received:", req.file);
   try {
     const imagePath = req.file ? `/uploads/${req.file.filename}` : null;
     const { nama, harga, deskripsi } = req.body;
     const updatedProduk = await editProdukDesa(req.params.id, req.params.desaId, imagePath, nama, parseInt(harga), deskripsi);
     res.json(updatedProduk);
   } catch (error) {
+    console.error("Error:", error);
     res.status(500).json({ error: "Gagal mengedit produk desa" });
   }
 });
 
 // Route untuk mengedit pengurus desa
-router.put("/:desaId/pengurus/:id", async (req, res) => {
+router.put("/:desaId/pengurus/:id", upload.single("foto"), async (req, res) => {
+  console.log("File received:", req.file); // Debugging
   try {
+    const imagePath = req.file ? `/uploads/${req.file.filename}` : null;
     const { nama, jabatan, nohp } = req.body;
-    const updatedPengurus = await editPengurusDesa(req.params.id, req.params.desaId, nama, jabatan, nohp);
+    const updatedPengurus = await editPengurusDesa(req.params.id, req.params.desaId, imagePath, nama, jabatan, nohp);
     res.json(updatedPengurus);
   } catch (error) {
     res.status(500).json({ error: "Gagal mengedit pengurus desa" });

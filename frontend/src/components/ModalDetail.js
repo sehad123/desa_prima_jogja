@@ -201,17 +201,12 @@ const ModalDetail = ({ onClose, selectedDesa, activeTab }) => {
               <input type="text" id="nama" onChange={handleNamaPengurusChange} className="mt-1 block w-full border border-black rounded-md px-3 py-2" />
             </div>
             <div className="mb-4">
-              <label htmlFor="nohp" className="block text-sm font-medium text-gray-700">
-                Nomor Handphone
+              <label htmlFor="harga" className="block text-sm font-medium text-gray-700">
+                Nomer Handphone
               </label>
-              <input type="number" id="nohp" onChange={handleNohpChange} className="mt-1 block w-full border border-black rounded-md px-3 py-2" />
+              <input type="number" id="harga" onChange={handleNohpChange} className="mt-1 block w-full border border-black rounded-md px-3 py-2" />
             </div>
-            <div className="mb-4">
-              <label htmlFor="file" className="block text-sm font-medium text-gray-700">
-                Upload Foto Pengurus
-              </label>
-              <input type="file" id="file" onChange={handleFileChange} className="mt-1 block w-full border border-black rounded-md px-3 py-2" />
-            </div>
+
             <div className="mb-4">
               <label htmlFor="jabatan" className="block text-sm font-medium text-gray-700">
                 Jabatan

@@ -159,11 +159,7 @@ const DetailDesaPage = () => {
   const handleEditSubmit = async (formData) => {
     try {
       const endpoint = editEntityType === "produk" ? "produk" : "pengurus";
-      await axios.put(`http://localhost:5000/api/desa/${id}/${endpoint}/${formData.id}`, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      await axios.put(`http://localhost:5000/api/desa/${id}/${endpoint}/${formData.id}`, formData);
 
       toast.success(`${editEntityType === "produk" ? "Produk" : "Pengurus"} berhasil diperbarui!`);
       setIsEditModalOpen(false);
@@ -433,7 +429,7 @@ const DetailDesaPage = () => {
                     </thead>
                     <tbody>
                       {produk.map((item, index) => (
-                        <tr key={item.id} className="text-center">
+                        <tr key={item.id}>
                           <td className="border px-2 py-1 text-center">{index + 1}</td>
                           <td className="border px-2 py-1">{item.nama}</td>
                           <td className="border px-2 py-1">{formatRupiah(item.harga)}</td>
@@ -442,7 +438,7 @@ const DetailDesaPage = () => {
                             <img src={`http://localhost:5000${item.foto}`} alt={item.nama} className="w-10 h-10 object-cover mx-auto" />
                           </td>
                           <td className="border px-2 py-1 text-center">
-                            <button onClick={() => handleEditModal(item, "produk")} className="mt-2 px-2 mr-3 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+                            <button onClick={() => handleEditModal(item, "produk")} className="mt-2 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
                               <FaEdit />
                             </button>
                             <button className=" bg-red-500 text-white rounded-full p-1 hover:bg-red-600" onClick={() => openDeleteItemModal(item, "produk")}>
@@ -462,6 +458,7 @@ const DetailDesaPage = () => {
                       <tr>
                         <th className="border px-2 py-1">No</th>
                         <th className="border px-2 py-1">Nama</th>
+                        <th className="border px-2 py-1">foto</th>
                         <th className="border px-2 py-1">Jabatan</th>
                         <th className="border px-2 py-1">No HP</th>
                         <th className="border px-2 py-1">Aksi</th>
@@ -472,10 +469,13 @@ const DetailDesaPage = () => {
                         <tr key={item.id} className="text-center">
                           <td className="border px-2 py-1 text-center">{index + 1}</td>
                           <td className="border px-2 py-1">{item.nama}</td>
+                          <td className="border px-2 py-1 text-center mx-auto">
+                            <img src={`http://localhost:5000${item.foto}`} alt={item.nama} className="w-10 h-10 object-cover mx-auto" />
+                          </td>
                           <td className="border px-2 py-1">{item.jabatan}</td>
                           <td className="border px-2 py-1">{item.nohp}</td>
                           <td className="border px-2 py-1 text-center">
-                            <button onClick={() => handleEditModal(item, "pengurus")} className="mt-2 px-2 mr-3 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+                            <button onClick={() => handleEditModal(item, "pengurus")} className="mt-2  py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
                               <FaEdit />
                             </button>
                             <button className="bg-red-500 text-white rounded-full p-1 hover:bg-red-600" onClick={() => openDeleteItemModal(item, "pengurus")}>

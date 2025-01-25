@@ -70,7 +70,7 @@ model pengurus {
   nama      String
   foto      String?
   jabatan   String
-  nohp      Int
+  nohp      String?
   createdAt DateTime @default(now())
   desa      desa     @relation(fields: [desaId], references: [id], map: "Pengurus_desaId_fkey")
 

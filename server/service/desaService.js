@@ -165,29 +165,20 @@ const deletePengurusDesa = async (id) => {
 };
 
 const editProdukDesa = async (id, desaId, imagePath, nama, harga, deskripsi) => {
-  // Cari produk berdasarkan ID
-  const produk = await prisma.produk.findUnique({
-    where: { id: parseInt(id) },
-  });
+  const produk = await prisma.produk.findUnique({ where: { id: parseInt(id) } });
 
-  if (!produk) {
-    throw new Error("Produk tidak ditemukan");
-  }
+  if (!produk) throw new Error("Produk tidak ditemukan");
 
-  // Jika ada gambar baru, hapus gambar lama dari server
   if (imagePath && produk.foto !== imagePath) {
-    const oldFilePath = path.join(__dirname, "uploads", produk.foto);
-    if (fs.existsSync(oldFilePath)) {
-      fs.unlinkSync(oldFilePath);
-    }
+    const oldFilePath = path.resolve(__dirname, "../uploads", produk.foto);
+    if (fs.existsSync(oldFilePath)) fs.unlinkSync(oldFilePath);
   }
 
-  // Perbarui data produk
   return await prisma.produk.update({
     where: { id: parseInt(id) },
     data: {
       desaId: parseInt(desaId),
-      foto: imagePath || produk.foto, // Gunakan gambar baru jika disediakan, atau tetap gunakan gambar lama
+      foto: imagePath || produk.foto,
       nama: nama || produk.nama,
       harga: harga || produk.harga,
       deskripsi: deskripsi || produk.deskripsi,
@@ -206,11 +197,9 @@ const editPengurusDesa = async (id, desaId, imagePath, nama, jabatan, nohp) => {
   }
 
   // Jika ada gambar baru, hapus gambar lama dari server
-  if (imagePath && pengurus.foto !== imagePath) {
-    const oldFilePath = path.join(__dirname, "uploads", pengurus.foto);
-    if (fs.existsSync(oldFilePath)) {
-      fs.unlinkSync(oldFilePath);
-    }
+  if (imagePath && produk.foto !== imagePath) {
+    const oldFilePath = path.resolve(__dirname, "../uploads", produk.foto);
+    if (fs.existsSync(oldFilePath)) fs.unlinkSync(oldFilePath);
   }
 
   // Perbarui data pengurus
