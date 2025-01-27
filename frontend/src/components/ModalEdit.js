@@ -56,7 +56,7 @@ const EditModal = ({ isOpen, onClose, onSubmit, initialData, entityType }) => {
 
               <div>
                 <label htmlFor="foto" className="block text-sm font-medium text-gray-700">
-                  Foto (Opsional)
+                  Foto Produk
                 </label>
                 <input type="file" id="foto" name="foto" onChange={(e) => setFormData((prev) => ({ ...prev, foto: e.target.files[0] }))} className="mt-1 block w-full border border-black rounded-md px-3 py-2" />
               </div>
