@@ -6,7 +6,7 @@ const Breadcrumb = ({ items = [] }) => {
 
   return (
     <nav className="flex" aria-label="Breadcrumb">
-      <ol className="inline-flex items-center space-x-1 md:space-x-2 rtl:space-x-reverse">
+      <ol className="inline-flex flex-wrap items-center space-x-2 md:space-x-3 rtl:space-x-reverse w-full">
         {items.map((item, index) => (
           <li key={index} className="inline-flex items-center">
             {/* Separator */}
@@ -31,7 +31,7 @@ const Breadcrumb = ({ items = [] }) => {
             {item.path ? (
               <button
                 onClick={() => navigate(item.path)}
-                className={`inline-flex items-center text-sm ${
+                className={`inline-flex items-center text-xs sm:text-sm md:text-base ${
                   index === 0 ? "font-bold" : "font-medium"
                 } text-black hover:text-gray-400`}
                 aria-current={index === items.length - 1 ? "page" : undefined}
@@ -51,7 +51,7 @@ const Breadcrumb = ({ items = [] }) => {
               </button>
             ) : (
               <span
-                className="inline-flex items-center text-sm font-medium text-black"
+                className="inline-flex items-center text-xs sm:text-sm md:text-base font-medium text-black"
                 aria-current={index === items.length - 1 ? "page" : undefined}
               >
                 {item.label}

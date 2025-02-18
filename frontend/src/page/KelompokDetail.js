@@ -1,5 +1,5 @@
 import React from "react";
-import DetailDesaPage from '../components/DetailDesaPage';
+import DetailDesaPage from '../components/DetailKelompok/DetailDesaPage';
 import Beranda from '../layouts/BerandaLayout';
 
 const KelompokDetail = () => {

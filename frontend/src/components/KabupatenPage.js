@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { Audio } from "react-loader-spinner";
 import { ToastContainer, toast } from "react-toastify";
 import { FaPlus, FaEdit, FaTrash } from "react-icons/fa";
 import "react-toastify/dist/ReactToastify.css";
-import ModalKabupaten from "./ModalKabupaten";
+import ModalKabupaten from "./Modal/ModalKabupaten";
 import { useNavigate } from "react-router-dom";
 import Breadcrumb from "./Breadcrumb";
 
@@ -175,15 +176,18 @@ const KabupatenPage = () => {
     setShowDeleteModal(false);
   };
 
-  if (loading) {
-    return (
-      <div className="text-center text-xl text-gray-600">Memuat data...</div>
-    );
-  }
-
-  if (error) {
-    return <div className="text-center text-xl text-red-500">{error}</div>;
-  }
+   // Halaman loading
+    if (loading) {
+      return (
+        <div className="flex items-center justify-center h-screen">
+          <Audio type="Bars" color="#3FA2F6" height={80} width={80} />
+        </div>
+      );
+    }
+  
+    if (error) {
+      return <div className="text-center text-xl text-red-500">{error}</div>;
+    }
 
   const handleLogout = () => {
     localStorage.removeItem("authToken");

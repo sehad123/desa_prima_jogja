@@ -2,12 +2,15 @@ import React, { useEffect, useState, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import axios from "axios";
 import { Line, Doughnut } from "react-chartjs-2";
-import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, ArcElement, Tooltip, Legend } from "chart.js";
+import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, ArcElement, Tooltip, Legend, Title, DoughnutController } from "chart.js";
 import { useNavigate } from "react-router-dom";
+import ChartDataLabels from 'chartjs-plugin-datalabels';
 import Breadcrumb from "./Breadcrumb";
+import DoughnutChart from "./Chart/DoughnutChart";
+import LineChart from "./Chart/LineChart";
 
 // Daftarkan elemen dan skala yang dibutuhkan
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, ArcElement, Tooltip, Legend);
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, ArcElement, Tooltip, Legend, Title, DoughnutController, ChartDataLabels);
 
 // Fungsi untuk memformat tanggal
 const formatDate = (dateString) => {
@@ -36,6 +39,23 @@ const KabupatenDetail = () => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
+  const lineChartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      x: {
+        ticks: {
+          autoSkip: true,
+          maxTicksLimit: 5, // Mengurangi jumlah ticks di sumbu X pada mobile
+        },
+      },
+      y: {
+        beginAtZero: true,
+        max: 120, // Membatasi nilai maksimal agar grafik lebih tinggi
+      },
+    },
+  };
+  
   useEffect(() => {
     const fetchKabupatenDetail = async () => {
       try {
@@ -100,48 +120,19 @@ const KabupatenDetail = () => {
     ],
   };
 
+  const desaMaju = kabupaten.jumlah_maju;
+  const desaBerkembang = kabupaten.jumlah_berkembang;
+  const desaTumbuh = kabupaten.jumlah_tumbuh;
+  const totalDesa = kabupaten.jumlah_desa;
+  const totalJumlahDesa = kabupaten.jumlah_maju + kabupaten.jumlah_berkembang + kabupaten.jumlah_tumbuh;
+  
   // Data untuk chart donat
   const doughnutChartData = {
-    labels: ["Maju", "Berkembang", "Tumbuh"],
-    datasets: [
-      {
-        data: [kabupaten.jumlah_maju, kabupaten.jumlah_berkembang, kabupaten.jumlah_tumbuh],
-        backgroundColor: ["#4CAF50", "#FFC107", "#FF5722", "#CCCCCC"],
-      },
-    ],
-  };
-
-  const doughnutChartOptions = {
-    plugins: {
-      tooltip: {
-        callbacks: {
-          label: (context) => {
-            const dataset = context.dataset;
-            const total = dataset.data.reduce((acc, value) => acc + value, 0);
-            const value = dataset.data[context.dataIndex];
-            const percentage = ((value / total) * 100).toFixed(1);
-            return `${context.label}: ${value} (${percentage}%)`;
-          },
-        },
-      },
-      legend: {
-        position: "top",
-      },
-      datalabels: {
-        display: true,
-        color: "#fff",
-        font: {
-          size: 14,
-          weight: "bold",
-        },
-        formatter: (value, context) => {
-          const dataset = context.chart.data.datasets[0];
-          const total = dataset.data.reduce((acc, data) => acc + data, 0);
-          const percentage = ((value / total) * 100).toFixed(1);
-          return `${percentage}%`;
-        },
-      },
-    },
+    desaMaju, 
+    desaBerkembang, 
+    desaTumbuh,
+    totalDesa, 
+    totalJumlahDesa 
   };
 
   const downloadChartImage = (chartRef, filename) => {
@@ -160,7 +151,7 @@ const KabupatenDetail = () => {
     localStorage.removeItem("authToken");
     navigate("/");
   };
-  const totalDesa = kabupaten.jumlah_maju + kabupaten.jumlah_berkembang + kabupaten.jumlah_tumbuh;
+  
   const percentage = ((totalDesa / kabupaten.jumlah_desa) * 100).toFixed(1);
 
   const breadcrumbItems = [
@@ -170,21 +161,29 @@ const KabupatenDetail = () => {
   ];
 
   return (
-    <div className="p-5">
+    <>
+      <div className="p-5">
       <Breadcrumb items={breadcrumbItems} />
-      <div className="pt-4">
         <div className="bg-white p-4 rounded-md">
           <div className="px-2 flex justify-between items-center mb-4">
             <h1 className="text-2xl font-medium">{kabupaten.nama_kabupaten === "Kota Yogyakarta" ? kabupaten.nama_kabupaten : `Kabupaten ${kabupaten.nama_kabupaten}`}</h1>
-            <Link to={`/kelompok-desa?kabupaten=${kabupaten.nama_kabupaten === "Kota Yogyakarta" ? kabupaten.nama_kabupaten : `KAB. ${kabupaten.nama_kabupaten.toUpperCase()}`}`}>
-              <button className="bg-blue-700 text-white py-2 px-4 rounded-md shadow-md">Daftar Desa</button>
-            </Link>
+            <Link
+          to={`/kelompok-desa?kabupaten=${
+            kabupaten.nama_kabupaten === "Kota Yogyakarta"
+              ? kabupaten.nama_kabupaten
+              : `KAB. ${kabupaten.nama_kabupaten.toUpperCase()}`
+          }`}
+        >
+          <button className="bg-blue-700 text-white py-2 px-4 rounded-md shadow-md">
+            Daftar Desa
+          </button>
+        </Link>
           </div>
 
           {/* Layout Grid 4 Bagian */}
-          <div className="px-4 pb-2 grid grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Bagian Atas Kiri: Informasi Kabupaten dalam bentuk Card */}
-            <div className="col-span-2 grid grid-cols-2 gap-4">
+            <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="bg-blue-500 text-white p-4 rounded-md shadow-md">
                 <h2 className="text-lg font-bold mb-2">Ketua Forum</h2>
                 <p>{kabupaten.ketua_forum}</p>
@@ -206,18 +205,18 @@ const KabupatenDetail = () => {
             </div>
 
             {/* Bagian Atas Kanan: Informasi Kategori dalam bentuk Card */}
-            <div className="col-span-1 bg-white p-6 rounded-md shadow-md border-[1px]">
+            <div className="bg-white p-6 rounded-md shadow-md">
               <h2 className="text-lg font-bold mb-4 text-center">Jumlah Kelompok Berdasarkan Kategori</h2>
-              <div className="flex flex-col items-center space-y-4">
-                <div className="flex justify-between w-1/2">
+              <div className="flex flex-col items-center space-y-4 px-6">
+                <div className="flex justify-between w-full sm:w-40">
                   <span className="text-gray-600">Maju</span>
                   <span className="bg-green-200 text-green-800 px-4 py-1 rounded-md">{kabupaten.jumlah_maju || 0}</span>
                 </div>
-                <div className="flex justify-between w-1/2">
+                <div className="flex justify-between w-full sm:w-40">
                   <span className="text-gray-600">Berkembang</span>
                   <span className="bg-blue-200 text-blue-800 px-4 py-1 rounded-md">{kabupaten.jumlah_berkembang || 0}</span>
                 </div>
-                <div className="flex justify-between w-1/2">
+                <div className="flex justify-between w-full sm:w-40">
                   <span className="text-gray-600">Tumbuh</span>
                   <span className="bg-orange-200 text-orange-800 px-4 py-1 rounded-md">{kabupaten.jumlah_tumbuh || 0}</span>
                 </div>
@@ -228,45 +227,22 @@ const KabupatenDetail = () => {
       </div>
 
       {/* Bagian Bawah */}
-      <div className="mt-4 grid grid-cols-3 gap-6">
-        {/* Grafik Periodik */}
 
-        <div id="line-chart-container" className="col-span-2 bg-white shadow-md p-4 rounded-md relative">
-          <h2 className="text-xl font-bold mb-4">Jumlah kelompok Desa Prima Berdasarkan Kategori Secara Periodik</h2>
-          <Line ref={lineChartRef} data={lineChartData} />
-          <button onClick={() => downloadChartImage(lineChartRef, "line_chart.png")} className="absolute top-4 right-4 text-blue-500 hover:text-blue-700" title="Unduh Grafik">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" className="w-6 h-6" viewBox="0 0 24 24">
-              <path d="M12 16l4-5h-3V3h-2v8H8l4 5zm-7 2v2h14v-2H5z" />
-            </svg>
-          </button>
+      <div className="px-5 pb-5 grid grid-cols-1 lg:grid-cols-3 gap-5">
+        <div
+          ref={lineChartRef}
+          className="lg:col-span-2 bg-white shadow-md p-6 rounded-md"
+        >
+          <LineChart data={lineChartData} ref={lineChartRef} />
         </div>
-
-        {/* Diagram */}
-        <div id="doughnut-chart-container" className="col-span-1 bg-white shadow-md p-6 rounded-md relative flex flex-col items-center">
-          {/* Header */}
-          <h2 className="text-xl font-bold mb-4 text-center">Jumlah Kelompok Desa Prima Berdasarkan Kategori</h2>
-
-          {/* Chart Container */}
-          <div className="relative w-[300px] h-[300px] flex items-center justify-center">
-            {/* Doughnut Chart */}
-            <Doughnut ref={doughnutChartRef} data={doughnutChartData} options={doughnutChartOptions} />
-
-            {/* Centered Label */}
-            <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <p className="text-3xl font-bold mt-14">{percentage}%</p>
-              <p className="text-sm text-gray-500 mt-1">Desa</p>
-            </div>
-          </div>
-
-          {/* Download Button */}
-          <button onClick={() => downloadChartImage(doughnutChartRef, "doughnut_chart.png")} className="absolute top-4 right-4 text-blue-500 hover:text-blue-700" title="Unduh Diagram">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" className="w-6 h-6" viewBox="0 0 24 24">
-              <path d="M12 16l4-5h-3V3h-2v8H8l4 5zm-7 2v2h14v-2H5z" />
-            </svg>
-          </button>
+        <div
+          ref={doughnutChartRef}
+          className="bg-white shadow-md p-6 rounded-md"
+        >
+          <DoughnutChart data={doughnutChartData} ref={doughnutChartRef} />
         </div>
       </div>
-    </div>
+    </>
   );
 };
 
