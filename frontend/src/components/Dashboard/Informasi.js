@@ -142,19 +142,19 @@ const Informasi = () => {
       {/* Informasi Kabupaten dalam bentuk Card */}
       <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="bg-blue-500 text-white p-4 rounded-md shadow-md">
-          <h2 className="text-lg font-bold mb-2">Pegawai</h2>
+          <h2 className="text-sm lg:text-lg font-bold mb-2">Pegawai</h2>
           <p>{profil.name || "Tidak tersedia"}</p>
         </div>
         <div className="bg-blue-500 text-white p-4 rounded-md shadow-md">
-          <h2 className="text-lg font-bold mb-2">Jumlah Desa</h2>
+          <h2 className="text-sm lg:text-lg font-bold mb-2">Jumlah Desa</h2>
           <p>{totalDesa}</p>
         </div>
         <div className="bg-blue-500 text-white p-4 rounded-md shadow-md">
-          <h2 className="text-lg font-bold mb-2">Periode Pembentukan</h2>
+          <h2 className="text-sm lg:text-lg font-bold mb-2">Periode Pembentukan</h2>
           <p>17 Desember - 20 Desember 2025</p>
         </div>
         <div className="bg-blue-500 text-white p-4 rounded-md shadow-md">
-          <h2 className="text-lg font-bold mb-2">Kelompok Desa Prima</h2>
+          <h2 className="text-sm lg:text-lg font-bold mb-2">Kelompok Desa Prima</h2>
           <p>{totalJumlahDesa}</p>{" "}
           {/* Menggunakan properti baru untuk jumlah desa kabupaten */}
         </div>
@@ -162,25 +162,25 @@ const Informasi = () => {
 
       {/* Informasi Kategori dalam bentuk Card */}
       <div className="bg-white p-6 rounded-md shadow-md">
-        <h2 className="text-lg font-bold mb-4 text-center">
+        <h2 className="text-sm lg:text-lg font-bold mb-4 text-center">
           Jumlah Kelompok Berdasarkan Kategori
         </h2>
         <div className="flex flex-col items-center space-y-4 px-6">
           <div className="flex justify-between w-full sm:w-40">
-            <span className="text-gray-600">Maju</span>
-            <span className="bg-green-200 text-green-800 px-4 py-1 rounded-md">
+            <span className="text-sm lg:text-lg text-gray-600">Maju</span>
+            <span className="text-sm lg:text-lg bg-green-200 text-green-800 px-4 py-1 rounded-md">
               {desaMaju}
             </span>
           </div>
           <div className="flex justify-between w-full sm:w-40">
-            <span className="text-gray-600">Berkembang</span>
-            <span className="bg-blue-200 text-blue-800 px-4 py-1 rounded-md">
+            <span className="text-sm lg:text-lg text-gray-600">Berkembang</span>
+            <span className="text-sm lg:text-lg bg-blue-200 text-blue-800 px-4 py-1 rounded-md">
               {desaBerkembang}
             </span>
           </div>
           <div className="flex justify-between w-full sm:w-40">
-            <span className="text-gray-600">Tumbuh</span>
-            <span className="bg-orange-200 text-orange-800 px-4 py-1 rounded-md">
+            <span className="text-sm lg:text-lg text-gray-600">Tumbuh</span>
+            <span className="text-sm lg:text-lg bg-orange-200 text-orange-800 px-4 py-1 rounded-md">
               {desaTumbuh}
             </span>
           </div>

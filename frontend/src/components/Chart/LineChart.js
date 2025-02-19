@@ -40,7 +40,7 @@ const LineChart = forwardRef(({ data }, ref) => {
 
   return (
     <>
-      <h2 className="text-xl font-bold mb-4 text-center">
+      <h2 className="text-sm lg:text-lg font-bold mb-4 text-center">
         Jumlah Kelompok Desa Prima Secara Periodik
       </h2>
       <div className="h-[300px] lg:h-[400px]">

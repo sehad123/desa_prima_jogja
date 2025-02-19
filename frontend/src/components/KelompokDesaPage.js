@@ -401,7 +401,7 @@ const KelompokDesa = () => {
       )}
 
 <div className="p-5">
-        <Breadcrumb paths={breadcrumbPaths} />
+        <Breadcrumb items={breadcrumbPaths} />
       </div>
       
       {/* Flex container for two columns */}
@@ -646,7 +646,7 @@ const KelompokDesa = () => {
           <div className="flex flex-col md:items-start bg-white p-4 w-full">
             <div className="border-b-2 border-grey items-start md:border-none pb-4 md:pb-0">
               <h1 className="text-lg">
-                Daftar Kegiatan BPS Kabupaten Sleman{" "}
+                Daftar Kelompok Desa{" "}
                 {getKabupatenFromQuery() || "Kabupaten Tidak Ditemukan"}
               </h1>
             </div>

@@ -1,9 +1,10 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import axios from "axios";
+import { Audio } from "react-loader-spinner";
 import { Line, Doughnut } from "react-chartjs-2";
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, ArcElement, Tooltip, Legend, Title, DoughnutController } from "chart.js";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import Breadcrumb from "./Breadcrumb";
 import DoughnutChart from "./Chart/DoughnutChart";
@@ -31,31 +32,30 @@ const formatKabupatenName = (kabupatenName) => {
     .replace(/^(\w)/, (match) => match.toUpperCase()); // Mengubah huruf pertama menjadi huruf kapital
 };
 
+const generateTimelineLabels = (startDate, endDate, points = 5) => {
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+  const timeline = [];
+  
+  for (let i = 0; i < points; i++) {
+    const current = new Date(start.getTime() + ((end - start) / (points - 1)) * i);
+    const formattedDate = current.toISOString().split("T")[0]; // Format YYYY-MM-DD
+    timeline.push(formattedDate);
+  }
+  
+  return timeline;
+};
+
 const KabupatenDetail = () => {
   const lineChartRef = useRef(null);
   const doughnutChartRef = useRef(null);
   const { id } = useParams();
   const [kabupaten, setKabupaten] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const navigate = useNavigate();
+  const location = useLocation(); // Hook untuk mengambil URL location
 
-  const lineChartOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    scales: {
-      x: {
-        ticks: {
-          autoSkip: true,
-          maxTicksLimit: 5, // Mengurangi jumlah ticks di sumbu X pada mobile
-        },
-      },
-      y: {
-        beginAtZero: true,
-        max: 120, // Membatasi nilai maksimal agar grafik lebih tinggi
-      },
-    },
-  };
-  
   useEffect(() => {
     const fetchKabupatenDetail = async () => {
       try {
@@ -98,23 +98,62 @@ const KabupatenDetail = () => {
     fetchKabupatenDetail();
   }, [id]);
 
-  if (loading) return <div>Loading...</div>;
-  if (!kabupaten) return <div>Data tidak ditemukan</div>;
+  const getKabupatenFromQuery = () => {
+    const params = new URLSearchParams(location.search);
+    return params.get("kabupaten"); // Mengambil parameter 'kabupaten' dari URL
+  };
 
+  const kabupatenName = getKabupatenFromQuery(); 
+   if (loading) {
+      return (
+        <div className="flex items-center justify-center h-screen">
+          <Audio type="Bars" color="#3FA2F6" height={80} width={80} />
+        </div>
+      );
+    }
+  
+    if (error) {
+      return <div className="text-center text-xl text-red-500">{error}</div>;
+    }
+
+    const timelineLabels = generateTimelineLabels(kabupaten.periode_awal, kabupaten.periode_akhir);
   // Data untuk chart garis
   const lineChartData = {
-    labels: ["05/01/2024", "12/01/2024", "19/01/2024", "26/01/2024", "02/02/2024", "09/02/2024", "29/02/2024"],
+    labels: timelineLabels, // Label sumbu X
     datasets: [
       {
-        label: "Target",
-        data: [20, 40, 60, 80, 100, 100, 100],
-        borderColor: "#999999",
+        label: "Desa Maju",
+        data: timelineLabels.map(() => kabupaten.jumlah_maju), // Tetap konstan untuk contoh
+        borderColor: "#4CAF50",
+        backgroundColor: "rgba(76, 175, 80, 0.2)",
         fill: false,
       },
       {
-        label: "Realisasi",
-        data: [10, 30, 50, 70, 90, 95, 100],
-        borderColor: "#4CAF50",
+        label: "Desa Berkembang",
+        data: timelineLabels.map(() => kabupaten.jumlah_berkembang), 
+        borderColor: "#FFC107",
+        backgroundColor: "rgba(255, 193, 7, 0.2)",
+        fill: false,
+      },
+      {
+        label: "Desa Tumbuh",
+        data: timelineLabels.map(() => kabupaten.jumlah_tumbuh), 
+        borderColor: "#FF5722",
+        backgroundColor: "rgba(255, 87, 34, 0.2)",
+        fill: false,
+      },
+      {
+        label: "Total Kelompok Desa",
+        data: timelineLabels.map(() => kabupaten.jumlah_maju + kabupaten.jumlah_berkembang + kabupaten.jumlah_tumbuh), 
+        borderColor: "#3F51B5",
+        backgroundColor: "rgba(63, 81, 181, 0.2)",
+        fill: false,
+      },
+      {
+        label: "Total Desa Keseluruhan",
+        data: timelineLabels.map(() => kabupaten.jumlah_desa), 
+        borderColor: "#999999",
+        backgroundColor: "rgba(153, 153, 153, 0.2)",
         fill: false,
       },
     ],
@@ -154,19 +193,22 @@ const KabupatenDetail = () => {
   
   const percentage = ((totalDesa / kabupaten.jumlah_desa) * 100).toFixed(1);
 
-  const breadcrumbItems = [
-    { label: "Beranda", path: "/peta-desa" },
-    { label: "Kabupaten/Kota", path: "/kabupaten-page" },
-    { label: kabupaten.nama_kabupaten, path: null },
+  const breadcrumbPaths = [
+    { name: "Beranda", href: "/peta-desa" },
+    { name: "Kabupaten/Kota", href: "/kabupaten-page" },
+    {
+      name: kabupaten.nama_kabupaten || "Kabupaten Tidak Ditemukan",
+      href: kabupaten.nama_kabupaten ? `/detail/${id}` : null,
+    },
   ];
 
   return (
     <>
       <div className="p-5">
-      <Breadcrumb items={breadcrumbItems} />
+      <Breadcrumb items={breadcrumbPaths} />
         <div className="bg-white p-4 rounded-md">
           <div className="px-2 flex justify-between items-center mb-4">
-            <h1 className="text-2xl font-medium">{kabupaten.nama_kabupaten === "Kota Yogyakarta" ? kabupaten.nama_kabupaten : `Kabupaten ${kabupaten.nama_kabupaten}`}</h1>
+            <h1 className="text-lg lg:text-2xl font-medium">{kabupaten.nama_kabupaten === "Kota Yogyakarta" ? kabupaten.nama_kabupaten : `Kabupaten ${kabupaten.nama_kabupaten}`}</h1>
             <Link
           to={`/kelompok-desa?kabupaten=${
             kabupaten.nama_kabupaten === "Kota Yogyakarta"
@@ -174,8 +216,8 @@ const KabupatenDetail = () => {
               : `KAB. ${kabupaten.nama_kabupaten.toUpperCase()}`
           }`}
         >
-          <button className="bg-blue-700 text-white py-2 px-4 rounded-md shadow-md">
-            Daftar Desa
+          <button className="bg-blue-700 text-white text-xs lg:text-lg py-2 px-4 rounded-md shadow-md">
+            Daftar Kelompok
           </button>
         </Link>
           </div>
@@ -185,40 +227,40 @@ const KabupatenDetail = () => {
             {/* Bagian Atas Kiri: Informasi Kabupaten dalam bentuk Card */}
             <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="bg-blue-500 text-white p-4 rounded-md shadow-md">
-                <h2 className="text-lg font-bold mb-2">Ketua Forum</h2>
-                <p>{kabupaten.ketua_forum}</p>
+                <h2 className="text-sm lg:text-lg font-bold mb-2">Ketua Forum</h2>
+                <p className="text-sm lg:text-lg">{kabupaten.ketua_forum}</p>
               </div>
               <div className="bg-blue-500 text-white p-4 rounded-md shadow-md">
-                <h2 className="text-lg font-bold mb-2">Jumlah Desa</h2>
-                <p>{kabupaten.jumlah_desa}</p>
+                <h2 className="text-sm lg:text-lg font-bold mb-2">Jumlah Desa</h2>
+                <p className="text-sm lg:text-lg">{kabupaten.jumlah_desa}</p>
               </div>
               <div className="bg-blue-500 text-white p-4 rounded-md shadow-md">
-                <h2 className="text-lg font-bold mb-2">Periode Pembentukan</h2>
-                <p>
+                <h2 className="text-sm lg:text-lg font-bold mb-2">Periode Pembentukan</h2>
+                <p className="text-sm lg:text-lg">
                   {formatDate(kabupaten.periode_awal)} — {formatDate(kabupaten.periode_akhir)}
                 </p>
               </div>
               <div className="bg-blue-500 text-white p-4 rounded-md shadow-md">
-                <h2 className="text-lg font-bold mb-2">Kelompok Desa Prima</h2>
-                <p>{kabupaten.jumlah_maju + kabupaten.jumlah_berkembang + kabupaten.jumlah_tumbuh}</p>
+                <h2 className="text-sm lg:text-lg font-bold mb-2">Kelompok Desa Prima</h2>
+                <p className="text-sm lg:text-lg">{kabupaten.jumlah_maju + kabupaten.jumlah_berkembang + kabupaten.jumlah_tumbuh}</p>
               </div>
             </div>
 
             {/* Bagian Atas Kanan: Informasi Kategori dalam bentuk Card */}
             <div className="bg-white p-6 rounded-md shadow-md">
-              <h2 className="text-lg font-bold mb-4 text-center">Jumlah Kelompok Berdasarkan Kategori</h2>
+              <h2 className="text-sm lg:text-lg font-bold mb-4 text-center">Jumlah Kelompok Berdasarkan Kategori</h2>
               <div className="flex flex-col items-center space-y-4 px-6">
                 <div className="flex justify-between w-full sm:w-40">
-                  <span className="text-gray-600">Maju</span>
-                  <span className="bg-green-200 text-green-800 px-4 py-1 rounded-md">{kabupaten.jumlah_maju || 0}</span>
+                  <span className="text-sm lg:text-lg text-gray-600">Maju</span>
+                  <span className="text-sm lg:text-lg bg-green-200 text-green-800 px-4 py-1 rounded-md">{kabupaten.jumlah_maju || 0}</span>
                 </div>
                 <div className="flex justify-between w-full sm:w-40">
-                  <span className="text-gray-600">Berkembang</span>
-                  <span className="bg-blue-200 text-blue-800 px-4 py-1 rounded-md">{kabupaten.jumlah_berkembang || 0}</span>
+                  <span className="text-sm lg:text-lg text-gray-600">Berkembang</span>
+                  <span className="text-sm lg:text-lg bg-blue-200 text-blue-800 px-4 py-1 rounded-md">{kabupaten.jumlah_berkembang || 0}</span>
                 </div>
                 <div className="flex justify-between w-full sm:w-40">
-                  <span className="text-gray-600">Tumbuh</span>
-                  <span className="bg-orange-200 text-orange-800 px-4 py-1 rounded-md">{kabupaten.jumlah_tumbuh || 0}</span>
+                  <span className="text-sm lg:text-lg text-gray-600">Tumbuh</span>
+                  <span className="text-sm lg:text-lg bg-orange-200 text-orange-800 px-4 py-1 rounded-md">{kabupaten.jumlah_tumbuh || 0}</span>
                 </div>
               </div>
             </div>

@@ -14,12 +14,27 @@ import DoughnutChart from "../Chart/DoughnutChart";
 import LineChart from "../Chart/LineChart";
 import useMediaQuery from "../useMediaQuery";
 
+const generateTimelineLabels = (startDate, endDate, points = 5) => {
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+  const timeline = [];
+  
+  for (let i = 0; i < points; i++) {
+    const current = new Date(start.getTime() + ((end - start) / (points - 1)) * i);
+    const formattedDate = current.toISOString().split("T")[0]; // Format YYYY-MM-DD
+    timeline.push(formattedDate);
+  }
+  
+  return timeline;
+};
+
 const DashboardPage = () => {
   const [desaList, setDesaList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const isMobile = useMediaQuery("(max-width: 768px)");
   const [profil, setProfil] = useState({});
+  const [kelompokDesa, setKelompokDesa] = useState(null);
   const [totalDesa, setTotalDesa] = useState(0);
   const [totalJumlahDesa, setTotalJumlahDesa] = useState(0);
   const [desaMaju, setDesaMaju] = useState(0);
@@ -104,6 +119,13 @@ const DashboardPage = () => {
         const desaResponse = await axios.get("http://localhost:5000/api/desa", {
           headers,
         });
+
+        const kelompokDesaData = desaResponse.data;
+
+        setKelompokDesa({
+          ...kelompokDesaData,
+        });
+
         setTotalJumlahDesa(desaResponse.data.length);
 
         const totalDesaResponse = await axios.get(
@@ -139,29 +161,45 @@ const DashboardPage = () => {
     fetchData();
   }, []);
 
+  // const timelineLabels = generateTimelineLabels(kelompokDesa.periode_awal, kelompokDesaperiode_akhir);
+
+  // **Data untuk LineChart**
   const lineChartData = {
-    labels: [
-      "05/01/2024",
-      "12/01/2024",
-      "19/01/2024",
-      "26/01/2024",
-      "02/02/2024",
-      "09/02/2024",
-      "29/02/2024",
-    ],
+    // labels: timelineLabels, // Label sumbu X
     datasets: [
       {
-        label: "Target",
-        data: [20, 40, 60, 80, 100, 100, 100],
-        borderColor: "#999999",
-        tension: 0.3,
+        label: "Desa Maju",
+        // data: timelineLabels.map(() => desaMaju), // Tetap konstan untuk contoh
+        borderColor: "#4CAF50",
+        backgroundColor: "rgba(76, 175, 80, 0.2)",
         fill: false,
       },
       {
-        label: "Realisasi",
-        data: [10, 30, 50, 70, 90, 95, 100],
-        borderColor: "#4CAF50",
-        tension: 0.3,
+        label: "Desa Berkembang",
+        // data: timelineLabels.map(() => desaBerkembang), 
+        borderColor: "#FFC107",
+        backgroundColor: "rgba(255, 193, 7, 0.2)",
+        fill: false,
+      },
+      {
+        label: "Desa Tumbuh",
+        // data: timelineLabels.map(() => desaTumbuh), 
+        borderColor: "#FF5722",
+        backgroundColor: "rgba(255, 87, 34, 0.2)",
+        fill: false,
+      },
+      {
+        label: "Total Kelompok Desa",
+        // data: timelineLabels.map(() => desaTumbuh+desaMaju+desaBerkembang), 
+        borderColor: "#3F51B5",
+        backgroundColor: "rgba(63, 81, 181, 0.2)",
+        fill: false,
+      },
+      {
+        label: "Total Desa Keseluruhan",
+        // data: timelineLabels.map(() => totalJumlahDesa), 
+        borderColor: "#999999",
+        backgroundColor: "rgba(153, 153, 153, 0.2)",
         fill: false,
       },
     ],
@@ -257,56 +295,56 @@ const DashboardPage = () => {
   return (
     <>
       <Header />
-      <div className="flex space-x-2 justify-end" onClick={handlePrint}>
-        <div className="flex justify-center px-1 py-1 md:px-3 md:py-2 space-x-2 text-sm lg:text-lg font-semibold bg-green-200 hover:bg-green-400 rounded-md shadow-sm cursor-pointer text-green-700 hover:text-white">
-          <BlobProvider
-            document={
-              <ReportDashboard
-                profil={profil}
-                totalDesa={totalDesa}
-                totalJumlahDesa={totalJumlahDesa}
-                desaMaju={desaMaju}
-                desaBerkembang={desaBerkembang}
-                desaTumbuh={desaTumbuh}
-                DoughnutChartImage={DoughnutChartImage}
-                LineChartImage={LineChartImage}
-                isMobile={isMobile}
-              />
-            }
-          >
-            {({ url, blob }) => {
-              console.log("Generated URL:", url); // Log URL to console
-              console.log("Generated Blob:", blob); // Log Blob to console
+      <div className="flex space-x-4 justify-end items-center pt-4 px-5">
+  {/* Tombol Cetak PDF */}
+  <div className="flex justify-center px-3 py-2 space-x-2 text-sm lg:text-lg font-semibold bg-green-200 hover:bg-green-400 rounded-md shadow-sm cursor-pointer text-green-700 hover:text-white">
+    <BlobProvider
+      document={
+        <ReportDashboard
+          profil={profil}
+          totalDesa={totalDesa}
+          totalJumlahDesa={totalJumlahDesa}
+          desaMaju={desaMaju}
+          desaBerkembang={desaBerkembang}
+          desaTumbuh={desaTumbuh}
+          DoughnutChartImage={DoughnutChartImage}
+          LineChartImage={LineChartImage}
+          isMobile={isMobile}
+        />
+      }
+    >
+      {({ url, blob }) => {
+        console.log("Generated URL:", url);
+        console.log("Generated Blob:", blob);
 
-              if (url) {
-                // If URL is valid, we can use it for printing or download
-                return (
-                  <a
-                    href={url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center space-x-2 py-1 px-2 rounded-md"
-                  >
-                    <FontAwesomeIcon icon={faPrint} />
-                    <span className="sm:text-sm">Cetak PDF</span>
-                  </a>
-                );
-              } else {
-                return <div>Failed to generate PDF</div>;
-              }
-            }}
-          </BlobProvider>
-        </div>
-      </div>
-      <div className="relative">
-        {/* Tombol dipindahkan ke pojok kanan atas */}
-        <button
-          className="absolute top-3 right-4 bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 shadow-md"
-          onClick={() => navigate("/kabupaten-page")}
-        >
-          Daftar Kabupaten/Kota
-        </button>
-      </div>
+        if (url) {
+          return (
+            <a
+              href={url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center space-x-2 py-1 px-2 rounded-md"
+            >
+              <FontAwesomeIcon icon={faPrint} />
+              <span className="sm:text-sm">Cetak PDF</span>
+            </a>
+          );
+        } else {
+          return <div>Failed to generate PDF</div>;
+        }
+      }}
+    </BlobProvider>
+  </div>
+
+  {/* Tombol Daftar Kabupaten/Kota */}
+  <button
+    className="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 shadow-md"
+    onClick={() => navigate("/kabupaten-page")}
+  >
+    Daftar Kabupaten/Kota
+  </button>
+</div>
+
       <div className="p-5">
         <Informasi />
       </div>

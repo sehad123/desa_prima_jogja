@@ -31,7 +31,7 @@ const Breadcrumb = ({ items = [] }) => {
             {item.path ? (
               <button
                 onClick={() => navigate(item.path)}
-                className={`inline-flex items-center text-xs sm:text-sm md:text-base ${
+                className={`inline-flex items-center text-xs sm:text-sm md:text-sm ${
                   index === 0 ? "font-bold" : "font-medium"
                 } text-black hover:text-gray-400`}
                 aria-current={index === items.length - 1 ? "page" : undefined}
@@ -51,7 +51,7 @@ const Breadcrumb = ({ items = [] }) => {
               </button>
             ) : (
               <span
-                className="inline-flex items-center text-xs sm:text-sm md:text-base font-medium text-black"
+                className="inline-flex items-center text-xs sm:text-sm md:text-sm font-medium text-black"
                 aria-current={index === items.length - 1 ? "page" : undefined}
               >
                 {item.label}

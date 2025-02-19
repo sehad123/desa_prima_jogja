@@ -67,10 +67,10 @@ const BerandaHeader = () => {
             <FontAwesomeIcon icon={isSidebarOpen ? faTimes : faBars} className="md:text-black md:text-2xl md:cursor-pointer hidden md:block" onClick={handleSidebarToggle} />
             <Link to="/peta-desa" className="cursor-pointer ml-4 md:ml-8 flex items-center md:mr-0 flex-grow">
               <img src="/images/logo_diy.png" alt="logo" width="34" height="36" className="block" />
-              <p className="text-black leading-5 ml-2 text-left font-bold">
+              <p className="text-black leading-5 ml-2 text-left font-bold text-sm lg:text-lg">
                 DESA PRIMA
                 <br />
-                <span className="text-black font-light">DP3AP Provinsi Yogyakarta</span>
+                <span className="text-black font-light text-sm lg:text-lg">DP3AP Provinsi Yogyakarta</span>
               </p>
             </Link>
             <FontAwesomeIcon icon={isSidebarOpen ? faTimes : faBars} className="text-black text-2xl cursor-pointer ml-16 mr-5 md:hidden" onClick={handleSidebarToggle} />
@@ -85,7 +85,7 @@ const BerandaHeader = () => {
             </div>
             {isProfileDropdownOpen && (
               <div className="absolute right-0 top-11 mt-2 w-40 pl-3 bg-white border rounded-lg">
-                <p className="text-black font-semibold">Nama : {profil.name}</p>
+                <p className="text-black font-semibold lg:text-sm">Nama : {profil.name}</p>
                 {/* <p className="text-black font-semibold">Email : {profil.email}</p> */}
                 <p className="text-black font-light lg:text-sm">NIP : {profil.nip}</p>
                 <p className="text-black font-light lg:text-sm">Jabatan : {profil.role}</p>

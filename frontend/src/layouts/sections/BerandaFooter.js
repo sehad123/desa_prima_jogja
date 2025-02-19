@@ -13,23 +13,23 @@ const BerandaFooter = () => {
       <div className="w-full max-w-screen-xl mx-auto flex flex-col md:flex-row justify-between items-center text-center md:text-left px-4 md:px-8">
         <div className="flex flex-col items-center md:items-start mb-6 md:mb-0 font-light">
           <img src="/images/logo_diy.png" alt="Logo" className="mb-2 w-10 h-12" />
-          <p className="font-bold">
+          <p className="font-bold text-sm lg:text-lg">
             DINAS PEMBERDAYAAN PEREMPUAN <br />
             DAN PERLINDUNGAN ANAK
           </p>
-          <p>Copyright © 2024 | DP3AP2 DIY</p>
-          <p>Hanya Untuk Internal Dinas</p>
-          <p>All rights reserved</p>
+          <p className="text-sm lg:text-lg">Copyright © 2024 | DP3AP2 DIY</p>
+          <p className="text-sm lg:text-lg">Hanya Untuk Internal Dinas</p>
+          <p className="text-sm lg:text-lg">All rights reserved</p>
         </div>
         <div className="flex flex-col items-center md:items-start mb-6 md:mb-0 font-light">
-          <p className="font-bold">Tautan</p>
-          <a href="/kabupaten-page" className="hover:underline">
+          <p className="font-bold text-sm lg:text-lg">Tautan</p>
+          <a href="/kabupaten-page" className="hover:underline text-sm lg:text-lg">
             Beranda
           </a>
 
           {/* Pastikan role adalah array sebelum menggunakan includes */}
           {role.includes("katim") && (
-            <a href="/monitoring-evaluasi/dashboard" className="hover:underline">
+            <a href="/monitoring-evaluasi/dashboard" className="hover:underline text-sm lg:text-lg">
               Dashboard
             </a>
           )}
@@ -47,14 +47,14 @@ const BerandaFooter = () => {
           ></iframe>
         </div>
         <div className="flex flex-col items-center mt-6 lg:mt-0 md:items-start font-light">
-          <p className="font-bold">Hubungi Kami</p>
-          <p>Jl. Tentara Rakyat Mataram No.31 Yogyakarta</p>
-          <p>(0274) 562714 , (0274) 558402</p>
-          <p>dp3ap2@jogjaprov.go.id</p>
+          <p className="font-bold text-sm lg:text-lg">Hubungi Kami</p>
+          <p className="text-sm lg:text-lg">Jl. Tentara Rakyat Mataram No.31 Yogyakarta</p>
+          <p className="text-sm lg:text-lg">(0274) 562714 , (0274) 558402</p>
+          <p className="text-sm lg:text-lg">dp3ap2@jogjaprov.go.id</p>
         </div>
       </div>
       <div className="mt-6 pb-4">
-        <p className="text-l text-yellow-50 font-semibold">Dinas Pemberdayaan Perempuan, Perlindungan Anak, dan Pengendalian Penduduk Provinsi D.I. Yogyakarta</p>
+        <p className="text-sm lg:text-lg text-yellow-50 font-semibold">Dinas Pemberdayaan Perempuan, Perlindungan Anak, dan Pengendalian Penduduk Provinsi D.I. Yogyakarta</p>
       </div>
     </footer>
   );

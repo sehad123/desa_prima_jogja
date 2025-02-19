@@ -277,12 +277,12 @@ const KabupatenPage = () => {
       <Breadcrumb items={breadcrumbItems} />
         <div className="mt-6">
           <div className="flex justify-between items-center p-4 bg-white">
-          <h1 className="text-xl font-medium text-gray-800">
+          <h1 className="text-lg lg:text-xl font-medium text-gray-800">
             Daftar Kabupaten/Kota Provinsi D.I. Yogyakarta
           </h1>
           <button 
           onClick={() => navigate(`/peta-desa`)} 
-          className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 flex items-center">
+          className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 flex items-center text-sm lg:text-lg">
           Dashboard
         </button>
         </div>

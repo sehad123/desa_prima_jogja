@@ -117,8 +117,8 @@ const DoughnutChart = forwardRef(({ data }, ref) => {
 
   return (
     <>
-      <h2 className="text-lg font-bold text-center">
-        Desa Berdasarkan Kategori
+      <h2 className="text-sm lg:text-lg font-bold text-center">
+        Jumlah Kelompok Desa Prima Berdasarkan Kategori
       </h2>
       <div className="relative flex justify-center items-center w-full h-[300px] lg:h-[400px]">
         <Doughnut

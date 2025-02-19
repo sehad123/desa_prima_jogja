@@ -108,23 +108,23 @@ const PetaDesa = () => {
   return (
     <div className="py-3 px-5 bg-white rounded-md shadow-md">
       <div className="mx-6 my-5 flex justify-between items-center">
-        <h1 className="text-xl font-bold mx-auto">
+        <h1 className="text-lg lg:text-xl font-bold mx-auto">
           Sebaran Kelompok Desa Prima Daerah Istimewa Yogyakarta
         </h1>
       </div>
 
       <div className="flex flex-col md:flex-row mx-4 gap-4 mb-5">
         <div className="md:w-1/3 flex flex-wrap items-center space-y-2 relative">
-          <p>Kabupaten/Kota</p>
+          <p className="text-sm lg:text-lg">Kabupaten/Kota</p>
           <select
-            className="border border-gray-300 rounded px-4 py-2 w-full appearance-none"
+            className="text-sm lg:text-lg border border-gray-300 rounded px-4 py-2 w-full appearance-none"
             onChange={handleKabupatenChange}
             value={selectedKabupaten}
           >
-            <option value="">Semua</option>
+            <option className="text-sm lg:text-lg" value="">Semua</option>
             {kabupatenData &&
               kabupatenData.map((kabupaten) => (
-                <option key={kabupaten.id} value={kabupaten.id}>
+                <option className="text-sm lg:text-lg" key={kabupaten.id} value={kabupaten.id}>
                   {kabupaten.nama}
                 </option>
               ))}
@@ -135,16 +135,16 @@ const PetaDesa = () => {
         </div>
 
         <div className="md:w-1/3 flex flex-wrap items-center space-y-2 relative">
-          <p>Kecamatan</p>
+          <p className="text-sm lg:text-lg">Kecamatan</p>
           <select
-            className="border border-gray-300 rounded px-4 py-2 w-full appearance-none"
+            className="text-sm lg:text-lg border border-gray-300 rounded px-4 py-2 w-full appearance-none"
             onChange={handleKecamatanChange}
             value={selectedKecamatan}
           >
-            <option value="">Semua</option>
+            <option className="text-sm lg:text-lg" value="">Semua</option>
             {kecamatanList &&
               kecamatanList.map((kecamatan) => (
-                <option key={kecamatan.id} value={kecamatan.nama}>
+                <option className="text-sm lg:text-lg" key={kecamatan.id} value={kecamatan.nama}>
                   {kecamatan.nama}
                 </option>
               ))}
@@ -155,16 +155,16 @@ const PetaDesa = () => {
         </div>
 
         <div className="md:w-1/3 flex flex-wrap items-center space-y-2 relative">
-          <p>Kategori</p>
+          <p className="text-sm lg:text-lg">Kategori</p>
           <select
-            className="border border-gray-300 rounded px-4 py-2 w-full appearance-none pr-8"
+            className="text-sm lg:text-lg border border-gray-300 rounded px-4 py-2 w-full appearance-none pr-8"
             onChange={handleKategoriChange}
             value={selectedKategori}
           >
-            <option value="">Kategori</option>
-            <option value="Maju">Maju</option>
-            <option value="Berkembang">Berkembang</option>
-            <option value="Tumbuh">Tumbuh</option>
+            <option className="text-sm lg:text-lg" value="">Kategori</option>
+            <option className="text-sm lg:text-lg" value="Maju">Maju</option>
+            <option className="text-sm lg:text-lg" value="Berkembang">Berkembang</option>
+            <option className="text-sm lg:text-lg" value="Tumbuh">Tumbuh</option>
           </select>
           {/* Ikon Dropdown */}
           <div className="absolute right-3 top-1/2 transform -translate-y-1 pointer-events-none">
@@ -183,7 +183,7 @@ const PetaDesa = () => {
           <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
 
           {filterDesa().length === 0 ? (
-            <p>Tidak ada desa yang sesuai dengan filter.</p>
+            <p className="text-sm lg:text-lg">Tidak ada desa yang sesuai dengan filter.</p>
           ) : (
             filterDesa().map((desa) => (
               <Marker
@@ -197,8 +197,8 @@ const PetaDesa = () => {
                 })}
               >
                 <Popup>
-                  <strong>{desa.kelompok_desa}</strong>
-                  <br />
+                  <strong className="text-sm lg:text-lg">{desa.kelompok_desa}</strong>
+                  <br className="text-sm lg:text-lg" />
                   {desa.kabupatenNama}, Kec. {desa.kecamatanNama}, Kel.{" "}
                   {desa.kelurahanNama}
                 </Popup>
