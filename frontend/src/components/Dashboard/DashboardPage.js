@@ -15,6 +15,11 @@ import LineChart from "../Chart/LineChart";
 import useMediaQuery from "../useMediaQuery";
 
 const generateTimelineLabels = (startDate, endDate, points = 5) => {
+  if (!startDate || !endDate || isNaN(new Date(startDate)) || isNaN(new Date(endDate))) {
+    console.warn("⚠️ Skip generating timeline labels, invalid start or end date:", startDate, endDate);
+    return [];
+  }
+
   const start = new Date(startDate);
   const end = new Date(endDate);
   const timeline = [];
@@ -27,6 +32,7 @@ const generateTimelineLabels = (startDate, endDate, points = 5) => {
   
   return timeline;
 };
+
 
 const DashboardPage = () => {
   const [desaList, setDesaList] = useState([]);
@@ -47,19 +53,49 @@ const DashboardPage = () => {
   const LineChartRef = useRef();
   const [DoughnutChartImage, setDoughnutChartImage] = useState(null);
   const [LineChartImage, setLineChartImage] = useState(null);
+  const [timelineLabels, setTimelineLabels] = useState([]);
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
 
   const navigate = useNavigate();
 
   const fetchDesaData = async () => {
     try {
       const response = await axios.get("http://localhost:5000/api/desa");
+      console.log("📡 Data Desa dari API:", response.data);
+  
+      if (response.data.length > 0) {
+        // Ambil semua `tahun_pembentukan` yang valid
+        const validDates = response.data
+          .map(desa => desa.tahun_pembentukan ? new Date(desa.tahun_pembentukan) : null)
+          .filter(date => date !== null && !isNaN(date.getTime()));
+  
+        console.log("✅ Tahun Pembentukan Valid:", validDates);
+  
+        if (validDates.length > 0) {
+          // Cari tanggal paling awal (periode_awal)
+          const minDate = new Date(Math.min(...validDates.map(date => date.getTime())));
+          // Cari tanggal paling akhir (periode_akhir)
+          const maxDate = new Date(Math.max(...validDates.map(date => date.getTime())));
+  
+          console.log("🗓️ Periode Awal (Dari Tahun Pembentukan):", minDate.toISOString());
+          console.log("🗓️ Periode Akhir (Dari Tahun Pembentukan):", maxDate.toISOString());
+  
+          setStartDate(minDate.toISOString());
+          setEndDate(maxDate.toISOString());
+        } else {
+          console.warn("⚠️ Tidak ada `tahun_pembentukan` yang valid.");
+        }
+      }
+  
       setDesaList(response.data);
       setLoading(false);
     } catch (err) {
+      console.error("❌ Gagal memuat data desa:", err);
       setError("Gagal memuat data desa.");
       setLoading(false);
     }
-  };
+  };    
 
   const fetchKabupatenData = async () => {
     try {
@@ -161,49 +197,85 @@ const DashboardPage = () => {
     fetchData();
   }, []);
 
-  // const timelineLabels = generateTimelineLabels(kelompokDesa.periode_awal, kelompokDesaperiode_akhir);
-
+  useEffect(() => {
+    if (!startDate || !endDate || isNaN(new Date(startDate)) || isNaN(new Date(endDate))) {
+      console.warn("Skipping generateTimelineLabels due to invalid date:", startDate, endDate);
+      return;
+    }
+  
+    console.log("Generating timeline labels for:", startDate, endDate);
+    const labels = generateTimelineLabels(startDate, endDate);
+    setTimelineLabels(labels);
+  }, [startDate, endDate]);
+  
+  const countDesaPerTimeline = (timeline, desaList, kategori) => {
+    return timeline.map(date => {
+      const count = desaList.filter(desa => {
+        const desaStart = desa.tahun_pembentukan ? new Date(desa.tahun_pembentukan) : null;
+        const timelineDate = new Date(date);
+  
+        // Pastikan desa memiliki tahun_pembentukan yang valid
+        if (!desaStart || isNaN(desaStart)) {
+          console.warn(`🚨 Tahun pembentukan tidak valid untuk desa ID ${desa.id}:`, desa);
+          return false;
+        }
+  
+        // Cek apakah desa aktif pada periode tersebut
+        return desa.kategori === kategori && desaStart <= timelineDate;
+      }).length;
+  
+      return count;
+    });
+  };
+  
+  
+  
   // **Data untuk LineChart**
   const lineChartData = {
-    // labels: timelineLabels, // Label sumbu X
+    labels: timelineLabels,
     datasets: [
       {
-        label: "Desa Maju",
-        // data: timelineLabels.map(() => desaMaju), // Tetap konstan untuk contoh
+        label: "maju",
+        data: countDesaPerTimeline(timelineLabels, desaList, "Maju"),
         borderColor: "#4CAF50",
         backgroundColor: "rgba(76, 175, 80, 0.2)",
         fill: false,
       },
       {
-        label: "Desa Berkembang",
-        // data: timelineLabels.map(() => desaBerkembang), 
+        label: "berkembang",
+        data: countDesaPerTimeline(timelineLabels, desaList, "Berkembang"),
         borderColor: "#FFC107",
         backgroundColor: "rgba(255, 193, 7, 0.2)",
         fill: false,
       },
       {
-        label: "Desa Tumbuh",
-        // data: timelineLabels.map(() => desaTumbuh), 
+        label: "tumbuh",
+        data: countDesaPerTimeline(timelineLabels, desaList, "Tumbuh"),
         borderColor: "#FF5722",
         backgroundColor: "rgba(255, 87, 34, 0.2)",
         fill: false,
       },
       {
-        label: "Total Kelompok Desa",
-        // data: timelineLabels.map(() => desaTumbuh+desaMaju+desaBerkembang), 
+        label: "total kelompok",
+        data: timelineLabels.map(date => 
+          countDesaPerTimeline(timelineLabels, desaList, "Maju")[timelineLabels.indexOf(date)] +
+          countDesaPerTimeline(timelineLabels, desaList, "Berkembang")[timelineLabels.indexOf(date)] +
+          countDesaPerTimeline(timelineLabels, desaList, "Tumbuh")[timelineLabels.indexOf(date)]
+        ),
         borderColor: "#3F51B5",
         backgroundColor: "rgba(63, 81, 181, 0.2)",
         fill: false,
       },
       {
-        label: "Total Desa Keseluruhan",
-        // data: timelineLabels.map(() => totalJumlahDesa), 
+        label: "total desa",
+        data: timelineLabels.map(() => totalDesa),
         borderColor: "#999999",
         backgroundColor: "rgba(153, 153, 153, 0.2)",
         fill: false,
       },
     ],
   };
+  
 
   const chartData = {
     desaMaju,
@@ -346,7 +418,7 @@ const DashboardPage = () => {
 </div>
 
       <div className="p-5">
-        <Informasi />
+        <Informasi data_awal={startDate} data_akhir={endDate}/>
       </div>
 
       <div className="px-5 grid grid-cols-1 lg:grid-cols-3 gap-5">

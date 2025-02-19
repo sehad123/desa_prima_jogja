@@ -47,7 +47,7 @@ const formatDate = (dateString) => {
   return `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`;
 };
 
-const Informasi = () => {
+const Informasi = ( {data_awal, data_akhir} ) => {
   const navigate = useNavigate();
   const lineChartRef = useRef(null);
   const doughnutChartRef = useRef(null);
@@ -151,7 +151,7 @@ const Informasi = () => {
         </div>
         <div className="bg-blue-500 text-white p-4 rounded-md shadow-md">
           <h2 className="text-sm lg:text-lg font-bold mb-2">Periode Pembentukan</h2>
-          <p>17 Desember - 20 Desember 2025</p>
+          <p>{formatDate(data_awal)} - {formatDate(data_akhir)}</p>
         </div>
         <div className="bg-blue-500 text-white p-4 rounded-md shadow-md">
           <h2 className="text-sm lg:text-lg font-bold mb-2">Kelompok Desa Prima</h2>
