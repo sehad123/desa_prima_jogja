@@ -10,21 +10,7 @@ import Breadcrumb from "../Breadcrumb";
 import EditModal from "../Modal/ModalEdit";
 import { Audio } from "react-loader-spinner";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faPlus,
-  faEllipsisV,
-  faEdit,
-  faTimes,
-  faDownload,
-  faTrash,
-  faSquareCheck,
-  faSquare,
-  faFilePdf,
-  faFileWord,
-  faFileExcel,
-  faFilePowerpoint,
-  faFileLines,
-} from "@fortawesome/free-solid-svg-icons";
+import { faPlus, faEllipsisV, faEdit, faTimes, faDownload, faTrash, faSquareCheck, faSquare, faFilePdf, faFileWord, faFileExcel, faFilePowerpoint, faFileLines } from "@fortawesome/free-solid-svg-icons";
 import TabPanel from "./TabPanel";
 import ErrorNotification from "../Modal/ErrorNotification";
 import SuccessNotification from "../Modal/SuccessNotification";
@@ -75,21 +61,15 @@ const DetailDesaPage = () => {
         const token = localStorage.getItem("authToken");
         if (!token) return;
 
-        const response = await axios.get(
-          "http://localhost:5000/users/profile",
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        const response = await axios.get("http://localhost:5000/users/profile", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
         setProfil(response.data); // Set nama dan NIP ke state
       } catch (error) {
-        console.error(
-          "Gagal mengambil profil:",
-          error.response?.data?.error || error.message
-        );
+        console.error("Gagal mengambil profil:", error.response?.data?.error || error.message);
       }
     };
 
@@ -116,9 +96,7 @@ const DetailDesaPage = () => {
 
   const fetchGaleri = async () => {
     try {
-      const response = await axios.get(
-        `http://localhost:5000/api/desa/${id}/galeri`
-      );
+      const response = await axios.get(`http://localhost:5000/api/desa/${id}/galeri`);
       setGaleri(response.data);
     } catch (err) {
       console.error("Gagal memuat galeri", err);
@@ -127,9 +105,7 @@ const DetailDesaPage = () => {
 
   const fetchNotulensi = async () => {
     try {
-      const response = await axios.get(
-        `http://localhost:5000/api/desa/${id}/notulensi`
-      );
+      const response = await axios.get(`http://localhost:5000/api/desa/${id}/notulensi`);
       setNotulensi(response.data);
     } catch (err) {
       console.error("Gagal memuat notulensi", err);
@@ -137,9 +113,7 @@ const DetailDesaPage = () => {
   };
   const fetchProduk = async () => {
     try {
-      const response = await axios.get(
-        `http://localhost:5000/api/desa/${id}/produk`
-      );
+      const response = await axios.get(`http://localhost:5000/api/desa/${id}/produk`);
       setProduk(response.data);
     } catch (err) {
       console.error("Gagal memuat Produk", err);
@@ -147,9 +121,7 @@ const DetailDesaPage = () => {
   };
   const fetchPengurus = async () => {
     try {
-      const response = await axios.get(
-        `http://localhost:5000/api/desa/${id}/pengurus`
-      );
+      const response = await axios.get(`http://localhost:5000/api/desa/${id}/pengurus`);
       setPengurus(response.data);
     } catch (err) {
       console.error("Gagal memuat Pengurus", err);
@@ -279,16 +251,9 @@ const DetailDesaPage = () => {
   const handleEditSubmit = async (formData) => {
     try {
       const endpoint = editEntityType === "produk" ? "produk" : "pengurus";
-      await axios.put(
-        `http://localhost:5000/api/desa/${id}/${endpoint}/${formData.id}`,
-        formData
-      );
+      await axios.put(`http://localhost:5000/api/desa/${id}/${endpoint}/${formData.id}`, formData);
 
-      toast.success(
-        `${
-          editEntityType === "produk" ? "Produk" : "Pengurus"
-        } berhasil diperbarui!`
-      );
+      toast.success(`${editEntityType === "produk" ? "Produk" : "Pengurus"} berhasil diperbarui!`);
       setIsEditModalOpen(false);
 
       // Refresh data setelah update
@@ -315,9 +280,7 @@ const DetailDesaPage = () => {
 
   const handleSelectFile = (file) => {
     setSelectedFiles((prev) => {
-      const newSelectedFiles = prev.includes(file)
-        ? prev.filter((f) => f !== file)
-        : [...prev, file];
+      const newSelectedFiles = prev.includes(file) ? prev.filter((f) => f !== file) : [...prev, file];
 
       return newSelectedFiles;
     });
@@ -331,27 +294,19 @@ const DetailDesaPage = () => {
   const handleDeleteItem = async () => {
     try {
       if (deleteItemType === "galeri") {
-        await axios.delete(
-          `http://localhost:5000/api/desa/${id}/galeri/${itemToDelete.id}`
-        );
+        await axios.delete(`http://localhost:5000/api/desa/${id}/galeri/${itemToDelete.id}`);
         toast.success("Gambar berhasil dihapus!");
         fetchGaleri();
       } else if (deleteItemType === "notulensi") {
-        await axios.delete(
-          `http://localhost:5000/api/desa/${id}/notulensi/${itemToDelete.id}`
-        );
+        await axios.delete(`http://localhost:5000/api/desa/${id}/notulensi/${itemToDelete.id}`);
         toast.success("Notulensi berhasil dihapus!");
         fetchNotulensi();
       } else if (deleteItemType === "produk") {
-        await axios.delete(
-          `http://localhost:5000/api/desa/${id}/produk/${itemToDelete.id}`
-        );
+        await axios.delete(`http://localhost:5000/api/desa/${id}/produk/${itemToDelete.id}`);
         toast.success("Produk berhasil dihapus!");
         fetchProduk();
       } else if (deleteItemType === "pengurus") {
-        await axios.delete(
-          `http://localhost:5000/api/desa/${id}/pengurus/${itemToDelete.id}`
-        );
+        await axios.delete(`http://localhost:5000/api/desa/${id}/pengurus/${itemToDelete.id}`);
         toast.success("Pengurus berhasil dihapus!");
         fetchPengurus();
       }
@@ -373,98 +328,43 @@ const DetailDesaPage = () => {
   const renderNotulensi = () => {
     return (
       <div className="flex flex-wrap justify-center md:justify-start">
-        <button
-          className="w-1/2 border border-dashed border-gray-500 h-48 lg:w-36 lg:h-48 lg:mr-2 mt-2 p-2 flex flex-col justify-center items-center cursor-pointer"
-          onClick={() => handleAdd("notulensi", desa)}
-        >
-          <FontAwesomeIcon
-            icon={faPlus}
-            className="w-1/2 h-1/2 lg:w-20 lg:h-20 text-gray-400"
-          />
-          <div className="w-full text-xs lg:text-sm text-center text-gray-500">
-            Unggah Notulensi
-          </div>
+        <button className="w-1/2 border border-dashed border-gray-500 h-48 lg:w-36 lg:h-48 lg:mr-2 mt-2 p-2 flex flex-col justify-center items-center cursor-pointer" onClick={() => handleAdd("notulensi", desa)}>
+          <FontAwesomeIcon icon={faPlus} className="w-1/2 h-1/2 lg:w-20 lg:h-20 text-gray-400" />
+          <div className="w-full text-xs lg:text-sm text-center text-gray-500">Unggah Notulensi</div>
         </button>
 
-        {currentFiles.length === 0 && (
-          <div className="w-full text-center text-gray-500 mt-3">
-            Tidak ada file ditemukan
-          </div>
-        )}
+        {currentFiles.length === 0 && <div className="w-full text-center text-gray-500 mt-3">Tidak ada file ditemukan</div>}
         {/* Menampilkan setiap gambar dari galeri */}
         {currentFiles.map((file) => (
           <div key={file.id} className="relative w-1/2 lg:w-40 p-2">
-            <div
-              className={`border cursor-pointer ${
-                selectedFiles.includes(file)
-                  ? "border-blue-500"
-                  : "border-gray-400"
-              }`}
-            >
+            <div className={`border cursor-pointer ${selectedFiles.includes(file) ? "border-blue-500" : "border-gray-400"}`}>
               <div className="h-8 bg-gray-300 flex justify-between">
-                <div
-                  className={`${
-                    selectedFiles.includes(file) ? "hidden" : ""
-                  } text-white h-2 w-2 lg:h-7 lg:w-7`}
-                  onClick={() => handleSelectFile(file)}
-                >
-                  <FontAwesomeIcon
-                    icon={faSquare}
-                    className={`${
-                      selectedFiles.includes(file) ? "hidden" : ""
-                    } text-white h-7 w-7 lg:h-7 lg:w-7`}
-                  />
+                <div className={`${selectedFiles.includes(file) ? "hidden" : ""} text-white h-2 w-2 lg:h-7 lg:w-7`} onClick={() => handleSelectFile(file)}>
+                  <FontAwesomeIcon icon={faSquare} className={`${selectedFiles.includes(file) ? "hidden" : ""} text-white h-7 w-7 lg:h-7 lg:w-7`} />
                 </div>
                 {selectedFiles.includes(file) && (
                   <div onClick={() => handleSelectFile(file)}>
-                    <FontAwesomeIcon
-                      icon={faSquareCheck}
-                      className="text-blue-500 h-7 w-7"
-                    />
+                    <FontAwesomeIcon icon={faSquareCheck} className="text-blue-500 h-7 w-7" />
                   </div>
                 )}
 
                 <div className="relative z-100">
-                  <button
-                    className="text-gray-500 pr-3"
-                    onClick={() => toggleOption(file.id)}
-                  >
+                  <button className="text-gray-500 pr-3" onClick={() => toggleOption(file.id)}>
                     <FontAwesomeIcon icon={faEllipsisV} />
                   </button>
-                  <div
-                    className={`${
-                      visibleOptionId === file.id ? "block" : "hidden"
-                    } absolute right-1 mt-2 w-36 bg-white border rounded-md shadow-lg`}
-                  >
+                  <div className={`${visibleOptionId === file.id ? "block" : "hidden"} absolute right-1 mt-2 w-36 bg-white border rounded-md shadow-lg`}>
                     {/* Opsi Download */}
                     <div className="flex hover:bg-gray-100">
-                      <FontAwesomeIcon
-                        icon={faDownload}
-                        className="w-4 h-4 text-gray-400 pl-2 py-2"
-                      />
-                      <button
-                        className="block w-full text-left px-4 text-gray-700"
-                        onClick={() =>
-                          window.open(
-                            `http://localhost:5000${file.gambar}`,
-                            "_blank"
-                          )
-                        }
-                      >
+                      <FontAwesomeIcon icon={faDownload} className="w-4 h-4 text-gray-400 pl-2 py-2" />
+                      <button className="block w-full text-left px-4 text-gray-700" onClick={() => window.open(`http://localhost:5000${file.gambar}`, "_blank")}>
                         Download
                       </button>
                     </div>
 
                     {/* Opsi Hapus */}
                     <div className="flex hover:bg-gray-100">
-                      <FontAwesomeIcon
-                        icon={faTrash}
-                        className="w-4 h-4 text-gray-400 pl-2 py-2"
-                      />
-                      <button
-                        className="block w-full text-left px-4 text-gray-700"
-                        onClick={() => openDeleteItemModal(file, "galeri")}
-                      >
+                      <FontAwesomeIcon icon={faTrash} className="w-4 h-4 text-gray-400 pl-2 py-2" />
+                      <button className="block w-full text-left px-4 text-gray-700" onClick={() => openDeleteItemModal(file, "galeri")}>
                         Hapus
                       </button>
                     </div>
@@ -473,18 +373,8 @@ const DetailDesaPage = () => {
               </div>
 
               {/* Menampilkan gambar */}
-              {file.gambar ? (
-                <img
-                  src={`http://localhost:5000${file.gambar}`}
-                  alt={file.gambar}
-                  className="w-full h-24 object-cover rounded-md"
-                />
-              ) : (
-                <p className="text-gray-500 italic">No Image</p>
-              )}
-              <p className="text-sm mt-2 font-semibold text-gray-700 truncate">
-                {formatTanggal(file.createdAt)}
-              </p>
+              {file.gambar ? <img src={`http://localhost:5000${file.gambar}`} alt={file.gambar} className="w-full h-24 object-cover rounded-md" /> : <p className="text-gray-500 italic">No Image</p>}
+              <p className="text-sm mt-2 font-semibold text-gray-700 truncate">{formatTanggal(file.createdAt)}</p>
             </div>
           </div>
         ))}
@@ -496,98 +386,43 @@ const DetailDesaPage = () => {
   const renderGaleri = () => {
     return (
       <div className="flex flex-wrap justify-center md:justify-start">
-        <button
-          className="w-1/2 border border-dashed border-gray-500 h-48 lg:w-36 lg:h-48 lg:mr-2 mt-2 p-2 flex flex-col justify-center items-center cursor-pointer"
-          onClick={() => handleAdd("galeri", desa)}
-        >
-          <FontAwesomeIcon
-            icon={faPlus}
-            className="w-1/2 h-1/2 lg:w-20 lg:h-20 text-gray-400"
-          />
-          <div className="w-full text-xs lg:text-sm text-center text-gray-500">
-            Unggah Foto
-          </div>
+        <button className="w-1/2 border border-dashed border-gray-500 h-48 lg:w-36 lg:h-48 lg:mr-2 mt-2 p-2 flex flex-col justify-center items-center cursor-pointer" onClick={() => handleAdd("galeri", desa)}>
+          <FontAwesomeIcon icon={faPlus} className="w-1/2 h-1/2 lg:w-20 lg:h-20 text-gray-400" />
+          <div className="w-full text-xs lg:text-sm text-center text-gray-500">Unggah Foto</div>
         </button>
 
-        {currentFiles.length === 0 && (
-          <div className="w-full text-center text-gray-500 mt-3">
-            Tidak ada file ditemukan
-          </div>
-        )}
+        {currentFiles.length === 0 && <div className="w-full text-center text-gray-500 mt-3">Tidak ada file ditemukan</div>}
         {/* Menampilkan setiap gambar dari galeri */}
         {currentFiles.map((file) => (
           <div key={file.id} className="relative w-1/2 lg:w-40 p-2">
-            <div
-              className={`border cursor-pointer ${
-                selectedFiles.includes(file)
-                  ? "border-blue-500"
-                  : "border-gray-400"
-              }`}
-            >
+            <div className={`border cursor-pointer ${selectedFiles.includes(file) ? "border-blue-500" : "border-gray-400"}`}>
               <div className="h-8 bg-gray-300 flex justify-between">
-                <div
-                  className={`${
-                    selectedFiles.includes(file) ? "hidden" : ""
-                  } text-white h-2 w-2 lg:h-7 lg:w-7`}
-                  onClick={() => handleSelectFile(file)}
-                >
-                  <FontAwesomeIcon
-                    icon={faSquare}
-                    className={`${
-                      selectedFiles.includes(file) ? "hidden" : ""
-                    } text-white h-7 w-7 lg:h-7 lg:w-7`}
-                  />
+                <div className={`${selectedFiles.includes(file) ? "hidden" : ""} text-white h-2 w-2 lg:h-7 lg:w-7`} onClick={() => handleSelectFile(file)}>
+                  <FontAwesomeIcon icon={faSquare} className={`${selectedFiles.includes(file) ? "hidden" : ""} text-white h-7 w-7 lg:h-7 lg:w-7`} />
                 </div>
                 {selectedFiles.includes(file) && (
                   <div onClick={() => handleSelectFile(file)}>
-                    <FontAwesomeIcon
-                      icon={faSquareCheck}
-                      className="text-blue-500 h-7 w-7"
-                    />
+                    <FontAwesomeIcon icon={faSquareCheck} className="text-blue-500 h-7 w-7" />
                   </div>
                 )}
 
                 <div className="relative z-100">
-                  <button
-                    className="text-gray-500 pr-3"
-                    onClick={() => toggleOption(file.id)}
-                  >
+                  <button className="text-gray-500 pr-3" onClick={() => toggleOption(file.id)}>
                     <FontAwesomeIcon icon={faEllipsisV} />
                   </button>
-                  <div
-                    className={`${
-                      visibleOptionId === file.id ? "block" : "hidden"
-                    } absolute right-1 mt-2 w-36 bg-white border rounded-md shadow-lg`}
-                  >
+                  <div className={`${visibleOptionId === file.id ? "block" : "hidden"} absolute right-1 mt-2 w-36 bg-white border rounded-md shadow-lg`}>
                     {/* Opsi Download */}
                     <div className="flex hover:bg-gray-100">
-                      <FontAwesomeIcon
-                        icon={faDownload}
-                        className="w-4 h-4 text-gray-400 pl-2 py-2"
-                      />
-                      <button
-                        className="block w-full text-left px-4 text-gray-700"
-                        onClick={() =>
-                          window.open(
-                            `http://localhost:5000${file.gambar}`,
-                            "_blank"
-                          )
-                        }
-                      >
+                      <FontAwesomeIcon icon={faDownload} className="w-4 h-4 text-gray-400 pl-2 py-2" />
+                      <button className="block w-full text-left px-4 text-gray-700" onClick={() => window.open(`http://localhost:5000${file.gambar}`, "_blank")}>
                         Download
                       </button>
                     </div>
 
                     {/* Opsi Hapus */}
                     <div className="flex hover:bg-gray-100">
-                      <FontAwesomeIcon
-                        icon={faTrash}
-                        className="w-4 h-4 text-gray-400 pl-2 py-2"
-                      />
-                      <button
-                        className="block w-full text-left px-4 text-gray-700"
-                        onClick={() => openDeleteItemModal(file, "galeri")}
-                      >
+                      <FontAwesomeIcon icon={faTrash} className="w-4 h-4 text-gray-400 pl-2 py-2" />
+                      <button className="block w-full text-left px-4 text-gray-700" onClick={() => openDeleteItemModal(file, "galeri")}>
                         Hapus
                       </button>
                     </div>
@@ -596,18 +431,8 @@ const DetailDesaPage = () => {
               </div>
 
               {/* Menampilkan gambar */}
-              {file.gambar ? (
-                <img
-                  src={`http://localhost:5000${file.gambar}`}
-                  alt={file.gambar}
-                  className="w-full h-24 object-cover rounded-md"
-                />
-              ) : (
-                <p className="text-gray-500 italic">No Image</p>
-              )}
-              <p className="text-sm mt-2 font-semibold text-gray-700 truncate">
-                {formatTanggal(file.createdAt)}
-              </p>
+              {file.gambar ? <img src={`http://localhost:5000${file.gambar}`} alt={file.gambar} className="w-full h-24 object-cover rounded-md" /> : <p className="text-gray-500 italic">No Image</p>}
+              <p className="text-sm mt-2 font-semibold text-gray-700 truncate">{formatTanggal(file.createdAt)}</p>
             </div>
           </div>
         ))}
@@ -618,10 +443,7 @@ const DetailDesaPage = () => {
   const renderPengurus = () => (
     <>
       <div className="flex flex-wrap justify-center md:justify-start p-4">
-        <button
-          onClick={() => handleAdd("pengurus", desa)}
-          className="bg-green-500 text-white py-2 px-4 rounded-md hover:bg-green-600 flex items-center gap-2"
-        >
+        <button onClick={() => handleAdd("pengurus", desa)} className="bg-green-500 text-white py-2 px-4 rounded-md hover:bg-green-600 flex items-center gap-2">
           <FaPlus /> Tambah Pengurus
         </button>
       </div>
@@ -632,10 +454,7 @@ const DetailDesaPage = () => {
           // Kode untuk tampilan mobile
           <div className="block md:hidden">
             {pengurus.map((item, index) => (
-              <div
-                key={item.id}
-                className="mb-4 border p-4 rounded-md bg-white shadow-md"
-              >
+              <div key={item.id} className="mb-4 border p-4 rounded-md bg-white shadow-md">
                 <h2 className="text-lg font-semibold mb-1">
                   {index + 1}. {item.nama}
                 </h2>
@@ -650,16 +469,10 @@ const DetailDesaPage = () => {
                   </div>
                 </div>
                 <div className="mt-4 flex space-x-4">
-                  <button
-                    onClick={() => handleEditModal(item, "pengurus")}
-                    className="py-2 px-4 bg-blue-500 text-white rounded hover:bg-blue-600"
-                  >
+                  <button onClick={() => handleEditModal(item, "pengurus")} className="py-2 px-4 bg-blue-500 text-white rounded hover:bg-blue-600">
                     <FaEdit />
                   </button>
-                  <button
-                    onClick={() => openDeleteItemModal(item, "pengurus")}
-                    className="py-2 px-4 bg-red-500 text-white rounded hover:bg-red-600"
-                  >
+                  <button onClick={() => openDeleteItemModal(item, "pengurus")} className="py-2 px-4 bg-red-500 text-white rounded hover:bg-red-600">
                     <FaTrashAlt />
                   </button>
                 </div>
@@ -686,16 +499,10 @@ const DetailDesaPage = () => {
                   <td className="border px-2 py-1">{item.jabatan}</td>
                   <td className="border px-2 py-1">{item.nohp}</td>
                   <td className="border px-2 py-1 text-center">
-                    <button
-                      onClick={() => handleEditModal(item, "pengurus")}
-                      className="mt-2 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                    >
+                    <button onClick={() => handleEditModal(item, "pengurus")} className="mt-2 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
                       <FaEdit />
                     </button>
-                    <button
-                      className="bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
-                      onClick={() => openDeleteItemModal(item, "pengurus")}
-                    >
+                    <button className="bg-red-500 text-white rounded-full p-1 hover:bg-red-600" onClick={() => openDeleteItemModal(item, "pengurus")}>
                       <FaTrashAlt />
                     </button>
                   </td>
@@ -713,64 +520,36 @@ const DetailDesaPage = () => {
       <div className="flex flex-wrap justify-center md:justify-start">
         {/* Tombol untuk menambah file galeri */}
 
-        <button
-          className="w-1/2 border border-dashed border-gray-500 h-48 lg:w-36 lg:h-48 lg:mr-2 mt-2 p-2 flex flex-col justify-center items-center cursor-pointer"
-          onClick={() => handleAdd("produk", desa)}
-        >
-          <FontAwesomeIcon
-            icon={faPlus}
-            className="w-1/2 h-1/2 lg:w-20 lg:h-20 text-gray-400"
-          />
-          <div className="w-full text-xs lg:text-sm text-center text-gray-500">
-            Unggah Produk
-          </div>
+        <button className="w-1/2 border border-dashed border-gray-500 h-48 lg:w-36 lg:h-48 lg:mr-2 mt-2 p-2 flex flex-col justify-center items-center cursor-pointer" onClick={() => handleAdd("produk", desa)}>
+          <FontAwesomeIcon icon={faPlus} className="w-1/2 h-1/2 lg:w-20 lg:h-20 text-gray-400" />
+          <div className="w-full text-xs lg:text-sm text-center text-gray-500">Unggah Produk</div>
         </button>
 
-        {produk.length === 0 && (
-          <div className="w-full text-center text-gray-500 mt-3">
-            Tidak ada produk ditemukan
-          </div>
-        )}
+        {produk.length === 0 && <div className="w-full text-center text-gray-500 mt-3">Tidak ada produk ditemukan</div>}
 
         {/* Tampilkan foto produk dan nama produk dalam grid */}
         {produk.map((item) => (
-          <div
-            key={item.id}
-            className="relative w-1/2 p-2 h-48 lg:w-36 lg:h-48"
-          >
+          <div key={item.id} className="relative w-1/2 p-2 h-48 lg:w-36 lg:h-48">
             <div className="border overflow-hidden">
-              <img
-                src={`http://localhost:5000${item.foto}`}
-                alt={item.nama}
-                className="w-full h-40 object-cover"
-              />
+              <img src={`http://localhost:5000${item.foto}`} alt={item.nama} className="w-full h-40 object-cover" />
               <div className="p-2">
                 <p className="text-sm font-semibold truncate">{item.nama}</p>
               </div>
             </div>
 
             {/* Tombol titik tiga di pojok kanan atas */}
-            <div
-              className="absolute p-2 top-2 right-2 cursor-pointer"
-              onClick={() => toggleOption(item.id)}
-            >
+            <div className="absolute p-2 top-2 right-2 cursor-pointer" onClick={() => toggleOption(item.id)}>
               <FontAwesomeIcon icon={faEllipsisV} className="text-gray-600" />
             </div>
 
             {/* Menu Edit dan Hapus */}
             {visibleOptionId === item.id && (
               <div className="absolute top-8 right-2 bg-white border rounded-md shadow-md w-32">
-                <div
-                  className="flex items-center p-2 cursor-pointer hover:bg-gray-100"
-                  onClick={() => handleEditModal(item, "produk")}
-                >
+                <div className="flex items-center p-2 cursor-pointer hover:bg-gray-100" onClick={() => handleEditModal(item, "produk")}>
                   <FontAwesomeIcon icon={faEdit} className="mr-2" />
                   Edit
                 </div>
-                <div
-                  className="flex items-center p-2 cursor-pointer hover:bg-gray-100"
-                  onClick={() => openDeleteItemModal(item, "produk")}
-                >
+                <div className="flex items-center p-2 cursor-pointer hover:bg-gray-100" onClick={() => openDeleteItemModal(item, "produk")}>
                   <FontAwesomeIcon icon={faTrash} className="mr-2" />
                   Hapus
                 </div>
@@ -790,56 +569,22 @@ const DetailDesaPage = () => {
           <div className="flex flex-col space-y-4">
             <div className="flex items-center">
               <strong className="w-1/4">Nama</strong>
-              {isEdit ? (
-                <input
-                  type="text"
-                  className="border p-2 rounded"
-                  defaultValue={selectedItem.nama}
-                />
-              ) : (
-                <span>: {selectedItem.nama}</span>
-              )}
+              {isEdit ? <input type="text" className="border p-2 rounded" defaultValue={selectedItem.nama} /> : <span>: {selectedItem.nama}</span>}
             </div>
             <div className="flex items-center">
               <strong className="w-1/4">Harga</strong>
-              {isEdit ? (
-                <input
-                  type="number"
-                  className="border p-2 rounded"
-                  defaultValue={selectedItem.harga}
-                />
-              ) : (
-                <span>: {selectedItem.harga}</span>
-              )}
+              {isEdit ? <input type="number" className="border p-2 rounded" defaultValue={selectedItem.harga} /> : <span>: {selectedItem.harga}</span>}
             </div>
             <div className="flex items-center">
               <strong className="w-1/4">Deskripsi</strong>
-              {isEdit ? (
-                <textarea
-                  className="border p-2 rounded"
-                  defaultValue={selectedItem.deskripsi}
-                />
-              ) : (
-                <span>: {selectedItem.deskripsi}</span>
-              )}
+              {isEdit ? <textarea className="border p-2 rounded" defaultValue={selectedItem.deskripsi} /> : <span>: {selectedItem.deskripsi}</span>}
             </div>
             <div className="flex items-center">
               <strong className="w-1/4">Foto</strong>
-              {isEdit ? (
-                <input type="file" className="border p-2 rounded" />
-              ) : (
-                <img
-                  src={selectedItem.foto}
-                  alt="Produk"
-                  className="w-32 h-32 object-cover rounded"
-                />
-              )}
+              {isEdit ? <input type="file" className="border p-2 rounded" /> : <img src={selectedItem.foto} alt="Produk" className="w-32 h-32 object-cover rounded" />}
             </div>
             {isEdit && (
-              <button
-                onClick={handleEditSubmit}
-                className="bg-blue-500 text-white p-2 rounded mt-4"
-              >
+              <button onClick={handleEditSubmit} className="bg-blue-500 text-white p-2 rounded mt-4">
                 Simpan Perubahan
               </button>
             )}
@@ -851,11 +596,7 @@ const DetailDesaPage = () => {
         <div className="p-4">
           <h3 className="text-lg font-semibold">Preview Galeri</h3>
           <div className="flex flex-col items-center space-y-4">
-            <img
-              src={selectedItem.foto}
-              alt="Galeri"
-              className="w-full h-48 object-cover rounded-md"
-            />
+            <img src={selectedItem.foto} alt="Galeri" className="w-full h-48 object-cover rounded-md" />
             <p>{selectedItem.deskripsi}</p>
           </div>
         </div>
@@ -867,26 +608,11 @@ const DetailDesaPage = () => {
           <div className="flex flex-col space-y-4">
             <div className="flex items-center">
               <strong className="w-1/4">Judul</strong>
-              {isEdit ? (
-                <input
-                  type="text"
-                  className="border p-2 rounded"
-                  defaultValue={selectedItem.judul}
-                />
-              ) : (
-                <span>: {selectedItem.judul}</span>
-              )}
+              {isEdit ? <input type="text" className="border p-2 rounded" defaultValue={selectedItem.judul} /> : <span>: {selectedItem.judul}</span>}
             </div>
             <div className="flex items-center">
               <strong className="w-1/4">Deskripsi</strong>
-              {isEdit ? (
-                <textarea
-                  className="border p-2 rounded"
-                  defaultValue={selectedItem.deskripsi}
-                />
-              ) : (
-                <span>: {selectedItem.deskripsi}</span>
-              )}
+              {isEdit ? <textarea className="border p-2 rounded" defaultValue={selectedItem.deskripsi} /> : <span>: {selectedItem.deskripsi}</span>}
             </div>
           </div>
         </div>
@@ -988,30 +714,21 @@ const DetailDesaPage = () => {
     },
     {
       label: `Kelompok Desa - ${desa.kabupatenNama}`,
-      path: `/kelompok-desa?kabupaten=${encodeURIComponent(
-        desa.kabupatenNama
-      )}`,
+      path: `/kelompok-desa?kabupaten=${encodeURIComponent(desa.kabupatenNama)}`,
     },
     { label: desa.kelompok_desa, path: null }, // Halaman saat ini
   ];
 
   return (
     <>
-      {showErrorNotification && errorMessage && (
-        <ErrorNotification message={errorMessage} onClose={handleClose} />
-      )}
-      {showSuccessNotification && successMessage && (
-        <SuccessNotification message={successMessage} onClose={handleClose} />
-      )}
+      {showErrorNotification && errorMessage && <ErrorNotification message={errorMessage} onClose={handleClose} />}
+      {showSuccessNotification && successMessage && <SuccessNotification message={successMessage} onClose={handleClose} />}
       <div className="p-5">
         <div className="p-1">
           <Breadcrumb items={breadcrumbItems} />
         </div>
 
-        <button
-          onClick={() => navigate(-1)}
-          className="bg-blue-500 text-white py-2 px-4 rounded-lg shadow-md hover:bg-blue-600 focus:outline-none"
-        >
+        <button onClick={() => navigate(-1)} className="bg-blue-500 text-white py-2 px-4 rounded-lg shadow-md hover:bg-blue-600 focus:outline-none">
           Kembali
         </button>
 
@@ -1019,9 +736,7 @@ const DetailDesaPage = () => {
           <div className="flex flex-col w-full lg:w-1/2 space-y-6">
             <div className="bg-white p-6 shadow rounded-md">
               <div className="border-b-2 pb-1 border-black">
-                <h1 className="text-xl font-semibold mb-2">
-                  {desa.kelompok_desa}
-                </h1>
+                <h1 className="text-xl font-semibold mb-2">{desa.kelompok_desa}</h1>
               </div>
 
               {/* Tampilan Mobile */}
@@ -1029,8 +744,7 @@ const DetailDesaPage = () => {
                 <div>
                   <p className="font-semibold">Alamat</p>
                   <p>
-                    {desa.kabupatenNama}, Kec. {desa.kecamatanNama}, Kel.{" "}
-                    {desa.kelurahanNama}
+                    {desa.kabupatenNama}, Kec. {desa.kecamatanNama}, Kel. {desa.kelurahanNama}
                   </p>
                 </div>
 
@@ -1074,8 +788,7 @@ const DetailDesaPage = () => {
                     </p>
                     <p>:</p>
                     <p className="text-gray-600 ml-2">
-                      {desa.kabupatenNama}, Kec. {desa.kecamatanNama}, Kel.{" "}
-                      {desa.kelurahanNama}
+                      {desa.kabupatenNama}, Kec. {desa.kecamatanNama}, Kel. {desa.kelurahanNama}
                     </p>
                   </div>
 
@@ -1084,9 +797,7 @@ const DetailDesaPage = () => {
                       <strong>Tanggal Pembentukan</strong>
                     </p>
                     <p>:</p>
-                    <p className="text-gray-600 ml-2">
-                      {formatTanggal(desa.tahun_pembentukan)}
-                    </p>
+                    <p className="text-gray-600 ml-2">{formatTanggal(desa.tahun_pembentukan)}</p>
                   </div>
 
                   <div className="flex items-start">
@@ -1094,9 +805,7 @@ const DetailDesaPage = () => {
                       <strong>Jumlah Hibah Diterima</strong>
                     </p>
                     <p>:</p>
-                    <p className="text-gray-600 ml-2">
-                      {formatRupiah(desa.jumlah_hibah_diterima)}
-                    </p>
+                    <p className="text-gray-600 ml-2">{formatRupiah(desa.jumlah_hibah_diterima)}</p>
                   </div>
 
                   <div className="flex items-start">
@@ -1104,9 +813,7 @@ const DetailDesaPage = () => {
                       <strong>Jumlah Dana Sekarang</strong>
                     </p>
                     <p>:</p>
-                    <p className="text-gray-600 ml-2">
-                      {formatRupiah(desa.jumlah_dana_sekarang)}
-                    </p>
+                    <p className="text-gray-600 ml-2">{formatRupiah(desa.jumlah_dana_sekarang)}</p>
                   </div>
 
                   <div className="flex items-start">
@@ -1114,9 +821,7 @@ const DetailDesaPage = () => {
                       <strong>Jumlah Anggota Awal</strong>
                     </p>
                     <p>:</p>
-                    <p className="text-gray-600 ml-2">
-                      {desa.jumlah_anggota_awal}
-                    </p>
+                    <p className="text-gray-600 ml-2">{desa.jumlah_anggota_awal}</p>
                   </div>
 
                   <div className="flex items-start">
@@ -1124,9 +829,7 @@ const DetailDesaPage = () => {
                       <strong>Jumlah Anggota Sekarang</strong>
                     </p>
                     <p>:</p>
-                    <p className="text-gray-600 ml-2">
-                      {desa.jumlah_anggota_sekarang}
-                    </p>
+                    <p className="text-gray-600 ml-2">{desa.jumlah_anggota_sekarang}</p>
                   </div>
 
                   <div className="flex items-start">
@@ -1165,16 +868,9 @@ const DetailDesaPage = () => {
             </div>
 
             <div>
-              <TabPanel
-                tabs={tabs}
-                selectedTab={selectedTab}
-                onTabChange={onTabChange}
-                className="shadow rounded-md text-xs w-1/2"
-              />
+              <TabPanel tabs={tabs} selectedTab={selectedTab} onTabChange={onTabChange} className="shadow rounded-md text-xs w-1/2" />
 
-              <div className="bg-white p-4 pb-6 shadow rounded-md border-gray">
-                {renderTabContent()}
-              </div>
+              <div className="bg-white p-4 pb-6 shadow rounded-md border-gray">{renderTabContent()}</div>
             </div>
           </div>
           {/* Kotak Preview */}
@@ -1190,16 +886,10 @@ const DetailDesaPage = () => {
               <h2 className="text-xl font-bold mb-4">Konfirmasi Hapus</h2>
               <p>Apakah Anda yakin ingin menghapus desa ini?</p>
               <div className="mt-4 flex justify-end gap-4">
-                <button
-                  className="bg-gray-500 text-white py-2 px-4 rounded-md hover:bg-gray-600"
-                  onClick={handleDeleteModalClose}
-                >
+                <button className="bg-gray-500 text-white py-2 px-4 rounded-md hover:bg-gray-600" onClick={handleDeleteModalClose}>
                   Batal
                 </button>
-                <button
-                  className="bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600"
-                  onClick={handleDelete}
-                >
+                <button className="bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600" onClick={handleDelete}>
                   Hapus
                 </button>
               </div>
@@ -1211,28 +901,12 @@ const DetailDesaPage = () => {
           <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center z-50">
             <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
               <h2 className="text-xl font-bold mb-4">Konfirmasi Hapus</h2>
-              <p>
-                Apakah Anda yakin ingin menghapus{" "}
-                {deleteItemType === "galeri"
-                  ? "gambar"
-                  : deleteItemType === "notulensi"
-                  ? "notulensi"
-                  : deleteItemType === "produk"
-                  ? "produk"
-                  : "pengurus"}{" "}
-                ini?
-              </p>
+              <p>Apakah Anda yakin ingin menghapus {deleteItemType === "galeri" ? "gambar" : deleteItemType === "notulensi" ? "notulensi" : deleteItemType === "produk" ? "produk" : "pengurus"} ini?</p>
               <div className="mt-4 flex justify-end gap-4">
-                <button
-                  className="bg-gray-500 text-white py-2 px-4 rounded-md hover:bg-gray-600"
-                  onClick={() => setIsDeleteItemModalOpen(false)}
-                >
+                <button className="bg-gray-500 text-white py-2 px-4 rounded-md hover:bg-gray-600" onClick={() => setIsDeleteItemModalOpen(false)}>
                   Batal
                 </button>
-                <button
-                  className="bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600"
-                  onClick={handleDeleteItem}
-                >
+                <button className="bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600" onClick={handleDeleteItem}>
                   Hapus
                 </button>
               </div>
@@ -1240,45 +914,13 @@ const DetailDesaPage = () => {
           </div>
         )}
 
-        <EditModal
-          isOpen={isEditModalOpen}
-          onClose={() => setIsEditModalOpen(false)}
-          onSubmit={handleEditSubmit}
-          initialData={entityToEdit}
-          entityType={editEntityType}
-        />
+        <EditModal isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} onSubmit={handleEditSubmit} initialData={entityToEdit} entityType={editEntityType} />
 
-        {isModalOpen && modalType === "form" && (
-          <ModalForm onClose={handleModalClose} selectedDesa={selectedDesa} />
-        )}
-        {isModalOpen && modalType === "notulensi" && (
-          <ModalDetail
-            onClose={handleModalClose}
-            selectedDesa={selectedDesa}
-            activeTab="notulensiMateri"
-          />
-        )}
-        {isModalOpen && modalType === "galeri" && (
-          <ModalDetail
-            onClose={handleModalClose}
-            selectedDesa={selectedDesa}
-            activeTab="galeriFoto"
-          />
-        )}
-        {isModalOpen && modalType === "produk" && (
-          <ModalDetail
-            onClose={handleModalClose}
-            selectedDesa={selectedDesa}
-            activeTab="uraianProduk"
-          />
-        )}
-        {isModalOpen && modalType === "pengurus" && (
-          <ModalDetail
-            onClose={handleModalClose}
-            selectedDesa={selectedDesa}
-            activeTab="pengurusDesa"
-          />
-        )}
+        {isModalOpen && modalType === "form" && <ModalForm onClose={handleModalClose} selectedDesa={selectedDesa} />}
+        {isModalOpen && modalType === "notulensi" && <ModalDetail onClose={handleModalClose} selectedDesa={selectedDesa} activeTab="notulensiMateri" />}
+        {isModalOpen && modalType === "galeri" && <ModalDetail onClose={handleModalClose} selectedDesa={selectedDesa} activeTab="galeriFoto" />}
+        {isModalOpen && modalType === "produk" && <ModalDetail onClose={handleModalClose} selectedDesa={selectedDesa} activeTab="uraianProduk" />}
+        {isModalOpen && modalType === "pengurus" && <ModalDetail onClose={handleModalClose} selectedDesa={selectedDesa} activeTab="pengurusDesa" />}
 
         <ToastContainer />
       </div>
