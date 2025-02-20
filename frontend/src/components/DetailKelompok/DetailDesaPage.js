@@ -337,8 +337,9 @@ const DetailDesaPage = () => {
         </button>
 
         {galeri.length === 0 && <div className="w-full text-center text-gray-500 mt-3">Tidak ada file ditemukan</div>}
+
         {galeri.map((file) => (
-          <div key={file.id} className="relative w-1/2 lg:w-40 p-2">
+          <div key={file.id} className="relative w-1/2 lg:w-40 p-2" onClick={() => handleItemSelect(file)}>
             <div className={`border cursor-pointer ${selectedFiles.includes(file) ? "border-blue-500" : "border-gray-400"}`}>
               <div className="h-8 bg-gray-300 flex justify-between">
                 <div className={`${selectedFiles.includes(file) ? "hidden" : ""} text-white h-2 w-2 lg:h-7 lg:w-7`} onClick={() => handleSelectFile(file)}>
@@ -372,8 +373,15 @@ const DetailDesaPage = () => {
                 </div>
               </div>
 
-              {file.gambar ? <img src={`http://localhost:5000${file.gambar}`} alt={file.gambar} className="w-full h-24 object-cover rounded-md" /> : <p className="text-gray-500 italic">No Image</p>}
-              <p className="text-sm mt-2 font-semibold text-gray-700 truncate">{formatTanggal(file.createdAt)}</p>
+              {file.gambar ? (
+                <div className="w-full h-40 flex justify-center items-center bg-gray-100 rounded-md overflow-hidden">
+                  <img src={`http://localhost:5000${file.gambar}`} alt={file.gambar} className="w-full h-full object-contain" />
+                </div>
+              ) : (
+                <p className="text-gray-500 italic">No Image</p>
+              )}
+
+              {/* <p className="text-sm mt-2 font-semibold text-gray-700 truncate">{formatTanggal(file.createdAt)}</p> */}
             </div>
           </div>
         ))}
@@ -391,7 +399,7 @@ const DetailDesaPage = () => {
 
         {notulensi.length === 0 && <div className="w-full text-center text-gray-500 mt-3">Tidak ada file ditemukan</div>}
         {notulensi.map((file) => (
-          <div key={file.id} className="relative w-1/2 lg:w-40 p-2">
+          <div key={file.id} className="relative w-1/2 lg:w-40 p-2" onClick={() => handleItemSelect(file)}>
             <div className={`border cursor-pointer ${selectedFiles.includes(file) ? "border-blue-500" : "border-gray-400"}`}>
               <div className="h-8 bg-gray-300 flex justify-between">
                 <div className={`${selectedFiles.includes(file) ? "hidden" : ""} text-white h-2 w-2 lg:h-7 lg:w-7`} onClick={() => handleSelectFile(file)}>
@@ -410,7 +418,7 @@ const DetailDesaPage = () => {
                   <div className={`${visibleOptionId === file.id ? "block" : "hidden"} absolute right-1 mt-2 w-36 bg-white border rounded-md shadow-lg`}>
                     <div className="flex hover:bg-gray-100">
                       <FontAwesomeIcon icon={faDownload} className="w-4 h-4 text-gray-400 pl-2 py-2" />
-                      <button className="block w-full text-left px-4 text-gray-700" onClick={() => window.open(`http://localhost:5000${file.file}`, "_blank")}>
+                      <button className="block w-full text-left px-4 text-gray-700" onClick={() => window.open(`http://localhost:5000/uploads/${file.file}`, "_blank")}>
                         Download
                       </button>
                     </div>
@@ -425,8 +433,15 @@ const DetailDesaPage = () => {
                 </div>
               </div>
 
-              {file.gambar ? <img src={`http://localhost:5000${file.gambar}`} alt={file.gambar} className="w-full h-24 object-cover rounded-md" /> : <p className="text-gray-500 italic">No Image</p>}
-              <p className="text-sm mt-2 font-semibold text-gray-700 truncate">{formatTanggal(file.createdAt)}</p>
+              {file.gambar ? (
+                <img src={`http://localhost:5000${file.gambar}`} alt={file.gambar} className="w-full h-24 object-cover rounded-md" />
+              ) : (
+                <div className="flex justify-center items-center w-full h-24 bg-gray-200 rounded-md">
+                  <FontAwesomeIcon icon={faFilePdf} className="text-gray-500 text-3xl" />
+                </div>
+              )}
+              <p className="text-sm font-semibold text-gray-700 truncate text-center">{file.catatan}</p>
+              {/* <p className="text-sm mt-2 font-semibold text-gray-700 truncate">{formatTanggal(file.createdAt)}</p> */}
             </div>
           </div>
         ))}
@@ -512,8 +527,7 @@ const DetailDesaPage = () => {
   const renderProduk = () => (
     <>
       <div className="flex flex-wrap justify-center md:justify-start">
-        {/* Tombol untuk menambah file galeri */}
-
+        {/* Tombol untuk menambah file produk */}
         <button className="w-1/2 border border-dashed border-gray-500 h-48 lg:w-36 lg:h-48 lg:mr-2 mt-2 p-2 flex flex-col justify-center items-center cursor-pointer" onClick={() => handleAdd("produk", desa)}>
           <FontAwesomeIcon icon={faPlus} className="w-1/2 h-1/2 lg:w-20 lg:h-20 text-gray-400" />
           <div className="w-full text-xs lg:text-sm text-center text-gray-500">Unggah Produk</div>
@@ -524,8 +538,11 @@ const DetailDesaPage = () => {
         {/* Tampilkan foto produk dan nama produk dalam grid */}
         {produk.map((item) => (
           <div key={item.id} className="relative w-1/2 p-2 h-48 lg:w-36 lg:h-48" onClick={() => handleItemSelect(item)}>
-            <div className="border overflow-hidden">
-              <img src={`http://localhost:5000${item.foto}`} alt={item.nama} className="w-full h-40 object-cover" />
+            <div className="border overflow-hidden rounded-md">
+              {/* Membungkus gambar dalam div agar penuh */}
+              <div className="w-full h-40 flex justify-center items-center bg-gray-100">
+                <img src={`http://localhost:5000${item.foto}`} alt={item.nama} className="w-full h-full object-contain" />
+              </div>
               <div className="p-2">
                 <p className="text-sm font-semibold truncate">{item.nama}</p>
               </div>
@@ -559,7 +576,7 @@ const DetailDesaPage = () => {
     if (selectedTab === "Produk" && selectedItem) {
       return (
         <div className="p-4">
-          <h3 className="text-lg font-semibold">Preview Produk</h3>
+          <h3 className="text-lg font-semibold text-center">Preview Produk</h3>
           <div className="flex flex-col space-y-4">
             <div className="flex items-center">
               <strong className="w-1/4">Nama</strong>
@@ -573,35 +590,40 @@ const DetailDesaPage = () => {
               <strong className="w-1/4">Deskripsi</strong>
               <span>: {selectedItem.deskripsi}</span>
             </div>
-            <div className="flex items-center">
-              <strong className="w-1/4">Foto</strong>
-              <img src={`http://localhost:5000${selectedItem.foto}`} alt="Produk" className="w-32 h-32 object-cover rounded" />
+            <div className="flex flex-col items-center w-full h-[500px] bg-gray-200 rounded-md overflow-hidden">
+              <img src={`http://localhost:5000${selectedItem.foto}`} alt="Produk" className="w-full h-full object-contain" />
             </div>
           </div>
         </div>
       );
     } else if (selectedTab === "Galeri" && selectedItem) {
       return (
-        <div className="p-4">
-          <h3 className="text-lg font-semibold">Preview Galeri</h3>
-          <div className="flex flex-col items-center space-y-4">
-            <img src={`http://localhost:5000${selectedItem.gambar}`} alt="Galeri" className="w-full h-48 object-cover rounded-md" />
-            <p>{selectedItem.createdAt}</p>
+        <div className="p-4 flex justify-center">
+          <div className="text-center w-full">
+            <h3 className="text-lg font-semibold mb-4">Preview Galeri</h3>
+            <div className="flex justify-center items-center w-full h-[500px] bg-gray-200 rounded-md overflow-hidden">
+              <img src={`http://localhost:5000${selectedItem.gambar}`} alt="Galeri" className="w-full h-full object-contain" />
+            </div>
+            <p className="mt-4">Diunggah {formatTanggal(selectedItem.createdAt)}</p>
           </div>
         </div>
       );
     } else if (selectedTab === "Notulensi / Materi" && selectedItem) {
       return (
         <div className="p-4">
-          <h3 className="text-lg font-semibold">Preview Notulensi</h3>
+          <h3 className="text-lg font-semibold text-center">Preview Notulensi</h3>
           <div className="flex flex-col space-y-4">
-            <div className="flex items-center">
-              <strong className="w-1/4">Diunggah</strong>
-              <span>: {selectedItem.createdAt}</span>
+            <div className="flex justify-center items-center w-full h-[500px] bg-gray-200 rounded-md mb-4 mt-6">
+              <iframe src={`http://localhost:5000/uploads/${selectedItem.file}`} width="100%" height="100%" style={{ border: "none" }} title="Notulensi Preview" />
             </div>
             <div className="flex items-center">
-              <strong className="w-1/4">Deskripsi</strong>
-              <span>: {selectedItem.deskripsi}</span>
+              <strong className="w-1/4">Diunggah pada</strong>
+              <span>: {formatTanggal(selectedItem.createdAt)}</span>
+            </div>
+            <div className="flex justify-center mt-4">
+              <button className="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600" onClick={() => window.open(`http://localhost:5000/uploads/${selectedItem.file}`, "_blank")}>
+                Download File
+              </button>
             </div>
           </div>
         </div>
@@ -864,7 +886,7 @@ const DetailDesaPage = () => {
           </div>
           {/* Kotak Preview */}
           <div className="w-full lg:w-1/2 bg-white shadow-md rounded-md p-6 mt-4 lg:mt-0 ml-0 lg:ml-4">
-            <h3 className="text-xl font-semibold mb-2 text-center">Preview</h3>
+            {/* <h3 className="text-xl font-semibold mb-2 text-center">Preview</h3> */}
             {renderPreviewContent()}
           </div>
         </div>

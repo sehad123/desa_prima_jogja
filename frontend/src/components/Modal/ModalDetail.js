@@ -156,7 +156,7 @@ const ModalDetail = ({ onClose, selectedDesa, activeTab }) => {
             </div>
             <div className="mb-4">
               <label htmlFor="catatan" className="block text-sm font-medium text-gray-700">
-                Catatan
+                Judul
               </label>
               <textarea id="catatan" rows="4" value={catatan} onChange={handleCatatanChange} className="mt-1 block w-full border border-gray-700 rounded-lg"></textarea>
             </div>

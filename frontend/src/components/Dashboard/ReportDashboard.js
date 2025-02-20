@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useRef, useEffect, useState } from "react";
 import { Document, Page, View, Text, Image, StyleSheet } from "@react-pdf/renderer";
+import html2canvas from "html2canvas";
 
 const styles = StyleSheet.create({
   page: {
@@ -38,12 +39,10 @@ const styles = StyleSheet.create({
     color: "#3E3E3E",
   },
   chartContainer: {
-    fontSize: 13,
     marginTop: 30,
     marginBottom: 6,
     alignItems: "center",
-    justifyContent: "flex-start",
-    marginLeft: 20,
+    justifyContent: "center",
   },
   chartImage: {
     width: "auto",
@@ -71,9 +70,38 @@ const styles = StyleSheet.create({
   },
 });
 
-const ReportDashboard = ({ profil, totalDesa, totalJumlahDesa, desaMaju, desaBerkembang, desaTumbuh, DoughnutChartImage, LineChartImage }) => {
-  const currentDate = new Date();
-  const formattedDate = currentDate.toLocaleDateString("id-ID", {
+const ReportDashboard = ({ profil, totalDesa, totalJumlahDesa, desaMaju, desaBerkembang, desaTumbuh, DoughnutChartRef, LineChartRef }) => {
+  const [doughnutChartImage, setDoughnutChartImage] = useState(null);
+  const [lineChartImage, setLineChartImage] = useState(null);
+  const [mapImage, setMapImage] = useState(null);
+
+  // Fungsi untuk mengubah chart menjadi gambar Base64
+  const captureChartImage = async (chartRef, setImage) => {
+    if (chartRef && chartRef.current) {
+      try {
+        const canvas = await html2canvas(chartRef.current);
+        setImage(canvas.toDataURL("image/png"));
+      } catch (error) {
+        console.error("Gagal menangkap gambar chart:", error);
+      }
+    }
+  };
+
+  // Ambil gambar grafik setelah komponen ter-render
+  useEffect(() => {
+    captureChartImage(DoughnutChartRef, setDoughnutChartImage);
+    captureChartImage(LineChartRef, setLineChartImage);
+
+    // Ambil gambar peta (contoh: dari elemen dengan ID "map")
+    const mapElement = document.getElementById("map");
+    if (mapElement) {
+      html2canvas(mapElement).then((canvas) => {
+        setMapImage(canvas.toDataURL("image/png"));
+      });
+    }
+  }, [DoughnutChartRef, LineChartRef]);
+
+  const currentDate = new Date().toLocaleDateString("id-ID", {
     day: "numeric",
     month: "long",
     year: "numeric",
@@ -91,41 +119,36 @@ const ReportDashboard = ({ profil, totalDesa, totalJumlahDesa, desaMaju, desaBer
         <View style={styles.contentContainer}>
           <View style={{ flex: 1 }}>
             <Text style={styles.detailTitle}>Nama Petugas:</Text>
-            <Text style={styles.detailText}>{profil.name || "Tidak tersedia"}</Text>
+            <Text style={styles.detailText}>{profil?.name || "Tidak tersedia"}</Text>
             <Text style={styles.detailTitle}>NIP:</Text>
-            <Text style={styles.detailText}>{profil.nip || "Tidak tersedia"}</Text>
+            <Text style={styles.detailText}>{profil?.nip || "Tidak tersedia"}</Text>
             <Text style={styles.detailTitle}>Jumlah Kelompok Desa:</Text>
-            <Text style={styles.detailText}>{totalJumlahDesa}</Text>
+            <Text style={styles.detailText}>{totalJumlahDesa || 0}</Text>
             <Text style={styles.detailTitle}>Jumlah Kategori Maju:</Text>
-            <Text style={styles.detailText}>{desaMaju}</Text>
+            <Text style={styles.detailText}>{desaMaju || 0}</Text>
             <Text style={styles.detailTitle}>Jumlah Kategori Berkembang:</Text>
-            <Text style={styles.detailText}>{desaBerkembang}</Text>
+            <Text style={styles.detailText}>{desaBerkembang || 0}</Text>
             <Text style={styles.detailTitle}>Jumlah Kategori Tumbuh:</Text>
-            <Text style={styles.detailText}>{desaTumbuh}</Text>
+            <Text style={styles.detailText}>{desaTumbuh || 0}</Text>
             <Text style={styles.detailTitle}>Total Desa:</Text>
-            <Text style={styles.detailText}>{totalDesa}</Text>
+            <Text style={styles.detailText}>{totalDesa || 0}</Text>
             <Text style={styles.detailTitle}>Periode Pembentukan:</Text>
-            <Text style={styles.detailText}>17 Desember - 20 Desember 2025</Text>
+            <Text style={styles.detailText}>{currentDate}</Text>
             <Text style={styles.detailTitle}>Persentase Kelompok Desa:</Text>
-            <Text style={styles.detailText}>{((desaMaju + desaBerkembang + desaTumbuh) / totalJumlahDesa) * 100}%</Text>
+            <Text style={styles.detailText}>{totalJumlahDesa ? (((desaMaju + desaBerkembang + desaTumbuh) / totalJumlahDesa) * 100).toFixed(1) + "%" : "0%"}</Text>
           </View>
 
           {/* Doughnut Chart */}
-          <View style={styles.chartContainer}>
-            <Image src={DoughnutChartImage} style={styles.chartImage} />
-          </View>
+          <View style={styles.chartContainer}>{doughnutChartImage && <Image src={doughnutChartImage} style={styles.chartImage} />}</View>
         </View>
 
         {/* Line Chart */}
-        <View style={styles.chartContainer}>
-          <Image src={LineChartImage} style={styles.chartImage} />
-        </View>
+        <View style={styles.chartContainer}>{lineChartImage && <Image src={lineChartImage} style={styles.chartImage} />}</View>
 
         {/* Footer with map */}
         <View style={styles.footerContainer}>
           <Text style={styles.footerText}>Peta Persebaran</Text>
-          {/* Add the map image or file here */}
-          <Image src="path-to-your-map-image.png" style={styles.overallProgressImageContainer} />
+          {mapImage && <Image src={mapImage} style={styles.overallProgressImageContainer} />}
         </View>
       </Page>
     </Document>
