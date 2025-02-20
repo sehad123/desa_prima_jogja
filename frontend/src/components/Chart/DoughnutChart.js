@@ -1,3 +1,4 @@
+// DoughnutChart.js
 import { forwardRef, useRef } from "react";
 import { Doughnut } from "react-chartjs-2";
 import ChartDataLabels from "chartjs-plugin-datalabels";
@@ -8,8 +9,7 @@ ChartJS.register(ArcElement, Tooltip, Legend, ChartDataLabels);
 
 const DoughnutChart = forwardRef(({ data }, ref) => {
   const chartRef = useRef(null);
-  const { desaMaju, desaBerkembang, desaTumbuh, totalDesa, totalJumlahDesa } =
-    data;
+  const { desaMaju, desaBerkembang, desaTumbuh, totalDesa, totalJumlahDesa } = data;
 
   const downloadChartImage = (chartRef, filename) => {
     const chart = chartRef.current;
@@ -38,9 +38,7 @@ const DoughnutChart = forwardRef(({ data }, ref) => {
 
       // Hitung total data di chart
       const totalData = chart.config.options.plugins.centerText.totalJumlahDesa;
-      const percentageKelompok = ((totalData / totalDesaValue) * 100).toFixed(
-        1
-      );
+      const percentageKelompok = ((totalData / totalDesaValue) * 100).toFixed(1);
 
       ctx.save();
       ctx.font = "bold 30px sans-serif";
@@ -117,9 +115,7 @@ const DoughnutChart = forwardRef(({ data }, ref) => {
 
   return (
     <>
-      <h2 className="text-sm lg:text-lg font-bold text-center">
-        Jumlah Kelompok Desa Prima Berdasarkan Kategori
-      </h2>
+      <h2 className="text-sm lg:text-lg font-bold text-center">Jumlah Kelompok Desa Prima Berdasarkan Kategori</h2>
       <div className="relative flex justify-center items-center w-full h-[300px] lg:h-[400px]">
         <Doughnut
           ref={chartRef}
@@ -127,11 +123,11 @@ const DoughnutChart = forwardRef(({ data }, ref) => {
           options={doughnutChartOptions}
           plugins={[centerTextPlugin]} // Perbaikan: Plugin masuk langsung di properti ini
         />
-         <button onClick={() => downloadChartImage(ref, "doughnut_chart.png")} className="absolute top-4 right-4 text-blue-500 hover:text-blue-700" title="Unduh Diagram">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" className="w-6 h-6" viewBox="0 0 24 24">
-              <path d="M12 16l4-5h-3V3h-2v8H8l4 5zm-7 2v2h14v-2H5z" />
-            </svg>
-          </button>
+        <button onClick={() => downloadChartImage(ref, "doughnut_chart.png")} className="absolute top-4 right-4 text-blue-500 hover:text-blue-700" title="Unduh Diagram">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" className="w-6 h-6" viewBox="0 0 24 24">
+            <path d="M12 16l4-5h-3V3h-2v8H8l4 5zm-7 2v2h14v-2H5z" />
+          </svg>
+        </button>
       </div>
     </>
   );

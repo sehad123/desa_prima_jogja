@@ -12,6 +12,7 @@ const styles = StyleSheet.create({
     lineHeight: 1.5,
     flexDirection: "column",
   },
+
   titleContainer: {
     textAlign: "center",
     marginBottom: 8,
@@ -59,6 +60,7 @@ const styles = StyleSheet.create({
   },
   footerText: {
     fontSize: 11,
+    marginBottom: 40,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -89,16 +91,19 @@ const ReportDashboard = ({ profil, totalDesa, totalJumlahDesa, desaMaju, desaBer
 
   // Ambil gambar grafik setelah komponen ter-render
   useEffect(() => {
-    captureChartImage(DoughnutChartRef, setDoughnutChartImage);
-    captureChartImage(LineChartRef, setLineChartImage);
+    const captureImages = async () => {
+      await Promise.all([captureChartImage(DoughnutChartRef, setDoughnutChartImage), captureChartImage(LineChartRef, setLineChartImage)]);
 
-    // Ambil gambar peta (contoh: dari elemen dengan ID "map")
-    const mapElement = document.getElementById("map");
-    if (mapElement) {
-      html2canvas(mapElement).then((canvas) => {
-        setMapImage(canvas.toDataURL("image/png"));
-      });
-    }
+      // Ambil gambar peta (contoh: dari elemen dengan ID "map")
+      const mapElement = document.getElementById("map");
+      if (mapElement) {
+        html2canvas(mapElement).then((canvas) => {
+          setMapImage(canvas.toDataURL("image/png"));
+        });
+      }
+    };
+
+    captureImages();
   }, [DoughnutChartRef, LineChartRef]);
 
   const currentDate = new Date().toLocaleDateString("id-ID", {
@@ -145,10 +150,11 @@ const ReportDashboard = ({ profil, totalDesa, totalJumlahDesa, desaMaju, desaBer
         {/* Line Chart */}
         <View style={styles.chartContainer}>{lineChartImage && <Image src={lineChartImage} style={styles.chartImage} />}</View>
 
-        {/* Footer with map */}
+        {/* Footer */}
         <View style={styles.footerContainer}>
-          <Text style={styles.footerText}>Peta Persebaran</Text>
-          {mapImage && <Image src={mapImage} style={styles.overallProgressImageContainer} />}
+          <Text style={styles.footerText}>Yogyakarta, 25 Februari 2025</Text>
+          <Text style={styles.footerText}>ttd</Text>
+          <Text style={styles.footerText}>Setya Hadi Nugroho</Text>
         </View>
       </Page>
     </Document>

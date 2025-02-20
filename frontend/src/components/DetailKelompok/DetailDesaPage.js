@@ -14,6 +14,8 @@ import { faPlus, faEllipsisV, faEdit, faTimes, faDownload, faTrash, faSquareChec
 import TabPanel from "./TabPanel";
 import ErrorNotification from "../Modal/ErrorNotification";
 import SuccessNotification from "../Modal/SuccessNotification";
+import { PDFDownloadLink } from "@react-pdf/renderer";
+import DesaPDF from "./PdFDesaDetail";
 
 const DetailDesaPage = () => {
   const { id } = useParams();
@@ -594,6 +596,14 @@ const DetailDesaPage = () => {
               <img src={`http://localhost:5000${selectedItem.foto}`} alt="Produk" className="w-full h-full object-contain" />
             </div>
           </div>
+          <div className="flex justify-end space-x-4 mt-4">
+            <button className="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600" onClick={() => handleEditModal(selectedItem, "produk")}>
+              Edit
+            </button>
+            <button className="bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600" onClick={() => openDeleteItemModal(selectedItem, "produk")}>
+              Hapus
+            </button>
+          </div>
         </div>
       );
     } else if (selectedTab === "Galeri" && selectedItem) {
@@ -605,6 +615,14 @@ const DetailDesaPage = () => {
               <img src={`http://localhost:5000${selectedItem.gambar}`} alt="Galeri" className="w-full h-full object-contain" />
             </div>
             <p className="mt-4">Diunggah {formatTanggal(selectedItem.createdAt)}</p>
+            <div className="flex justify-end space-x-4 mt-4">
+              <button className="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600" onClick={() => window.open(`http://localhost:5000${selectedItem.gambar}`, "_blank")}>
+                Download
+              </button>
+              <button className="bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600" onClick={() => openDeleteItemModal(selectedItem, "galeri")}>
+                Hapus
+              </button>
+            </div>
           </div>
         </div>
       );
@@ -620,9 +638,12 @@ const DetailDesaPage = () => {
               <strong className="w-1/4">Diunggah pada</strong>
               <span>: {formatTanggal(selectedItem.createdAt)}</span>
             </div>
-            <div className="flex justify-center mt-4">
+            <div className="flex justify-end space-x-4 mt-4">
               <button className="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600" onClick={() => window.open(`http://localhost:5000/uploads/${selectedItem.file}`, "_blank")}>
-                Download File
+                Download
+              </button>
+              <button className="bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600" onClick={() => openDeleteItemModal(selectedItem, "notulensi")}>
+                Hapus
               </button>
             </div>
           </div>
@@ -855,12 +876,22 @@ const DetailDesaPage = () => {
 
               {/* Tombol */}
               <div className="mt-4 flex space-x-2 justify-end">
-                <div className="flex lg:w-3/12 justify-center py-1 px-2 space-x-2 text-sm lg:text-lg font-semibold bg-green-200 hover:bg-green-400 rounded-md shadow-sm cursor-pointer text-green-700 hover:text-white">
-                  <div>
-                    <FontAwesomeIcon icon={faDownload} />
-                  </div>
-                  <div>Cetak Hasil</div>
-                </div>
+                <PDFDownloadLink
+                  document={<DesaPDF desa={desa} profil={profil} />}
+                  fileName="detail-desa.pdf"
+                  className="flex lg:w-3/12 justify-center py-1 px-2 space-x-2 text-sm lg:text-lg font-semibold bg-green-200 hover:bg-green-400 rounded-md shadow-sm cursor-pointer text-green-700 hover:text-white"
+                >
+                  {({ loading }) =>
+                    loading ? (
+                      "Menyiapkan PDF..."
+                    ) : (
+                      <>
+                        <FontAwesomeIcon icon={faDownload} />
+                        <span>Cetak Hasil</span>
+                      </>
+                    )
+                  }
+                </PDFDownloadLink>
 
                 <button
                   className="w-3/12 lg:w-2/12 text-sm lg:text-lg bg-blue-200 text-blue-600 font-semibold py-1 px-2 rounded-md shadow-sm hover:bg-blue-600 hover:text-white focus:outline-none focus:ring-2 focus:ring-blue-600"

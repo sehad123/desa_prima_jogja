@@ -253,9 +253,10 @@ const DashboardPage = () => {
   };
 
   const handlePrint = () => {
-    const element = document.getElementById("dashboard-content");
+    const signature = document.querySelector(".print-signature");
+    if (signature) signature.style.display = "block";
 
-    html2canvas(element, { scale: 2 }).then((canvas) => {
+    html2canvas(document.getElementById("dashboard-content"), { scale: 2 }).then((canvas) => {
       const pdf = new jsPDF("p", "mm", "a4");
       const pageWidth = pdf.internal.pageSize.getWidth(); // 210 mm
       const imgWidth = pageWidth; // Sesuaikan lebar dengan PDF
@@ -267,6 +268,7 @@ const DashboardPage = () => {
 
       pdf.addImage(canvas.toDataURL("image/png"), "PNG", 0, 0, imgWidth, imgHeight);
       pdf.save("desa-prima-yogyakarta.pdf");
+      if (signature) signature.style.display = "";
     });
   };
 
@@ -321,8 +323,14 @@ const DashboardPage = () => {
             <DoughnutChart data={chartData} ref={DoughnutChartRef} />
           </div>
         </div>
+        {/* Tambahkan elemen untuk tulisan di bawah */}
+        <div className="print-signature text-right mt-36 mr-36 hidden print:block">
+          <p>Yogyakarta, 25 Februari 2025</p>
+          <p className="my-20 mr-20">ttd</p>
+          <p className="-ml-6 mr-6">Adien Ilma Mutafaila</p>
+        </div>
       </div>
-      <div className="p-5">
+      <div className="p-5 print:hidden">
         <PetaDesa />
       </div>
     </div>

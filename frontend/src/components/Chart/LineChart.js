@@ -1,24 +1,10 @@
+// LineChart.js
 import React, { forwardRef } from "react";
 import { Line } from "react-chartjs-2";
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Tooltip,
-  Legend,
-} from "chart.js";
+import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Legend } from "chart.js";
 
 // Register chart components
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Tooltip,
-  Legend
-);
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Legend);
 
 const LineChart = forwardRef(({ data }, ref) => {
   const lineChartOptions = {
@@ -40,9 +26,7 @@ const LineChart = forwardRef(({ data }, ref) => {
 
   return (
     <>
-      <h2 className="text-sm lg:text-lg font-bold mb-4 text-center">
-        Jumlah Kelompok Desa Prima Secara Periodik
-      </h2>
+      <h2 className="text-sm lg:text-lg font-bold mb-4 text-center">Jumlah Kelompok Desa Prima Secara Periodik</h2>
       <div className="h-[300px] lg:h-[400px]">
         <Line data={data} options={lineChartOptions} ref={ref} />
       </div>
