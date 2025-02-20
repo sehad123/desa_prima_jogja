@@ -98,6 +98,7 @@ const DetailDesaPage = () => {
     try {
       const response = await axios.get(`http://localhost:5000/api/desa/${id}/galeri`);
       setGaleri(response.data);
+      console.log("Galeri Data:", response.data); // Tambahkan ini untuk debugging
     } catch (err) {
       console.error("Gagal memuat galeri", err);
     }
@@ -107,6 +108,7 @@ const DetailDesaPage = () => {
     try {
       const response = await axios.get(`http://localhost:5000/api/desa/${id}/notulensi`);
       setNotulensi(response.data);
+      console.log("Notulensi Data:", response.data); // Tambahkan ini untuk debugging
     } catch (err) {
       console.error("Gagal memuat notulensi", err);
     }
@@ -209,6 +211,7 @@ const DetailDesaPage = () => {
     setIsModalOpen(false);
     setSelectedDesa(null);
     setModalType(null);
+    setSelectedItem(null); // Reset selected item
 
     if (isSuccess) {
       if (selectedTab === "Galeri") {
@@ -216,9 +219,9 @@ const DetailDesaPage = () => {
       } else if (selectedTab === "Notulensi / Materi") {
         fetchNotulensi(); // Reload notulensi jika tab notulensi sedang aktif
       } else if (selectedTab === "Produk") {
-        fetchProduk(); // Reload notulensi jika tab notulensi sedang aktif
+        fetchProduk(); // Reload produk jika tab produk sedang aktif
       } else if (selectedTab === "Pengurus") {
-        fetchPengurus(); // Reload notulensi jika tab notulensi sedang aktif
+        fetchPengurus(); // Reload pengurus jika tab pengurus sedang aktif
       }
     }
     fetchDesaDetail();
@@ -325,17 +328,16 @@ const DetailDesaPage = () => {
     }).format(number);
   };
 
-  const renderNotulensi = () => {
+  const renderGaleri = () => {
     return (
       <div className="flex flex-wrap justify-center md:justify-start">
-        <button className="w-1/2 border border-dashed border-gray-500 h-48 lg:w-36 lg:h-48 lg:mr-2 mt-2 p-2 flex flex-col justify-center items-center cursor-pointer" onClick={() => handleAdd("notulensi", desa)}>
+        <button className="w-1/2 border border-dashed border-gray-500 h-48 lg:w-36 lg:h-48 lg:mr-2 mt-2 p-2 flex flex-col justify-center items-center cursor-pointer" onClick={() => handleAdd("galeri", desa)}>
           <FontAwesomeIcon icon={faPlus} className="w-1/2 h-1/2 lg:w-20 lg:h-20 text-gray-400" />
-          <div className="w-full text-xs lg:text-sm text-center text-gray-500">Unggah Notulensi</div>
+          <div className="w-full text-xs lg:text-sm text-center text-gray-500">Unggah Foto</div>
         </button>
 
-        {currentFiles.length === 0 && <div className="w-full text-center text-gray-500 mt-3">Tidak ada file ditemukan</div>}
-        {/* Menampilkan setiap gambar dari galeri */}
-        {currentFiles.map((file) => (
+        {galeri.length === 0 && <div className="w-full text-center text-gray-500 mt-3">Tidak ada file ditemukan</div>}
+        {galeri.map((file) => (
           <div key={file.id} className="relative w-1/2 lg:w-40 p-2">
             <div className={`border cursor-pointer ${selectedFiles.includes(file) ? "border-blue-500" : "border-gray-400"}`}>
               <div className="h-8 bg-gray-300 flex justify-between">
@@ -353,7 +355,6 @@ const DetailDesaPage = () => {
                     <FontAwesomeIcon icon={faEllipsisV} />
                   </button>
                   <div className={`${visibleOptionId === file.id ? "block" : "hidden"} absolute right-1 mt-2 w-36 bg-white border rounded-md shadow-lg`}>
-                    {/* Opsi Download */}
                     <div className="flex hover:bg-gray-100">
                       <FontAwesomeIcon icon={faDownload} className="w-4 h-4 text-gray-400 pl-2 py-2" />
                       <button className="block w-full text-left px-4 text-gray-700" onClick={() => window.open(`http://localhost:5000${file.gambar}`, "_blank")}>
@@ -361,7 +362,6 @@ const DetailDesaPage = () => {
                       </button>
                     </div>
 
-                    {/* Opsi Hapus */}
                     <div className="flex hover:bg-gray-100">
                       <FontAwesomeIcon icon={faTrash} className="w-4 h-4 text-gray-400 pl-2 py-2" />
                       <button className="block w-full text-left px-4 text-gray-700" onClick={() => openDeleteItemModal(file, "galeri")}>
@@ -372,7 +372,6 @@ const DetailDesaPage = () => {
                 </div>
               </div>
 
-              {/* Menampilkan gambar */}
               {file.gambar ? <img src={`http://localhost:5000${file.gambar}`} alt={file.gambar} className="w-full h-24 object-cover rounded-md" /> : <p className="text-gray-500 italic">No Image</p>}
               <p className="text-sm mt-2 font-semibold text-gray-700 truncate">{formatTanggal(file.createdAt)}</p>
             </div>
@@ -382,18 +381,16 @@ const DetailDesaPage = () => {
     );
   };
 
-  // Konten tab galeri
-  const renderGaleri = () => {
+  const renderNotulensi = () => {
     return (
       <div className="flex flex-wrap justify-center md:justify-start">
-        <button className="w-1/2 border border-dashed border-gray-500 h-48 lg:w-36 lg:h-48 lg:mr-2 mt-2 p-2 flex flex-col justify-center items-center cursor-pointer" onClick={() => handleAdd("galeri", desa)}>
+        <button className="w-1/2 border border-dashed border-gray-500 h-48 lg:w-36 lg:h-48 lg:mr-2 mt-2 p-2 flex flex-col justify-center items-center cursor-pointer" onClick={() => handleAdd("notulensi", desa)}>
           <FontAwesomeIcon icon={faPlus} className="w-1/2 h-1/2 lg:w-20 lg:h-20 text-gray-400" />
-          <div className="w-full text-xs lg:text-sm text-center text-gray-500">Unggah Foto</div>
+          <div className="w-full text-xs lg:text-sm text-center text-gray-500">Unggah Notulensi</div>
         </button>
 
-        {currentFiles.length === 0 && <div className="w-full text-center text-gray-500 mt-3">Tidak ada file ditemukan</div>}
-        {/* Menampilkan setiap gambar dari galeri */}
-        {currentFiles.map((file) => (
+        {notulensi.length === 0 && <div className="w-full text-center text-gray-500 mt-3">Tidak ada file ditemukan</div>}
+        {notulensi.map((file) => (
           <div key={file.id} className="relative w-1/2 lg:w-40 p-2">
             <div className={`border cursor-pointer ${selectedFiles.includes(file) ? "border-blue-500" : "border-gray-400"}`}>
               <div className="h-8 bg-gray-300 flex justify-between">
@@ -411,18 +408,16 @@ const DetailDesaPage = () => {
                     <FontAwesomeIcon icon={faEllipsisV} />
                   </button>
                   <div className={`${visibleOptionId === file.id ? "block" : "hidden"} absolute right-1 mt-2 w-36 bg-white border rounded-md shadow-lg`}>
-                    {/* Opsi Download */}
                     <div className="flex hover:bg-gray-100">
                       <FontAwesomeIcon icon={faDownload} className="w-4 h-4 text-gray-400 pl-2 py-2" />
-                      <button className="block w-full text-left px-4 text-gray-700" onClick={() => window.open(`http://localhost:5000${file.gambar}`, "_blank")}>
+                      <button className="block w-full text-left px-4 text-gray-700" onClick={() => window.open(`http://localhost:5000${file.file}`, "_blank")}>
                         Download
                       </button>
                     </div>
 
-                    {/* Opsi Hapus */}
                     <div className="flex hover:bg-gray-100">
                       <FontAwesomeIcon icon={faTrash} className="w-4 h-4 text-gray-400 pl-2 py-2" />
-                      <button className="block w-full text-left px-4 text-gray-700" onClick={() => openDeleteItemModal(file, "galeri")}>
+                      <button className="block w-full text-left px-4 text-gray-700" onClick={() => openDeleteItemModal(file, "notulensi")}>
                         Hapus
                       </button>
                     </div>
@@ -430,7 +425,6 @@ const DetailDesaPage = () => {
                 </div>
               </div>
 
-              {/* Menampilkan gambar */}
               {file.gambar ? <img src={`http://localhost:5000${file.gambar}`} alt={file.gambar} className="w-full h-24 object-cover rounded-md" /> : <p className="text-gray-500 italic">No Image</p>}
               <p className="text-sm mt-2 font-semibold text-gray-700 truncate">{formatTanggal(file.createdAt)}</p>
             </div>
@@ -529,7 +523,7 @@ const DetailDesaPage = () => {
 
         {/* Tampilkan foto produk dan nama produk dalam grid */}
         {produk.map((item) => (
-          <div key={item.id} className="relative w-1/2 p-2 h-48 lg:w-36 lg:h-48">
+          <div key={item.id} className="relative w-1/2 p-2 h-48 lg:w-36 lg:h-48" onClick={() => handleItemSelect(item)}>
             <div className="border overflow-hidden">
               <img src={`http://localhost:5000${item.foto}`} alt={item.nama} className="w-full h-40 object-cover" />
               <div className="p-2">
@@ -569,25 +563,20 @@ const DetailDesaPage = () => {
           <div className="flex flex-col space-y-4">
             <div className="flex items-center">
               <strong className="w-1/4">Nama</strong>
-              {isEdit ? <input type="text" className="border p-2 rounded" defaultValue={selectedItem.nama} /> : <span>: {selectedItem.nama}</span>}
+              <span>: {selectedItem.nama}</span>
             </div>
             <div className="flex items-center">
               <strong className="w-1/4">Harga</strong>
-              {isEdit ? <input type="number" className="border p-2 rounded" defaultValue={selectedItem.harga} /> : <span>: {selectedItem.harga}</span>}
+              <span>: {formatRupiah(selectedItem.harga)}</span>
             </div>
             <div className="flex items-center">
               <strong className="w-1/4">Deskripsi</strong>
-              {isEdit ? <textarea className="border p-2 rounded" defaultValue={selectedItem.deskripsi} /> : <span>: {selectedItem.deskripsi}</span>}
+              <span>: {selectedItem.deskripsi}</span>
             </div>
             <div className="flex items-center">
               <strong className="w-1/4">Foto</strong>
-              {isEdit ? <input type="file" className="border p-2 rounded" /> : <img src={selectedItem.foto} alt="Produk" className="w-32 h-32 object-cover rounded" />}
+              <img src={`http://localhost:5000${selectedItem.foto}`} alt="Produk" className="w-32 h-32 object-cover rounded" />
             </div>
-            {isEdit && (
-              <button onClick={handleEditSubmit} className="bg-blue-500 text-white p-2 rounded mt-4">
-                Simpan Perubahan
-              </button>
-            )}
           </div>
         </div>
       );
@@ -596,23 +585,23 @@ const DetailDesaPage = () => {
         <div className="p-4">
           <h3 className="text-lg font-semibold">Preview Galeri</h3>
           <div className="flex flex-col items-center space-y-4">
-            <img src={selectedItem.foto} alt="Galeri" className="w-full h-48 object-cover rounded-md" />
-            <p>{selectedItem.deskripsi}</p>
+            <img src={`http://localhost:5000${selectedItem.gambar}`} alt="Galeri" className="w-full h-48 object-cover rounded-md" />
+            <p>{selectedItem.createdAt}</p>
           </div>
         </div>
       );
-    } else if (selectedTab === "Notulensi" && selectedItem) {
+    } else if (selectedTab === "Notulensi / Materi" && selectedItem) {
       return (
         <div className="p-4">
           <h3 className="text-lg font-semibold">Preview Notulensi</h3>
           <div className="flex flex-col space-y-4">
             <div className="flex items-center">
-              <strong className="w-1/4">Judul</strong>
-              {isEdit ? <input type="text" className="border p-2 rounded" defaultValue={selectedItem.judul} /> : <span>: {selectedItem.judul}</span>}
+              <strong className="w-1/4">Diunggah</strong>
+              <span>: {selectedItem.createdAt}</span>
             </div>
             <div className="flex items-center">
               <strong className="w-1/4">Deskripsi</strong>
-              {isEdit ? <textarea className="border p-2 rounded" defaultValue={selectedItem.deskripsi} /> : <span>: {selectedItem.deskripsi}</span>}
+              <span>: {selectedItem.deskripsi}</span>
             </div>
           </div>
         </div>
