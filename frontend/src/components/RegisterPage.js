@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css"; // Import the CSS for the toast
+import { toast } from "react-hot-toast";
 
 const RegisterPage = () => {
   const [formData, setFormData] = useState({
@@ -101,9 +100,6 @@ const RegisterPage = () => {
           </span>
         </p>
       </div>
-
-      {/* Toast Container for notifications */}
-      <ToastContainer />
     </div>
   );
 };

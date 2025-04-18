@@ -3,13 +3,25 @@ const cors = require("cors");
 const userRoutes = require("./routes/userRoutes");
 const desaRoutes = require("./routes/desaRoutes");
 const kabupatenRoutes = require("./routes/kabupatenRoutes");
+const produkRoutes = require("./routes/produkRoutes");
 const path = require("path");
 
 const app = express();
 
+// Konfigurasi CORS yang benar
+const corsOptions = {
+  origin: 'http://localhost:3000', // Sesuaikan dengan origin frontend
+  credentials: true,
+  allowedHeaders: ['Content-Type', 'Authorization']
+};
+
+app.use(cors(corsOptions));
+
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors());
+
+require("dotenv").config();
 
 // Tambahkan route default
 app.get("/", (req, res) => {
@@ -19,6 +31,7 @@ app.get("/", (req, res) => {
 // Routes
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use("/users", userRoutes);
+app.use("/produk", produkRoutes);
 app.use("/api/desa", desaRoutes);
 app.use("/api/kabupaten", kabupatenRoutes);
 

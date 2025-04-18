@@ -72,19 +72,23 @@
 // export default App;
 
 import React from "react";
-import { 
-  BrowserRouter as Router, 
-  Route, 
+import {
+  BrowserRouter as Router,
+  Route,
   Routes,
-  useLocation } from "react-router-dom";
+  useLocation,
+} from "react-router-dom";
 import LoginPage from "./components/LoginPage";
 import RegisterPage from "./components/RegisterPage";
-import FormPage from "./components/FormPage";
 import KelompokDetail from "./page/KelompokDetail"; // Halaman detail desa
-import Kabupaten from "./page/Kabupaten";
-import KabupatenDetail from "./page/KabDetail";
-import KelompokDesa from "./page/KelompokDesa";
-import Dashboard from "./page/Dashboard";
+import DaftarKabKota from "./page/DaftarKabKota";
+import KabDashboard from "./page/KabDashboard";
+import DaftarKelompokDesa from "./page/DaftarKelompokDesa";
+import ProvDashboard from "./page/ProvDashboard";
+import PetaSebaran from "./page/PetaSebaran";
+import DaftarUser from "./page/DaftarUser";
+import Profil from "./page/Profil";
+import { Toaster } from "react-hot-toast";
 import { ColorSchemeScript, MantineProvider } from "@mantine/core";
 import "./App.css";
 import "@mantine/core/styles.css";
@@ -96,12 +100,16 @@ const TitleUpdater = () => {
   React.useEffect(() => {
     const pathTitles = {
       "/": "Login - Desa Prima",
-      "/peta-desa": "Dashboard - Desa Prima",
+      "/peta-sebaran": "Peta Sebaran - Desa Prima",
       "/register": "Registrasi - Desa Prima",
-      "/kabupaten-page": "Kabupaten/Kota - Desa Prima",
-      "/kelompok-desa": "Kelompok - Desa Prima",
-      "/detail/:id": "Detail Kabupaten/Kota - Desa Prima",
-      "/desa/:id": "Detail Kelompok - Desa Prima",
+      "/provinsi-dashboard": "Dashboard Provinsi - Desa Prima",
+      "/daftar-kabupaten": "Daftar Kabupaten/Kota - Desa Prima",
+      "/kabupaten-dashboard/:nama_kabupaten":
+        "Dashboard Kabupaten/Kota - Desa Prima",
+      "/daftar-kelompok": "Daftar Kelompok - Desa Prima",
+      "/kelompok-desa/:id": "Detail Kelompok - Desa Prima",
+      "/daftar-user": "Daftar User - Desa Prima",
+      "/profil": "Profil - Desa Prima",
     };
 
     const getTitle = (path) => {
@@ -124,22 +132,40 @@ const TitleUpdater = () => {
 function App() {
   return (
     <>
-    <ColorSchemeScript />
-    <MantineProvider withGlobalStyles withNormalizeCSS>
-    <Router>
-    <TitleUpdater />
-      <Routes>
-        <Route path="/" element={<LoginPage />} />
-        <Route path="/peta-desa" element={<Dashboard />} />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/kelompok-desa" element={<KelompokDesa />} />
-        <Route path="/kabupaten-page" element={<Kabupaten />} />
-        <Route path="/detail/:id" element={<KabupatenDetail />} />
-        <Route path="/desa/:id" element={<KelompokDetail />} />
-        <Route path="/form" element={<FormPage />} />
-      </Routes>
-    </Router>
-    </MantineProvider>
+      <ColorSchemeScript />
+      <MantineProvider withGlobalStyles withNormalizeCSS>
+        <Toaster
+          position="top-right"
+          toastOptions={{
+            duration: 3000,
+            style: {
+              background: "#ffff",
+              color: "#363636",
+              padding: "12px 12px", // Perbesar padding (atas-bawah: 16px, kiri-kanan: 24px)
+              fontSize: "16px", // Perbesar ukuran font
+            },
+            closeButton: true,
+          }}
+        />
+        <Router>
+          <TitleUpdater />
+          <Routes>
+            <Route path="/" element={<LoginPage />} />
+            <Route path="/provinsi-dashboard" element={<ProvDashboard />} />
+            <Route path="/peta-sebaran" element={<PetaSebaran />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/daftar-kelompok" element={<DaftarKelompokDesa />} />
+            <Route path="/daftar-kabupaten" element={<DaftarKabKota />} />
+            <Route path="/daftar-user" element={<DaftarUser />} />
+            <Route
+              path="/kabupaten-dashboard/:nama_kabupaten"
+              element={<KabDashboard />}
+            />
+            <Route path="/kelompok-desa/:id" element={<KelompokDetail />} />
+            <Route path="/profil" element={<Profil />} />
+          </Routes>
+        </Router>
+      </MantineProvider>
     </>
   );
 }

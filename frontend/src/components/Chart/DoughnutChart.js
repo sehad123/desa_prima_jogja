@@ -1,26 +1,30 @@
-// DoughnutChart.js
-import { forwardRef, useRef } from "react";
+import React, { useRef } from "react";
 import { Doughnut } from "react-chartjs-2";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 
-// Registrasi plugin
 ChartJS.register(ArcElement, Tooltip, Legend, ChartDataLabels);
 
-const DoughnutChart = forwardRef(({ data }, ref) => {
-  const chartRef = useRef(null);
-  const { desaMaju, desaBerkembang, desaTumbuh, totalDesa, totalJumlahDesa } = data;
+const DoughnutChart = ({ data, chartRef }) => {
+  const {
+    desaMaju,
+    desaBerkembang,
+    desaTumbuh,
+    jumlah_desa,
+    totalJumlahKelompok,
+  } = data;
 
-  const downloadChartImage = (chartRef, filename) => {
-    const chart = chartRef.current;
-    if (!chart) return;
+  // Fungsi untuk menentukan offset Y berdasarkan ukuran layar
+  const getCenterYOffset = () => {
+    const width = window.innerWidth;
 
-    // Konversi grafik ke gambar (Base64)
-    const base64Image = chart.toBase64Image();
-    const link = document.createElement("a");
-    link.href = base64Image;
-    link.download = filename || "chart.png";
-    link.click();
+    if (width < 500) {
+      return 50; // HP menggunakan aturan desktop full
+    } else if (width < 1024) {
+      return 30; // Setengah desktop
+    } else {
+      return 50; // Desktop full
+    }
   };
 
   // Plugin untuk menampilkan teks di tengah
@@ -38,7 +42,9 @@ const DoughnutChart = forwardRef(({ data }, ref) => {
 
       // Hitung total data di chart
       const totalData = chart.config.options.plugins.centerText.totalJumlahDesa;
-      const percentageKelompok = ((totalData / totalDesaValue) * 100).toFixed(1);
+      const percentageKelompok = ((totalData / totalDesaValue) * 100).toFixed(
+        1
+      );
 
       ctx.save();
       ctx.font = "bold 30px sans-serif";
@@ -50,15 +56,20 @@ const DoughnutChart = forwardRef(({ data }, ref) => {
       const centerX = width / 2;
       const centerY = height / 2;
 
-      ctx.fillText(`${percentageKelompok}%`, centerX, centerY + 50);
+      const centerYOffset = getCenterYOffset(); // Dapatkan offset Y berdasarkan ukuran layar
+
+      // Gambar teks persentase
+      ctx.fillText(`${percentageKelompok}%`, centerX, centerY + centerYOffset);
+
+      // Gambar teks "Kelompok Desa"
       ctx.font = "bold 13px sans-serif";
-      ctx.fillText("Kelompok Desa", centerX, centerY + 71);
+      ctx.fillText("Kelompok Desa", centerX, centerY + centerYOffset + 21);
 
       ctx.restore();
     },
   };
 
-  const desaDalamProses = totalDesa - totalJumlahDesa;
+  const desaDalamProses = jumlah_desa - totalJumlahKelompok;
 
   const doughnutChartData = {
     labels: ["Maju", "Berkembang", "Tumbuh", "Dalam Proses"],
@@ -72,10 +83,12 @@ const DoughnutChart = forwardRef(({ data }, ref) => {
 
   const doughnutChartOptions = {
     cutout: "50%", // Pastikan ada ruang untuk teks di tengah
+    responsive: true,
+    maintainAspectRatio: false,
     plugins: {
       centerText: {
-        totalDesa: totalDesa,
-        totalJumlahDesa: totalJumlahDesa,
+        totalDesa: jumlah_desa,
+        totalJumlahDesa: totalJumlahKelompok,
       },
       tooltip: {
         callbacks: {
@@ -115,22 +128,19 @@ const DoughnutChart = forwardRef(({ data }, ref) => {
 
   return (
     <>
-      <h2 className="text-sm lg:text-lg font-bold text-center">Jumlah Kelompok Desa Prima Berdasarkan Kategori</h2>
+      <h2 className="text-sm lg:text-lg font-bold text-center">
+        Persentase Kelompok Menurut Kategori
+      </h2>
       <div className="relative flex justify-center items-center w-full h-[300px] lg:h-[400px]">
         <Doughnut
           ref={chartRef}
           data={doughnutChartData}
           options={doughnutChartOptions}
-          plugins={[centerTextPlugin]} // Perbaikan: Plugin masuk langsung di properti ini
+          plugins={[centerTextPlugin]} // Plugin untuk teks di tengah
         />
-        <button onClick={() => downloadChartImage(ref, "doughnut_chart.png")} className="absolute top-4 right-4 text-blue-500 hover:text-blue-700" title="Unduh Diagram">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" className="w-6 h-6" viewBox="0 0 24 24">
-            <path d="M12 16l4-5h-3V3h-2v8H8l4 5zm-7 2v2h14v-2H5z" />
-          </svg>
-        </button>
       </div>
     </>
   );
-});
+};
 
 export default DoughnutChart;

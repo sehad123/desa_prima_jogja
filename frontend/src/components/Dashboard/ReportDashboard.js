@@ -1,161 +1,246 @@
-import React, { useRef, useEffect, useState } from "react";
-import { Document, Page, View, Text, Image, StyleSheet } from "@react-pdf/renderer";
-import html2canvas from "html2canvas";
+import React from "react";
+import {
+  Text,
+  View,
+  Page,
+  Document,
+  StyleSheet,
+  Image,
+} from "@react-pdf/renderer";
 
-const styles = StyleSheet.create({
-  page: {
-    fontSize: 11,
-    paddingTop: 50,
-    paddingBottom: 50,
-    paddingLeft: 60,
-    paddingRight: 60,
-    lineHeight: 1.5,
-    flexDirection: "column",
-  },
+const formatDate = (dateString) => {
+  if (!dateString) return "Tidak tersedia";
+  const months = [
+    "Januari",
+    "Februari",
+    "Maret",
+    "April",
+    "Mei",
+    "Juni",
+    "Juli",
+    "Agustus",
+    "September",
+    "Oktober",
+    "November",
+    "Desember",
+  ];
+  const date = new Date(dateString);
+  return `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`;
+};
 
-  titleContainer: {
-    textAlign: "center",
-    marginBottom: 8,
-  },
-  reportTitle: {
-    fontSize: 16,
-    marginBottom: 8,
-  },
-  contentContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-  },
-  detailRow: {
-    marginBottom: 8,
-    flexDirection: "row",
-  },
-  detailTitle: {
-    fontSize: 11,
-    fontWeight: "bold",
-    width: 150,
-  },
-  detailText: {
-    fontSize: 11,
-    color: "#3E3E3E",
-  },
-  chartContainer: {
-    marginTop: 30,
-    marginBottom: 6,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  chartImage: {
-    width: "auto",
-    height: "auto",
-    alignSelf: "center",
-    maxHeight: 200,
-    margin: 10,
-  },
-  footerContainer: {
-    alignSelf: "flex-end",
-    textAlign: "center",
-    marginTop: 40,
-    minHeight: 150,
-  },
-  footerText: {
-    fontSize: 11,
-    marginBottom: 40,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  overallProgressImageContainer: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    marginTop: 5,
-  },
-});
-
-const ReportDashboard = ({ profil, totalDesa, totalJumlahDesa, desaMaju, desaBerkembang, desaTumbuh, DoughnutChartRef, LineChartRef }) => {
-  const [doughnutChartImage, setDoughnutChartImage] = useState(null);
-  const [lineChartImage, setLineChartImage] = useState(null);
-  const [mapImage, setMapImage] = useState(null);
-
-  // Fungsi untuk mengubah chart menjadi gambar Base64
-  const captureChartImage = async (chartRef, setImage) => {
-    if (chartRef && chartRef.current) {
-      try {
-        const canvas = await html2canvas(chartRef.current);
-        setImage(canvas.toDataURL("image/png"));
-      } catch (error) {
-        console.error("Gagal menangkap gambar chart:", error);
-      }
-    }
-  };
-
-  // Ambil gambar grafik setelah komponen ter-render
-  useEffect(() => {
-    const captureImages = async () => {
-      await Promise.all([captureChartImage(DoughnutChartRef, setDoughnutChartImage), captureChartImage(LineChartRef, setLineChartImage)]);
-
-      // Ambil gambar peta (contoh: dari elemen dengan ID "map")
-      const mapElement = document.getElementById("map");
-      if (mapElement) {
-        html2canvas(mapElement).then((canvas) => {
-          setMapImage(canvas.toDataURL("image/png"));
-        });
-      }
-    };
-
-    captureImages();
-  }, [DoughnutChartRef, LineChartRef]);
-
-  const currentDate = new Date().toLocaleDateString("id-ID", {
+const ReportDashboard = ({
+  page,
+  profil,
+  data,
+  lineChartImage,
+  doughnutChartImage,
+  isMobile,
+}) => {
+  const currentDate = new Date();
+  const formattedDate = currentDate.toLocaleDateString("id-ID", {
     day: "numeric",
     month: "long",
     year: "numeric",
   });
 
+  const styles = StyleSheet.create({
+    page: {
+      fontSize: 11,
+      paddingTop: 50,
+      paddingBottom: 50,
+      paddingLeft: 60,
+      paddingRight: 60,
+      lineHeight: 1.5,
+      flexDirection: "column",
+    },
+    titleContainer: {
+      textAlign: "center",
+      marginBottom: 20,
+    },
+    reportTitle: {
+      fontSize: 16,
+      fontWeight: "bold",
+      marginBottom: 10,
+    },
+    underline: {
+      width: "100%",
+      height: 2,
+      backgroundColor: "#000",
+    },
+    contentContainer: {
+      flexDirection: "column", // Ubah ke column untuk struktur vertikal
+    },
+    DetailsContainer: {
+      marginBottom: 20, // Jarak antara informasi dan grafik
+    },
+    detailRow: {
+      flexDirection: "row",
+      marginBottom: 4,
+    },
+    detailTitle: {
+      marginLeft: 10,
+      marginBottom: 4,
+      fontSize: 11,
+      fontWeight: "bold",
+      width: 150, // Lebar tetap untuk kolom judul
+    },
+    detailText: {
+      fontSize: 11,
+      marginBottom: 8,
+      color: "#3E3E3E",
+    },
+    chartContainer: {
+      marginBottom: 20,
+      alignItems: "center",
+      pageBreakInside: "avoid",
+    },
+    chartLine: {
+      height: "auto",
+      borderWidth: 0.5,
+      borderColor: "grey",
+    },
+    doughnutChartImage: {
+      width: 200, // Ukuran tetap untuk doughnut chart
+      height: 220,
+      alignSelf: "center",
+    },
+    lineChartImage: {
+      width: isMobile ? 250 : "100%",
+      height: "auto",
+      alignSelf: "center",
+    },
+    footerContainer: {
+      alignSelf: "flex-end",
+      textAlign: "center",
+      marginTop: 40,
+      breakInside: "avoid",
+    },
+    footerText: {
+      fontSize: 11,
+      justifyContent: "center",
+      alignItems: "center",
+      textAlign: "center",
+    },
+  });
+
+  const persentaseKelompokDesa = data.jumlah_desa
+    ? (
+        ((data.desaMaju + data.desaBerkembang + data.desaTumbuh) /
+          data.jumlah_desa) *
+        100
+      ).toFixed(1)
+    : 0;
+
+  const lingkupLaporan =
+    page === "provinsi"
+      ? "PROVINSI DAERAH ISTIMEWA YOGYAKARTA"
+      : page === "kabupaten"
+      ? `${
+          data.nama_kabupaten.toUpperCase() === "YOGYAKARTA" ? "" : "KABUPATEN "
+        }${data.nama_kabupaten.toUpperCase()}`
+      : "";
+
+  const ReportTitle = () => (
+    <View style={styles.titleContainer}>
+      <Text style={styles.reportTitle}>
+        HASIL MONITORING PROGRAM DESA PRIMA
+      </Text>
+      <Text style={styles.reportTitle}>{lingkupLaporan}</Text>
+      <View style={styles.underline} />
+    </View>
+  );
+
+  const ProgramDetails = () => (
+    <View style={styles.DetailsContainer}>
+      <View style={styles.detailRow}>
+        <Text style={styles.detailTitle}>Nama</Text>
+        <Text style={styles.detailText}>: {profil.name}</Text>
+      </View>
+      <View style={styles.detailRow}>
+        <Text style={styles.detailTitle}>NIP</Text>
+        <Text style={styles.detailText}>: {profil.nip || "-"}</Text>
+      </View>
+      <View style={styles.detailRow}>
+        <Text style={styles.detailTitle}>Jabatan</Text>
+        <Text style={styles.detailText}>: {profil.role}</Text>
+      </View>
+      <View style={styles.detailRow}>
+        <Text style={styles.detailTitle}>Jumlah Kelompok Desa</Text>
+        <Text style={styles.detailText}>: {data.totalJumlahKelompok}</Text>
+      </View>
+      <View style={styles.detailRow}>
+        <Text style={styles.detailTitle}>Jumlah Kategori Maju</Text>
+        <Text style={styles.detailText}>: {data.desaMaju}</Text>
+      </View>
+      <View style={styles.detailRow}>
+        <Text style={styles.detailTitle}>Jumlah Kategori Berkembang</Text>
+        <Text style={styles.detailText}>: {data.desaBerkembang}</Text>
+      </View>
+      <View style={styles.detailRow}>
+        <Text style={styles.detailTitle}>Jumlah Kategori Tumbuh</Text>
+        <Text style={styles.detailText}>: {data.desaTumbuh}</Text>
+      </View>
+      <View style={styles.detailRow}>
+        <Text style={styles.detailTitle}>Jumlah Desa</Text>
+        <Text style={styles.detailText}>: {data.jumlah_desa}</Text>
+      </View>
+      <View style={styles.detailRow}>
+        <Text style={styles.detailTitle}>Periode Pembentukan</Text>
+        <Text style={styles.detailText}>
+          : {data.tanggal_awal ? formatDate(data.tanggal_awal) : "-"} -{" "}
+          {data.tanggal_akhir ? formatDate(data.tanggal_akhir) : "-"}
+        </Text>
+      </View>
+      <View style={styles.detailRow}>
+        <Text style={styles.detailTitle}>Persentase Kelompok</Text>
+        <Text style={styles.detailText}>: {persentaseKelompokDesa}%</Text>
+      </View>
+    </View>
+  );
+
+  const ChartWithTitle = ({ title, chartImage, chartStyle }) => {
+    return (
+      <View style={styles.chartContainer} wrap={false}>
+        <Text style={{ fontSize: 12, fontWeight: "bold", marginBottom: 15 }}>
+          {title}
+        </Text>
+        <Image src={chartImage} style={chartStyle} />
+      </View>
+    );
+  };
+
+  const Footer = () => (
+    <View style={styles.footerContainer} wrap={false}>
+      <Text style={styles.footerText}>Yogyakarta, {formattedDate},</Text>
+      <Text style={styles.footerText}>{profil.role}</Text>
+      <Text style={[styles.footerText, { marginTop: 70 }]}>{profil.name}</Text>
+    </View>
+  );
+
   return (
     <Document>
       <Page size="A4" style={styles.page}>
-        {/* Title */}
-        <View style={styles.titleContainer}>
-          <Text style={styles.reportTitle}>Laporan Desa Prima</Text>
-        </View>
-
-        {/* Information Section */}
+        <ReportTitle />
         <View style={styles.contentContainer}>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.detailTitle}>Nama Petugas:</Text>
-            <Text style={styles.detailText}>{profil?.name || "Tidak tersedia"}</Text>
-            <Text style={styles.detailTitle}>NIP:</Text>
-            <Text style={styles.detailText}>{profil?.nip || "Tidak tersedia"}</Text>
-            <Text style={styles.detailTitle}>Jumlah Kelompok Desa:</Text>
-            <Text style={styles.detailText}>{totalJumlahDesa || 0}</Text>
-            <Text style={styles.detailTitle}>Jumlah Kategori Maju:</Text>
-            <Text style={styles.detailText}>{desaMaju || 0}</Text>
-            <Text style={styles.detailTitle}>Jumlah Kategori Berkembang:</Text>
-            <Text style={styles.detailText}>{desaBerkembang || 0}</Text>
-            <Text style={styles.detailTitle}>Jumlah Kategori Tumbuh:</Text>
-            <Text style={styles.detailText}>{desaTumbuh || 0}</Text>
-            <Text style={styles.detailTitle}>Total Desa:</Text>
-            <Text style={styles.detailText}>{totalDesa || 0}</Text>
-            <Text style={styles.detailTitle}>Periode Pembentukan:</Text>
-            <Text style={styles.detailText}>{currentDate}</Text>
-            <Text style={styles.detailTitle}>Persentase Kelompok Desa:</Text>
-            <Text style={styles.detailText}>{totalJumlahDesa ? (((desaMaju + desaBerkembang + desaTumbuh) / totalJumlahDesa) * 100).toFixed(1) + "%" : "0%"}</Text>
-          </View>
+          {/* Informasi Desa */}
+          <ProgramDetails />
 
           {/* Doughnut Chart */}
-          <View style={styles.chartContainer}>{doughnutChartImage && <Image src={doughnutChartImage} style={styles.chartImage} />}</View>
-        </View>
+          <ChartWithTitle
+            title="Distribusi Kategori Kelompok Desa"
+            chartImage={doughnutChartImage}
+            chartStyle={styles.doughnutChartImage}
+          />
 
-        {/* Line Chart */}
-        <View style={styles.chartContainer}>{lineChartImage && <Image src={lineChartImage} style={styles.chartImage} />}</View>
+          <ChartWithTitle
+            title="Progress Periodik Program Desa Prima"
+            chartImage={lineChartImage}
+            chartStyle={styles.lineChartImage}
+          />
+        </View>
 
         {/* Footer */}
-        <View style={styles.footerContainer}>
-          <Text style={styles.footerText}>Yogyakarta, 25 Februari 2025</Text>
-          <Text style={styles.footerText}>ttd</Text>
-          <Text style={styles.footerText}>Setya Hadi Nugroho</Text>
-        </View>
+        <Footer />
       </Page>
     </Document>
   );

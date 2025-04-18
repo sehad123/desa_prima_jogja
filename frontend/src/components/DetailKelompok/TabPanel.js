@@ -22,7 +22,7 @@ const TabPanel = ({ tabs, selectedTab, onTabChange }) => {
         {tabs.map((tab, index) => (
           <button
             key={index}
-            className={`p-2 flex-1 ${selectedTab === tab ? 'border-b-2 border-blue-500' : 'border-b-2 border-transparent'} focus:outline-none`}
+            className={`p-2 flex-1 ${selectedTab === tab ? 'border-b-2 border-secondary' : 'border-b-2 border-transparent'} focus:outline-none`}
             onClick={() => onTabChange(tab)}
           >
             {tab}

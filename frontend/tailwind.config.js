@@ -1,8 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: [
-    "./src/**/*.{js,jsx,ts,tsx}",
-  ],
+  content: ["./src/**/*.{js,jsx,ts,tsx}"],
   theme: {
     extend: {
       fontFamily: {
@@ -10,10 +8,10 @@ module.exports = {
       },
       colors: {
         primary: "#ffff",
-        secondary: "#011f4b",
-        inactive :"#D8D8D8",
-        accent: "#f58020",
-        base: "#F0F6FF",
+        secondary: "#542d48",
+        inactive: "#efeaea",
+        accent: "#fcd503",
+        base: "#FFF8E1",
         blue: {
           200: "#B3CDE0",
         },
@@ -24,10 +22,12 @@ module.exports = {
           200: "#FBE47E",
           400: "#FFC837",
         },
+        purple: {
+          200: "#e1d4dc",
+          400: "#8c3673"
+        },
       },
     },
   },
   plugins: [],
-}
-
-
+};

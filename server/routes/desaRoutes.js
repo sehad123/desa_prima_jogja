@@ -38,13 +38,33 @@ const {
   countYogyakartaMaju,
   countYogyakartaBerkembang,
   countYogyakartaTumbuh,
+  countBantulDisetujui,
+  countBantulDitolak,
+  countBantulPending,
+  countSlemanDisetujui,
+  countSlemanDitolak,
+  countSlemanPending,
+  countYogyakartaDisetujui,
+  countYogyakartaDitolak,
+  countYogyakartaPending,
+  countKulonProgoDisetujui,
+  countKulonProgoPending,
+  countKulonProgoDitolak,
+  countGunungKidulDisetujui,
+  countGunungKidulDitolak,
+  countGunungKidulPending,
+  countTotalAnggota,
+  countAnggotaByKabupaten,
+  countProdukByDesaPerKabupaten,
+  countTotalProdukByKabupaten,
+  getDesaByKabupaten,
+  deleteMultipleItems,
   getTotalDesaCount,
   desaMaju,
   desaBerkembang,
   desaTumbuh,
+  countTotalAndByKabupaten,
 } = require("../service/desaService");
-
-const desaService = require("../service/desaService");
 
 const router = express.Router();
 
@@ -52,7 +72,7 @@ const router = express.Router();
 router.get("/count/sleman/maju", async (req, res) => {
   try {
     const count = await countSlemanMaju();
-    res.json({ kabupaten: "Sleman", kategori: "Maju", count });
+    res.json({ kabupaten_kota: "Sleman", kategori: "Maju", count });
   } catch (error) {
     console.error("Error fetching Sleman Maju count:", error); // Log error
     res.status(500).json({ error: "Gagal menghitung data" });
@@ -62,7 +82,7 @@ router.get("/count/sleman/maju", async (req, res) => {
 router.get("/count/sleman/berkembang", async (req, res) => {
   try {
     const count = await countSlemanBerkembang();
-    res.json({ kabupaten: "Sleman", kategori: "Berkembang", count });
+    res.json({ kabupaten_kota: "Sleman", kategori: "Berkembang", count });
   } catch (error) {
     res.status(500).json({ error: "Gagal menghitung data" });
   }
@@ -71,7 +91,7 @@ router.get("/count/sleman/berkembang", async (req, res) => {
 router.get("/count/sleman/tumbuh", async (req, res) => {
   try {
     const count = await countSlemanTumbuh();
-    res.json({ kabupaten: "Sleman", kategori: "Tumbuh", count });
+    res.json({ kabupaten_kota: "Sleman", kategori: "Tumbuh", count });
   } catch (error) {
     res.status(500).json({ error: "Gagal menghitung data" });
   }
@@ -80,7 +100,7 @@ router.get("/count/sleman/tumbuh", async (req, res) => {
 router.get("/count/bantul/maju", async (req, res) => {
   try {
     const count = await countBantulMaju();
-    res.json({ kabupaten: "Bantul", kategori: "Maju", count });
+    res.json({ kabupaten_kota: "Bantul", kategori: "Maju", count });
   } catch (error) {
     res.status(500).json({ error: "Gagal menghitung data" });
   }
@@ -89,7 +109,7 @@ router.get("/count/bantul/maju", async (req, res) => {
 router.get("/count/bantul/berkembang", async (req, res) => {
   try {
     const count = await countBantulBerkembang();
-    res.json({ kabupaten: "Bantul", kategori: "Berkembang", count });
+    res.json({ kabupaten_kota: "Bantul", kategori: "Berkembang", count });
   } catch (error) {
     res.status(500).json({ error: "Gagal menghitung data" });
   }
@@ -98,7 +118,7 @@ router.get("/count/bantul/berkembang", async (req, res) => {
 router.get("/count/bantul/tumbuh", async (req, res) => {
   try {
     const count = await countBantulTumbuh();
-    res.json({ kabupaten: "Bantul", kategori: "Tumbuh", count });
+    res.json({ kabupaten_kota: "Bantul", kategori: "Tumbuh", count });
   } catch (error) {
     res.status(500).json({ error: "Gagal menghitung data" });
   }
@@ -107,7 +127,7 @@ router.get("/count/bantul/tumbuh", async (req, res) => {
 router.get("/count/kulonprogo/maju", async (req, res) => {
   try {
     const count = await countKulonProgoMaju();
-    res.json({ kabupaten: "Kulon Progo", kategori: "Maju", count });
+    res.json({ kabupaten_kota: "Kulon Progo", kategori: "Maju", count });
   } catch (error) {
     res.status(500).json({ error: "Gagal menghitung data" });
   }
@@ -116,7 +136,7 @@ router.get("/count/kulonprogo/maju", async (req, res) => {
 router.get("/count/kulonprogo/berkembang", async (req, res) => {
   try {
     const count = await countKulonProgoBerkembang();
-    res.json({ kabupaten: "Kulon Progo", kategori: "Berkembang", count });
+    res.json({ kabupaten_kota: "Kulon Progo", kategori: "Berkembang", count });
   } catch (error) {
     res.status(500).json({ error: "Gagal menghitung data" });
   }
@@ -125,7 +145,7 @@ router.get("/count/kulonprogo/berkembang", async (req, res) => {
 router.get("/count/kulonprogo/tumbuh", async (req, res) => {
   try {
     const count = await countKulonProgoTumbuh();
-    res.json({ kabupaten: "Kulon Progo", kategori: "Tumbuh", count });
+    res.json({ kabupaten_kota: "Kulon Progo", kategori: "Tumbuh", count });
   } catch (error) {
     res.status(500).json({ error: "Gagal menghitung data" });
   }
@@ -134,7 +154,7 @@ router.get("/count/kulonprogo/tumbuh", async (req, res) => {
 router.get("/count/gunungkidul/maju", async (req, res) => {
   try {
     const count = await countGunungKidulMaju();
-    res.json({ kabupaten: "GunungKidul", kategori: "Maju", count });
+    res.json({ kabupaten_kota: "GunungKidul", kategori: "Maju", count });
   } catch (error) {
     res.status(500).json({ error: "Gagal menghitung data" });
   }
@@ -143,7 +163,7 @@ router.get("/count/gunungkidul/maju", async (req, res) => {
 router.get("/count/gunungkidul/berkembang", async (req, res) => {
   try {
     const count = await countGunungKidulBerkembang();
-    res.json({ kabupaten: "GunungKidul", kategori: "Berkembang", count });
+    res.json({ kabupaten_kota: "GunungKidul", kategori: "Berkembang", count });
   } catch (error) {
     res.status(500).json({ error: "Gagal menghitung data" });
   }
@@ -152,7 +172,7 @@ router.get("/count/gunungkidul/berkembang", async (req, res) => {
 router.get("/count/gunungkidul/tumbuh", async (req, res) => {
   try {
     const count = await countGunungKidulTumbuh();
-    res.json({ kabupaten: "GunungKidul", kategori: "Tumbuh", count });
+    res.json({ kabupaten_kota: "GunungKidul", kategori: "Tumbuh", count });
   } catch (error) {
     res.status(500).json({ error: "Gagal menghitung data" });
   }
@@ -161,7 +181,7 @@ router.get("/count/gunungkidul/tumbuh", async (req, res) => {
 router.get("/count/yogyakarta/maju", async (req, res) => {
   try {
     const count = await countYogyakartaMaju();
-    res.json({ kabupaten: "Yogyakarta", kategori: "Maju", count });
+    res.json({ kabupaten_kota: "Yogyakarta", kategori: "Maju", count });
   } catch (error) {
     res.status(500).json({ error: "Gagal menghitung data" });
   }
@@ -170,7 +190,7 @@ router.get("/count/yogyakarta/maju", async (req, res) => {
 router.get("/count/yogyakarta/berkembang", async (req, res) => {
   try {
     const count = await countYogyakartaBerkembang();
-    res.json({ kabupaten: "Yogyakarta", kategori: "Berkembang", count });
+    res.json({ kabupaten_kota: "Yogyakarta", kategori: "Berkembang", count });
   } catch (error) {
     res.status(500).json({ error: "Gagal menghitung data" });
   }
@@ -179,7 +199,7 @@ router.get("/count/yogyakarta/berkembang", async (req, res) => {
 router.get("/count/yogyakarta/tumbuh", async (req, res) => {
   try {
     const count = await countYogyakartaTumbuh();
-    res.json({ kabupaten: "Yogyakarta", kategori: "Tumbuh", count });
+    res.json({ kabupaten_kota: "Yogyakarta", kategori: "Tumbuh", count });
   } catch (error) {
     res.status(500).json({ error: "Gagal menghitung data" });
   }
@@ -200,7 +220,9 @@ router.get("/count/desa/berkembang", async (req, res) => {
     const count = await desaService.countAllDesaBerkembang();
     res.json({ kategori: "Berkembang", count });
   } catch (error) {
-    res.status(500).json({ error: "Gagal menghitung desa kategori Berkembang" });
+    res
+      .status(500)
+      .json({ error: "Gagal menghitung desa kategori Berkembang" });
   }
 });
 
@@ -210,6 +232,145 @@ router.get("/count/desa/tumbuh", async (req, res) => {
     res.json({ kategori: "Tumbuh", count });
   } catch (error) {
     res.status(500).json({ error: "Gagal menghitung desa kategori Tumbuh" });
+  }
+});
+
+// status
+
+// Tambahkan rute baru untuk setiap kategori dan kabupaten
+router.get("/count/sleman/disetujui", async (req, res) => {
+  try {
+    const count = await countSlemanDisetujui();
+    res.json({ kabupaten_kota: "Sleman", status: "Disetujui", count });
+  } catch (error) {
+    console.error("Error fetching Sleman Disetujui count:", error); // Log error
+    res.status(500).json({ error: "Gagal menghitung data" });
+  }
+});
+
+router.get("/count/sleman/ditolak", async (req, res) => {
+  try {
+    const count = await countSlemanDitolak();
+    res.json({ kabupaten_kota: "Sleman", status: "Ditolak", count });
+  } catch (error) {
+    res.status(500).json({ error: "Gagal menghitung data" });
+  }
+});
+
+router.get("/count/sleman/pending", async (req, res) => {
+  try {
+    const count = await countSlemanPending();
+    res.json({ kabupaten_kota: "Sleman", status: "Pending", count });
+  } catch (error) {
+    res.status(500).json({ error: "Gagal menghitung data" });
+  }
+});
+
+router.get("/count/bantul/disetujui", async (req, res) => {
+  try {
+    const count = await countBantulDisetujui();
+    res.json({ kabupaten_kota: "Bantul", status: "Disetujui", count });
+  } catch (error) {
+    res.status(500).json({ error: "Gagal menghitung data" });
+  }
+});
+
+router.get("/count/bantul/ditolak", async (req, res) => {
+  try {
+    const count = await countBantulDitolak();
+    res.json({ kabupaten_kota: "Bantul", status: "Ditolak", count });
+  } catch (error) {
+    res.status(500).json({ error: "Gagal menghitung data" });
+  }
+});
+
+router.get("/count/bantul/pending", async (req, res) => {
+  try {
+    const count = await countBantulPending();
+    res.json({ kabupaten_kota: "Bantul", status: "Pending", count });
+  } catch (error) {
+    res.status(500).json({ error: "Gagal menghitung data" });
+  }
+});
+
+router.get("/count/kulonprogo/disetujui", async (req, res) => {
+  try {
+    const count = await countKulonProgoDisetujui();
+    res.json({ kabupaten_kota: "Kulon Progo", status: "Disetujui", count });
+  } catch (error) {
+    res.status(500).json({ error: "Gagal menghitung data" });
+  }
+});
+
+router.get("/count/kulonprogo/ditolak", async (req, res) => {
+  try {
+    const count = await countKulonProgoDitolak();
+    res.json({ kabupaten_kota: "Kulon Progo", status: "Ditolak", count });
+  } catch (error) {
+    res.status(500).json({ error: "Gagal menghitung data" });
+  }
+});
+
+router.get("/count/kulonprogo/pending", async (req, res) => {
+  try {
+    const count = await countKulonProgoPending();
+    res.json({ kabupaten_kota: "Kulon Progo", status: "Pending", count });
+  } catch (error) {
+    res.status(500).json({ error: "Gagal menghitung data" });
+  }
+});
+
+router.get("/count/gunungkidul/disetujui", async (req, res) => {
+  try {
+    const count = await countGunungKidulDisetujui();
+    res.json({ kabupaten_kota: "GunungKidul", status: "Disetujui", count });
+  } catch (error) {
+    res.status(500).json({ error: "Gagal menghitung data" });
+  }
+});
+
+router.get("/count/gunungkidul/ditolak", async (req, res) => {
+  try {
+    const count = await countGunungKidulDitolak();
+    res.json({ kabupaten_kota: "GunungKidul", status: "Ditolak", count });
+  } catch (error) {
+    res.status(500).json({ error: "Gagal menghitung data" });
+  }
+});
+
+router.get("/count/gunungkidul/pending", async (req, res) => {
+  try {
+    const count = await countGunungKidulPending();
+    res.json({ kabupaten_kota: "GunungKidul", status: "Pending", count });
+  } catch (error) {
+    res.status(500).json({ error: "Gagal menghitung data" });
+  }
+});
+
+router.get("/count/yogyakarta/disetujui", async (req, res) => {
+  try {
+    const count = await countYogyakartaDisetujui();
+    res.json({ kabupaten_kota: "Yogyakarta", status: "Disetujui", count });
+  } catch (error) {
+    res.status(500).json({ error: "Gagal menghitung data" });
+  }
+});
+
+router.get("/count/yogyakarta/ditolak", async (req, res) => {
+  try {
+    const count = await countYogyakartaDitolak();
+    res.json({ kabupaten_kota: "Yogyakarta", status: "Ditolak", count });
+  } catch (error) {
+    res.status(500).json({ error: "Gagal menghitung data" });
+  }
+});
+
+router.get("/count/yogyakarta/pending", async (req, res) => {
+  try {
+    const count = await countYogyakartaPending();
+    res.json({ kabupaten_kota: "Yogyakarta", status: "Pending", count });
+  } catch (error) {
+    res.status(500).json({ error: "Gagal menghitung data" });
   }
 });
 
@@ -226,18 +387,24 @@ const upload = multer({ storage: storage });
 
 // Routes untuk galeri
 // Menambahkan gambar ke galeri desa
-router.post("/:desaId/galeri", upload.single("gambar"), async (req, res) => {
-  try {
-    const imagePath = req.file ? `/uploads/${req.file.filename}` : null; // Mendapatkan nama file yang di-upload
-    const newImage = await addImageToGaleri(req.params.desaId, imagePath);
-    res.status(201).json(newImage);
-  } catch (error) {
-    res.status(500).json({ error: "Gagal menambahkan gambar ke galeri desa" });
+router.post(
+  "/:kelompokId/galeri",
+  upload.single("gambar"),
+  async (req, res) => {
+    try {
+      const imagePath = req.file ? `/uploads/${req.file.filename}` : null; // Mendapatkan nama file yang di-upload
+      const newImage = await addImageToGaleri(req.params.kelompokId, imagePath);
+      res.status(201).json(newImage);
+    } catch (error) {
+      res
+        .status(500)
+        .json({ error: "Gagal menambahkan gambar ke galeri desa" });
+    }
   }
-});
+);
 
 // Menghapus gambar dari galeri desa
-router.delete("/:desaId/galeri/:id", async (req, res) => {
+router.delete("/:kelompokId/galeri/:id", async (req, res) => {
   try {
     const deletedImage = await deleteImageFromGaleri(req.params.id);
     res.json(deletedImage);
@@ -246,20 +413,20 @@ router.delete("/:desaId/galeri/:id", async (req, res) => {
   }
 });
 
-// Route untuk mendapatkan semua produk desa berdasarkan desaId
-router.get("/:desaId/produk", async (req, res) => {
+// Route untuk mendapatkan semua produk desa berdasarkan kelompokId
+router.get("/:kelompokId/produk", async (req, res) => {
   try {
-    const produk = await getProdukByDesaId(req.params.desaId);
+    const produk = await getProdukByDesaId(req.params.kelompokId);
     res.json(produk);
   } catch (error) {
     res.status(500).json({ error: "Gagal mengambil produk desa" });
   }
 });
 
-// Route untuk mendapatkan semua pengurus desa berdasarkan desaId
-router.get("/:desaId/pengurus", async (req, res) => {
+// Route untuk mendapatkan semua pengurus desa berdasarkan kelompokId
+router.get("/:kelompokId/pengurus", async (req, res) => {
   try {
-    const pengurus = await getPengurusByDesaId(req.params.desaId);
+    const pengurus = await getPengurusByDesaId(req.params.kelompokId);
     res.json(pengurus);
   } catch (error) {
     res.status(500).json({ error: "Gagal mengambil pengurus desa" });
@@ -267,31 +434,61 @@ router.get("/:desaId/pengurus", async (req, res) => {
 });
 
 // Route untuk menambahkan produk desa
-router.post("/:desaId/produk", upload.single("foto"), async (req, res) => {
+router.post("/:kelompokId/produk", upload.single("foto"), async (req, res) => {
   try {
-    const imagePath = req.file ? `/uploads/${req.file.filename}` : null;
-    const { nama, harga, deskripsi } = req.body;
-    const newProduk = await addProdukDesa(req.params.desaId, imagePath, nama, parseInt(harga), deskripsi);
+    if (!req.file) {
+      return res.status(400).json({ message: "File foto diperlukan" });
+    }
+
+    const foto = req.file ? `/uploads/${req.file.filename}` : null;
+    const { nama, harga_awal, harga_akhir, pelaku_usaha, nohp, deskripsi } =
+      req.body;
+
+    const newProduk = await addProdukDesa(
+      req.params.kelompokId,
+      foto,
+      nama,
+      parseInt(harga_awal), // Ubah sesuai kebutuhan
+      parseInt(harga_akhir), // Ubah sesuai kebutuhan
+      deskripsi,
+      pelaku_usaha,
+      nohp
+    );
+
     res.status(201).json(newProduk);
   } catch (error) {
-    res.status(500).json({ error: "Gagal menambahkan produk desa" });
+    console.error("Error:", error); // Tambahkan logging
+    res.status(500).json({
+      error: "Gagal menambahkan produk desa",
+      details: error.message, // Tambahkan detail error
+    });
   }
 });
 
 // Route untuk menambahkan pengurus desa
-router.post("/:desaId/pengurus", upload.single("foto"), async (req, res) => {
-  try {
-    const imagePath = req.file ? `/uploads/${req.file.filename}` : null;
-    const { nama, nohp, jabatan } = req.body;
-    const newPengurus = await addPengurusDesa(req.params.desaId, imagePath, nama, nohp, jabatan);
-    res.status(201).json(newPengurus);
-  } catch (error) {
-    res.status(500).json({ error: "Gagal menambahkan pengurus desa" });
+router.post(
+  "/:kelompokId/pengurus",
+  upload.single("foto"),
+  async (req, res) => {
+    try {
+      const imagePath = req.file ? `/uploads/${req.file.filename}` : null;
+      const { nama, nohp, jabatan } = req.body;
+      const newPengurus = await addPengurusDesa(
+        req.params.kelompokId,
+        imagePath,
+        nama,
+        nohp,
+        jabatan
+      );
+      res.status(201).json(newPengurus);
+    } catch (error) {
+      res.status(500).json({ error: "Gagal menambahkan pengurus desa" });
+    }
   }
-});
+);
 
 // Route untuk menghapus produk desa
-router.delete("/:desaId/produk/:id", async (req, res) => {
+router.delete("/:kelompokId/produk/:id", async (req, res) => {
   try {
     const deletedProduk = await deleteProdukDesa(req.params.id);
     res.json(deletedProduk);
@@ -301,7 +498,7 @@ router.delete("/:desaId/produk/:id", async (req, res) => {
 });
 
 // Route untuk menghapus pengurus desa
-router.delete("/:desaId/pengurus/:id", async (req, res) => {
+router.delete("/:kelompokId/pengurus/:id", async (req, res) => {
   try {
     const deletedPengurus = await deletePengurusDesa(req.params.id);
     res.json(deletedPengurus);
@@ -311,47 +508,99 @@ router.delete("/:desaId/pengurus/:id", async (req, res) => {
 });
 
 // Route untuk mengedit produk desa
-router.put("/:desaId/produk/:id", upload.single("foto"), async (req, res) => {
-  console.log("File received:", req.file);
-  try {
-    const imagePath = req.file ? `/uploads/${req.file.filename}` : null;
-    const { nama, harga, deskripsi } = req.body;
-    const updatedProduk = await editProdukDesa(req.params.id, req.params.desaId, imagePath, nama, parseInt(harga), deskripsi);
-    res.json(updatedProduk);
-  } catch (error) {
-    console.error("Error:", error);
-    res.status(500).json({ error: "Gagal mengedit produk desa" });
+router.put(
+  "/:kelompokId/produk/:id",
+  upload.single("foto"),
+  async (req, res) => {
+    console.log("Request body:", req.body);
+    console.log("File received:", req.file);
+
+    try {
+      const { nama, harga_awal, harga_akhir, pelaku_usaha, nohp, deskripsi } =
+        req.body;
+
+      // Handle file upload
+      const imagePath = req.file ? `/uploads/${req.file.filename}` : undefined;
+
+      // Prepare update data
+      const updateData = {
+        nama,
+        harga_awal: parseInt(harga_awal),
+        harga_akhir: parseInt(harga_akhir),
+        pelaku_usaha,
+        nohp,
+        deskripsi,
+      };
+
+      // Only add foto if a new file was uploaded
+      if (imagePath) {
+        updateData.foto = imagePath;
+      }
+
+      const updatedProduk = await editProdukDesa(
+        req.params.id,
+        req.params.kelompokId,
+        updateData // Pass regular object instead of FormData
+      );
+
+      res.json(updatedProduk);
+    } catch (error) {
+      console.error("Error:", error);
+      res.status(500).json({
+        error: "Gagal mengedit produk desa",
+        details: error.message,
+      });
+    }
   }
-});
+);
 
 // Route untuk mengedit pengurus desa
-router.put("/:desaId/pengurus/:id", upload.single("foto"), async (req, res) => {
-  console.log("File received:", req.file); // Debugging
-  try {
-    const imagePath = req.file ? `/uploads/${req.file.filename}` : null;
-    const { nama, jabatan, nohp } = req.body;
-    const updatedPengurus = await editPengurusDesa(req.params.id, req.params.desaId, imagePath, nama, jabatan, nohp);
-    res.json(updatedPengurus);
-  } catch (error) {
-    res.status(500).json({ error: "Gagal mengedit pengurus desa" });
+router.put(
+  "/:kelompokId/pengurus/:id",
+  upload.single("foto"),
+  async (req, res) => {
+    console.log("File received:", req.file); // Debugging
+    try {
+      const imagePath = req.file ? `/uploads/${req.file.filename}` : null;
+      const { nama, jabatan, nohp } = req.body;
+      const updatedPengurus = await editPengurusDesa(
+        req.params.id,
+        req.params.kelompokId,
+        imagePath,
+        nama,
+        jabatan,
+        nohp
+      );
+      res.json(updatedPengurus);
+    } catch (error) {
+      res.status(500).json({ error: "Gagal mengedit pengurus desa" });
+    }
   }
-});
+);
 
 // Routes untuk notulensi
 // Menambahkan file notulensi
-router.post("/:desaId/notulensi", upload.single("file"), async (req, res) => {
-  try {
-    const filePath = req.file.filename; // Mendapatkan nama file yang di-upload
-    const catatan = req.body.catatan || "";
-    const newNotulensi = await addFileNotulensi(req.params.desaId, filePath, catatan);
-    res.status(201).json(newNotulensi);
-  } catch (error) {
-    res.status(500).json({ error: "Gagal menambahkan file notulensi" });
+router.post(
+  "/:kelompokId/notulensi",
+  upload.single("file"),
+  async (req, res) => {
+    try {
+      const filePath = req.file.filename; // Mendapatkan nama file yang di-upload
+      const catatan = req.body.catatan || "";
+      const newNotulensi = await addFileNotulensi(
+        req.params.kelompokId,
+        filePath,
+        catatan
+      );
+      res.status(201).json(newNotulensi);
+    } catch (error) {
+      res.status(500).json({ error: "Gagal menambahkan file notulensi" });
+    }
   }
-});
+);
 
 // Menghapus file notulensi
-router.delete("/:desaId/notulensi/:id", async (req, res) => {
+router.delete("/:kelompokId/notulensi/:id", async (req, res) => {
   try {
     const deletedFile = await deleteFileNotulensi(req.params.id);
     res.json(deletedFile);
@@ -362,33 +611,35 @@ router.delete("/:desaId/notulensi/:id", async (req, res) => {
 
 // Routes untuk mendapatkan galeri dan notulensi
 // Get all galeri images for a specific desa
-router.get("/:desaId/galeri", async (req, res) => {
+router.get("/:kelompokId/galeri", async (req, res) => {
   try {
-    const galeri = await getGaleriByDesaId(req.params.desaId);
+    const galeri = await getGaleriByDesaId(req.params.kelompokId); // udah diperbaiki nama fungsinya ya
     res.json(galeri);
   } catch (error) {
+    console.error("Error saat ambil galeri:", error); // pastikan ini ada
     res.status(500).json({ error: "Gagal mengambil galeri desa" });
   }
 });
 
 // Get all notulensi for a specific desa
-router.get("/:desaId/notulensi", async (req, res) => {
+router.get("/:kelompokId/notulensi", async (req, res) => {
   try {
-    const notulensi = await getNotulensiByDesaId(req.params.desaId);
+    const notulensi = await getNotulensiByDesaId(req.params.kelompokId);
     res.json(notulensi);
   } catch (error) {
     res.status(500).json({ error: "Gagal mengambil notulensi desa" });
   }
 });
 
-// Get all desa
 router.get("/", async (req, res) => {
   try {
     // Ambil kabupaten dari query string URL
     const kabupatenQuery = req.query.kabupaten; // Dapatkan nilai kabupaten dari URL query string
 
     // Jika ada parameter kabupaten, gunakan sebagai filter, jika tidak gunakan kabupatenFilter default
-    const kabupatenFilter = kabupatenQuery ? [kabupatenQuery.toUpperCase()] : null;
+    const kabupatenFilter = kabupatenQuery
+      ? [kabupatenQuery.toUpperCase()]
+      : null;
 
     const desa = await getAllDesa(kabupatenFilter);
     res.json(desa);
@@ -396,15 +647,30 @@ router.get("/", async (req, res) => {
     res.status(500).json({ error: "Gagal mengambil data desa" });
   }
 });
+// Endpoint untuk mengambil list desa berdasarkan kabupaten
+// router.get("/:kabupaten", getDesaByKabupaten);
 
-// Create a new desa
 router.post("/", async (req, res) => {
   try {
-    const newDesa = await createDesa(req.body); // Data sudah termasuk kategori dari frontend
+    const data = {
+      ...req.body,
+      latitude: parseFloat(req.body.latitude),
+      longitude: parseFloat(req.body.longitude),
+    };
+    const newDesa = await createDesa(data); // Data sudah termasuk kategori dari frontend
     res.status(201).json(newDesa);
   } catch (error) {
     console.error("Error:", error);
     res.status(400).json({ error: "Gagal menyimpan data desa." });
+  }
+});
+
+router.put("/:id", async (req, res) => {
+  try {
+    const updatedDesa = await updateDesa(req.params.id, req.body);
+    res.json(updatedDesa);
+  } catch (error) {
+    res.status(404).json({ error: "Desa tidak ditemukan" });
   }
 });
 
@@ -419,16 +685,6 @@ router.get("/:id", async (req, res) => {
     }
   } catch (error) {
     res.status(500).json({ error: "Gagal mengambil data desa" });
-  }
-});
-
-// Update desa by ID
-router.put("/:id", async (req, res) => {
-  try {
-    const updatedDesa = await updateDesa(req.params.id, req.body);
-    res.json(updatedDesa);
-  } catch (error) {
-    res.status(404).json({ error: "Desa tidak ditemukan" });
   }
 });
 
@@ -459,10 +715,126 @@ router.patch("/:id/catatan", async (req, res) => {
 // Delete desa by ID
 router.delete("/:id", async (req, res) => {
   try {
-    const deletedDesa = await deleteDesa(req.params.id);
+    const id = req.params.id;
+
+    // Validasi ID
+    if (!id || isNaN(id)) {
+      return res.status(400).json({ error: "ID harus berupa angka" });
+    }
+
+    const deletedDesa = await deleteDesa(id);
     res.json(deletedDesa);
   } catch (error) {
-    res.status(404).json({ error: "Desa tidak ditemukan" });
+    console.error("Delete error:", error);
+
+    if (
+      error.code === "P2025" ||
+      error.message.includes("Record to delete does not exist")
+    ) {
+      res.status(404).json({ error: "Desa tidak ditemukan" });
+    } else {
+      res.status(500).json({ error: error.message || "Gagal menghapus desa" });
+    }
+  }
+});
+
+// Rute untuk mendapatkan total anggota di kabupaten tertentu
+router.get("/anggota/:kabupaten", async (req, res) => {
+  try {
+    const { kabupaten } = req.params;
+    const anggotaPerKab = await countAnggotaByKabupaten(kabupaten);
+
+    res.status(200).json({
+      success: true,
+      data: {
+        kabupaten: kabupaten.toUpperCase(),
+        anggotaPerKab,
+      },
+    });
+  } catch (error) {
+    console.error("Error in /anggota/:kabupaten route:", error);
+    res.status(500).json({
+      success: false,
+      message: "Gagal mengambil data total anggota di kabupaten",
+      error: error.message,
+    });
+  }
+});
+
+
+// Rute untuk menghitung jumlah produk tiap desa berdasarkan nama_kabupaten
+router.get("/produk-per-desa/:kabupaten", async (req, res) => {
+  try {
+    const { kabupaten } = req.params; // Ambil nama_kabupaten dari parameter URL
+    const produkCountByDesa = await countProdukByDesaPerKabupaten(kabupaten);
+
+    res.status(200).json({
+      success: true,
+      data: produkCountByDesa,
+    });
+  } catch (error) {
+    console.error("Error in /produk-per-desa/:namaKabupaten route:", error);
+    res.status(500).json({
+      success: false,
+      message: "Gagal menghitung jumlah produk per desa",
+      error: error.message,
+    });
+  }
+});
+
+// Rute untuk menghitung total produk di seluruh desa dalam satu kabupaten berdasarkan nama_kabupaten
+router.get("/total-produk-per-kabupaten/:kabupaten", async (req, res) => {
+  try {
+    const { kabupaten } = req.params; // Ambil nama_kabupaten dari parameter URL
+    const totalProduk = await countTotalProdukByKabupaten(kabupaten);
+
+    res.status(200).json({
+      success: true,
+      data: {
+        kabupaten,
+        totalProduk,
+      },
+    });
+  } catch (error) {
+    console.error(
+      "Error in /total-produk-per-kabupaten/:namaKabupaten route:",
+      error
+    );
+    res.status(500).json({
+      success: false,
+      message: "Gagal menghitung total produk per kabupaten",
+      error: error.message,
+    });
+  }
+});
+
+// Route untuk menghapus multiple items
+router.post("/:id/delete-multiple", async (req, res) => {
+  try {
+    const { type, ids } = req.body;
+
+    if (!type || !ids || !Array.isArray(ids)) {
+      return res.status(400).json({ error: "Invalid request body" });
+    }
+
+    const result = await deleteMultipleItems(req.params.id, type, ids);
+    res.json(result);
+  } catch (error) {
+    console.error(`Error deleting multiple items:`, error);
+    res.status(500).json({
+      error: error.message || "Failed to delete items",
+      details: error.details, // Jika ada detail error tambahan
+    });
+  }
+});
+
+// Endpoint khusus untuk filter kabupaten (alternatif)
+router.get("/kabupaten/:namaKabupaten", async (req, res) => {
+  try {
+    const desaList = await getDesaByKabupaten(req.params.namaKabupaten);
+    res.json(desaList);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 });
 
