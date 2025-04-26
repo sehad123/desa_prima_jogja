@@ -177,8 +177,6 @@ const DetailDesaPage = () => {
             : `/daftar-kelompok`
       );
     } catch (err) {
-      // Error sudah dihandle oleh toast.promise,
-      // tapi bisa tambahkan logging jika perlu
       console.error("Error detail:", err);
     }
   };
@@ -285,6 +283,7 @@ const DetailDesaPage = () => {
         return (
           <Pengurus
             pengurus={pengurus}
+            profil = {profil}
             onAdd={(type, desa) => handleAdd(type, desa)}
             onEdit={(item, type) => handleEditModal(item, type)}
             onDelete={(file, type) => openDeleteItemModal(file, type)}
@@ -295,6 +294,7 @@ const DetailDesaPage = () => {
         return (
           <Produk
             produk={produk}
+            profil = {profil}
             onAdd={(type, desa) => handleAdd(type, desa)}
             onDeleteMultiple={confirmDeleteMultiple}
             onDelete={(file, type) => {

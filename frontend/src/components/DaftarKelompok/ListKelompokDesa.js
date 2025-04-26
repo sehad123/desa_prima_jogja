@@ -13,6 +13,7 @@ import FilterSection from "./FilterSection";
 import SearchSection from "./SearchSection";
 import ActiveFilters from "./ActiveFilters";
 import DataTable from "./DataTable";
+import useUserData from "../hooks/useUserData";
 
 
 const formatKabupatenName = (name) => {
@@ -86,6 +87,7 @@ const ListKelompokDesa = () => {
   const [endDate, setEndDate] = useState("");
   const navigate = useNavigate();
   const location = useLocation();
+  const { profil } = useUserData(); 
   const { id } = useParams();
 
   const [search, setSearch] = useState({
@@ -418,7 +420,7 @@ const ListKelompokDesa = () => {
     <>
     <ErrorBoundary>
       <div
-        className={`App p-4 flex flex-col md:flex-row w-full lg:100% justify-center ${
+        className={`App py-7 px-5 flex flex-col md:flex-row w-full lg:100% justify-center ${
           isFilterVisible ? "w-full" : ""
         } `}
       >
@@ -458,6 +460,7 @@ const ListKelompokDesa = () => {
         {/* Main Content */}
         <div className={`ml-0 md:ml-4 bg-white w-full md:w-[80%]`}>
           <SearchSection
+            profil={profil}
             search={search}
             setSearch={setSearch}
             toggleFilter={toggleFilter}

@@ -4,177 +4,197 @@ import { formatTanggal, formatRupiah } from "../utils/format";
 const PreviewContent = ({ selectedTab, selectedItem, onEdit, onDelete, onDownload }) => {
   if (!selectedItem) {
     return (
-      <p className="text-gray-500 text-center mt-5">
-        TIdak ada file yang dipilih untuk preview
-      </p>
+      <div className="flex flex-col items-center justify-center h-full py-10">
+        <div className="text-gray-400 mb-4">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+        <p className="text-gray-500 text-lg font-medium">Tidak ada item yang dipilih</p>
+        <p className="text-gray-400 text-sm mt-1">Pilih item untuk melihat preview</p>
+      </div>
     );
   }
 
   const renderContent = () => {
+    const renderDetailRow = (label, value) => (
+      <div className="flex items-start py-2 border-b border-gray-100 last:border-0">
+        <p className="text-gray-600 font-medium w-1/3">{label}</p>
+        <p className="text-gray-800 flex-1">{value || "-"}</p>
+      </div>
+    );
+
     switch (selectedTab) {
       case "Produk":
         return (
-          <div className="p-3">
-            <h3 className="text-lg font-semibold text-center">
-              Preview Produk
-            </h3>
-            <div className="hidden lg:flex my-4 space-x-4 lg:space-x-40">
-              <div className="space-y-2 w-[100%]">
-                <div className="flex items-start">
-                  <p className="text-gray-600 flex-shrink-0 w-1/3">
-                    <strong>Nama Produk</strong>
-                  </p>
-                  <p>:</p>
-                  <p className="text-gray-600 ml-2">{selectedItem.nama}</p>
+          <div className="p-6">
+            <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+              <div className="p-6">
+                <h3 className="text-xl font-bold text-gray-800 mb-6 text-center">Detail Produk</h3>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                  <div className="space-y-4">
+                    {renderDetailRow("Nama Produk", selectedItem.nama)}
+                    {renderDetailRow("Harga", `${formatRupiah(selectedItem.hargaAwal)} - ${formatRupiah(selectedItem.hargaAkhir)}`)}
+                    {renderDetailRow("Pelaku Usaha", selectedItem.pelakuUsaha)}
+                  </div>
+                  <div className="space-y-4">
+                    {renderDetailRow("Nomor HP", selectedItem.nohp)}
+                    {renderDetailRow("Deskripsi", selectedItem.deskripsi)}
+                  </div>
                 </div>
 
-                <div className="flex items-start">
-                  <p className="text-gray-600 flex-shrink-0 w-1/3">
-                    <strong>Harga</strong>
-                  </p>
-                  <p>:</p>
-                  <p className="text-gray-600 ml-2">
-                    {formatRupiah(selectedItem.hargaAwal)} -{" "}
-                    {formatRupiah(selectedItem.hargaAkhir)}
-                  </p>
+                <div className="bg-gray-50 rounded-lg p-4 mb-6">
+                  <div className="aspect-w-16 aspect-h-9 bg-white rounded-md overflow-hidden shadow-inner">
+                    <img
+                      src={`http://localhost:5000${selectedItem.foto}`}
+                      alt={selectedItem.nama}
+                      className="w-full h-full object-contain"
+                      onError={(e) => {
+                        e.target.src = 'https://via.placeholder.com/500x300?text=Gambar+Tidak+Tersedia';
+                      }}
+                    />
+                  </div>
                 </div>
 
-                <div className="flex items-start">
-                  <p className="text-gray-600 flex-shrink-0 w-1/3">
-                    <strong>Nama Pelaku Usaha</strong>
-                  </p>
-                  <p>:</p>
-                  <p className="text-gray-600 ml-2">
-                    {selectedItem.pelakuUsaha}
-                  </p>
-                </div>
-
-                <div className="flex items-start">
-                  <p className="text-gray-600 flex-shrink-0 w-1/3">
-                    <strong>Nomor Pelaku Usaha</strong>
-                  </p>
-                  <p>:</p>
-                  <p className="text-gray-600 ml-2">{selectedItem.nohp}</p>
-                </div>
-
-                <div className="flex items-start">
-                  <p className="text-gray-600 flex-shrink-0 w-1/3">
-                    <strong>Deskripsi</strong>
-                  </p>
-                  <p>:</p>
-                  <p className="text-gray-600 ml-2">{selectedItem.deskripsi}</p>
+                <div className="flex justify-end space-x-3">
+                  <button
+                    onClick={() => onEdit(selectedItem, "produk")}
+                    className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center space-x-2"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                      <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                    </svg>
+                    <span>Edit</span>
+                  </button>
+                  <button
+                    onClick={() => onDelete(selectedItem, "produk")}
+                    className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors flex items-center space-x-2"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                    </svg>
+                    <span>Hapus</span>
+                  </button>
                 </div>
               </div>
-            </div>
-            <div className="flex flex-col space-y-4">
-              <div className="flex flex-col items-center w-full h-[400px] bg-gray-200 rounded-md overflow-hidden">
-                <img
-                  src={`http://localhost:5000${selectedItem.foto}`}
-                  alt="Produk"
-                  className="w-full h-full object-contain"
-                />
-              </div>
-            </div>
-            <div className="flex justify-end space-x-4 mt-4">
-              <button
-                className="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600"
-                onClick={() => onEdit(selectedItem, "produk")}
-              >
-                Edit
-              </button>
-              <button
-                className="bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600"
-                onClick={() => onDelete(selectedItem, "produk")}
-              >
-                Hapus
-              </button>
             </div>
           </div>
         );
+
       case "Galeri":
         return (
-          <div className="p-3 flex justify-center">
-            <div className="text-center w-full">
-              <h3 className="text-lg font-semibold mb-4">Preview Galeri</h3>
-              <div className="flex justify-center items-center w-full h-[500px] bg-gray-200 rounded-md overflow-hidden">
-                <img
-                  src={`http://localhost:5000${selectedItem.gambar}`}
-                  alt="Galeri"
-                  className="w-full h-full object-contain"
-                />
-              </div>
-              <p className="mt-4">
-                Diunggah {formatTanggal(selectedItem.createdAt)}
-              </p>
-              <div className="flex justify-end space-x-4 mt-4">
-                <button
-                  className="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600"
-                  onClick={onDownload}
-                >
-                  Download
-                </button>
-                <button
-                  className="bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600"
-                  onClick={() => onDelete(selectedItem, "galeri")}
-                >
-                  Hapus
-                </button>
+          <div className="p-6">
+            <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+              <div className="p-6">
+                <h3 className="text-xl font-bold text-gray-800 mb-6 text-center">Preview Galeri</h3>
+                
+                <div className="bg-gray-50 rounded-lg p-4 mb-6">
+                  <div className="aspect-w-16 aspect-h-9 bg-white rounded-md overflow-hidden shadow-inner">
+                    <img
+                      src={`http://localhost:5000${selectedItem.gambar}`}
+                      alt="Galeri"
+                      className="w-full h-full object-contain"
+                      onError={(e) => {
+                        e.target.src = 'https://via.placeholder.com/800x500?text=Gambar+Tidak+Tersedia';
+                      }}
+                    />
+                  </div>
+                </div>
+
+                <div className="text-center text-gray-500 mb-6">
+                  Diunggah pada {formatTanggal(selectedItem.createdAt)}
+                </div>
+
+                <div className="flex justify-center space-x-3">
+                  <button
+                    onClick={onDownload}
+                    className="px-4 py-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition-colors flex items-center space-x-2"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
+                    </svg>
+                    <span>Download</span>
+                  </button>
+                  <button
+                    onClick={() => onDelete(selectedItem, "galeri")}
+                    className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors flex items-center space-x-2"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                    </svg>
+                    <span>Hapus</span>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
         );
+
       case "Notulensi / Materi":
         return (
-          <div className="p-3">
-            <h3 className="text-lg font-semibold text-center">
-              Preview Notulensi
-            </h3>
-            <div className="flex flex-col space-y-4">
-              <div className="flex justify-center items-center w-full h-[500px] bg-gray-200 rounded-md mb-4 mt-6">
-                <iframe
-                  src={`http://localhost:5000/uploads/${selectedItem.file}`}
-                  width="100%"
-                  height="100%"
-                  style={{ border: "none" }}
-                  title="Notulensi Preview"
-                />
-              </div>
-              <div className="flex items-center">
-                <strong className="w-1/4">Diunggah pada</strong>
-                <span>: {formatTanggal(selectedItem.createdAt)}</span>
-              </div>
-              <div className="flex justify-end space-x-4 mt-4">
-                <button
-                  className="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600"
-                  onClick={() =>
-                    window.open(
-                      `http://localhost:5000/uploads/${selectedItem.file}`,
-                      "_blank"
-                    )
-                  }
-                >
-                  Download
-                </button>
-                <button
-                  className="bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600"
-                  onClick={() => onDelete(selectedItem, "notulensi")}
-                >
-                  Hapus
-                </button>
+          <div className="p-6">
+            <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+              <div className="p-6">
+                <h3 className="text-xl font-bold text-gray-800 mb-6 text-center">Preview Dokumen</h3>
+                
+                <div className="bg-gray-50 rounded-lg p-4 mb-6 h-[500px]">
+                  <iframe
+                    src={`http://localhost:5000/uploads/${selectedItem.file}`}
+                    className="w-full h-full border-0 rounded-md"
+                    title="Notulensi Preview"
+                  />
+                </div>
+
+                <div className="flex flex-col space-y-2 mb-6">
+                  <div className="flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <span className="text-gray-600">Diunggah pada {formatTanggal(selectedItem.createdAt)}</span>
+                  </div>
+                </div>
+
+                <div className="flex justify-center space-x-3">
+                  <button
+                    onClick={() => window.open(`http://localhost:5000/uploads/${selectedItem.file}`, "_blank")}
+                    className="px-4 py-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition-colors flex items-center space-x-2"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
+                    </svg>
+                    <span>Download</span>
+                  </button>
+                  <button
+                    onClick={() => onDelete(selectedItem, "notulensi")}
+                    className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors flex items-center space-x-2"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                    </svg>
+                    <span>Hapus</span>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
         );
+
       default:
-        return <p>Tidak ada file yang dipilih</p>;
+        return (
+          <div className="flex flex-col items-center justify-center h-full py-10">
+            <div className="text-gray-400 mb-4">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <p className="text-gray-500 text-lg">Format konten tidak dikenali</p>
+          </div>
+        );
     }
   };
 
-  return (
-    <>
-      {renderContent()}
-      </>
-  );
+  return renderContent();
 };
 
 export default PreviewContent;

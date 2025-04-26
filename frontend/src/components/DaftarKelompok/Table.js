@@ -245,25 +245,49 @@ const Table = ({ columns = [], initialData = [], isMobile, onUpdate }) => {
     );
   };
 
+  const renderStatusBadge = (status) => {
+    switch (status) {
+      case "Disetujui":
+        return (
+          <span className="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+            Disetujui
+          </span>
+        );
+      case "Ditolak":
+        return (
+          <span className="bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+            Ditolak
+          </span>
+        );
+      default:
+        return (
+          <span className="bg-yellow-100 text-yellow-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+            Pending
+          </span>
+        );
+    }
+  };
+
   if (isMobile) {
     // Mobile view (list view)
     return (
       <div className="w-full px-5">
+        {/* Card Grid View */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
         {sortedData.length > 0 ? (
           sortedData
             .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-            .map((row, rowIndex) => (
+            .map((row, index) => (
               <div
-                key={rowIndex}
-                className="mb-4 border rounded-md p-4 bg-white"
+                key={index}
+                className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200 hover:shadow-lg transition-shadow duration-300"
               >
-                <div className="flex items-center justify-between">
-                  <h2 className="text-lg font-semibold text-left">
-                    {truncateText(row.kelompok_desa, 60)}
-                  </h2>
-
-                  <div className="flex justify-center space-x-2">
-                    {/* Jika Role Pegawai, tampilkan input status */}
+                <div className="p-5">
+                  <div className="flex justify-between items-start mb-3">
+                    <h3 className="text-lg font-bold text-gray-800">
+                      {truncateText(row.nama, 30)}
+                    </h3>
+                    <div>
                     {profil.role === "Pegawai" ? (
                         <div className="flex justify-center space-x-2">
                         <button
@@ -284,121 +308,142 @@ const Table = ({ columns = [], initialData = [], isMobile, onUpdate }) => {
                         </button>
                       </div>
                       ) : (
-                      // Jika bukan Pegawai, tampilkan ikon status
-                      <div className="flex justify-center space-x-2">
-                        {row.status === "Disetujui" && (
-                          <FontAwesomeIcon
-                            icon={faCheck}
-                            className="text-green-500"
-                          />
-                        )}
-                        {row.status === "Ditolak" && (
-                          <FontAwesomeIcon
-                            icon={faBan}
-                            className="text-red-500"
-                          />
-                        )}
-                        {row.status === "" || row.status === "Pending" ? (
-                          <FontAwesomeIcon
-                            icon={faClock}
-                            className="text-gray-500"
-                          />
-                        ) : null}
-                      </div>
-                    )}
+                        // Jika bukan Pegawai, tampilkan ikon status
+                        <div className="flex justify-center space-x-2">
+                          {row.status === "Disetujui" && (
+                            <FontAwesomeIcon
+                              icon={faCheck}
+                              className="text-green-500"
+                            />
+                          )}
+                          {row.status === "Ditolak" && (
+                            <FontAwesomeIcon
+                              icon={faBan}
+                              className="text-red-500"
+                            />
+                          )}
+                          {row.status === "" || row.status === "Pending" ? (
+                            <FontAwesomeIcon
+                              icon={faClock}
+                              className="text-gray-500"
+                            />
+                          ) : null}
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
-                <p className="text-sm text-gray-600 text-left">{row.alamat}</p>
-                <div className="flex items-center text-sm text-gray-600 mt-2">
-                  <FontAwesomeIcon icon={faCalendarAlt} className="mr-1" />
-                  <p className="text-left">{row.tahun_pembentukan}</p>
-                </div>
-                <div className="flex items-center text-sm text-gray-600 mt-2">
-                  <FontAwesomeIcon icon={faMoneyBill} className="mr-1" />
-                  <p className="text-left">{row.jumlah_dana_sekarang}</p>
-                </div>
-                <div className="flex items-center text-sm text-gray-600 mt-2">
-                  <FontAwesomeIcon icon={faPeopleGroup} className="mr-1" />
-                  <p className="text-left">
-                    {truncateText(row.jumlah_anggota_sekarang, 50)}
-                  </p>
-                </div>
 
-                <div className="flex items-center text-sm text-gray-600 mt-1">
-                  <FontAwesomeIcon icon={faStar} className="mr-1" />
-                  <p>{row.kategori}</p>
-                </div>
-                <div className="flex items-center text-sm text-gray-600 mt-1">
-                  <FontAwesomeIcon icon={faPenToSquare} className="mr-1" />
-                  {/* Catatan untuk Pegawai, bisa edit, untuk Ketua Forum hanya tampilkan catatan */}
-                  {profil.role === "Pegawai" ? (
+                  <div className="space-y-2 text-sm text-gray-600">
+                    <div className="flex items-center">
+                      
+                      <span>{truncateText(row.alamat, 32)}</span>
+                    </div>
+                    <div className="flex items-center">
+                      <FontAwesomeIcon
+                        icon={faCalendarAlt}
+                        className="mr-2 text-gray-400"
+                      />
+                      <span>Tanggal Bentuk : {row.tanggal_pembentukan || "-"}</span>
+                    </div>
+                    <div className="flex items-center">
+                      <FontAwesomeIcon
+                        icon={faMoneyBill}
+                        className="mr-2 text-gray-400"
+                      />
+                      <span>Jumlah Dana : {row.jumlah_dana_sekarang || "-"}</span>
+                    </div>
+                    <div className="flex items-center">
+                      <FontAwesomeIcon
+                        icon={faPeopleGroup}
+                        className="mr-2 text-gray-400"
+                      />
+                      <span>Jumlah Anggota : {row.jumlah_anggota_sekarang || "-"}</span>
+                    </div>
+                    <div className="flex items-center">
+                      <FontAwesomeIcon
+                        icon={faStar}
+                        className="mr-2 text-gray-400"
+                      />
+                      <span>Kategori : {row.kategori || "-"}</span>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 pt-3 border-t border-gray-200">
+                    <div className="flex items-center text-sm">
+                      <FontAwesomeIcon
+                        icon={faPenToSquare}
+                        className="mr-2 text-gray-400"
+                      />
+                      {profil.role === "Pegawai" ? (
                         <button
-                        onClick={() => openNoteModal(row)}
-                        className="text-secondary underline"
-                      >
-                        {row.catatan ? "Edit Catatan" : "Buat Catatan"}
-                      </button>
+                          onClick={() => openNoteModal(row)}
+                          className="text-purple-600 hover:text-purple-800 text-sm"
+                        >
+                          {row.catatan ? "Edit Catatan" : "Tambah Catatan"}
+                        </button>
                       ) : (
-                    <div className="text-gray-600">{row.catatan}</div>
-                  )}
-                </div>
+                        <span className="text-gray-600">
+                          {truncateText(row.catatan, 60) || "Tidak ada catatan"}
+                        </span>
+                      )}
+                    </div>
+                  </div>
 
-                <div className="text-sm text-gray-600 mt-1 flex justify-between">
-                  <div className="flex items-center text-sm text-gray-600 mt-1"></div>
-                  <Link to={`/desa/${row.id}`}>
-                    <button className="bg-secondary text-white py-1 px-2 rounded-md">
-                      Detail
-                    </button>
-                  </Link>
+                  <div className="mt-4 flex justify-end">
+                    <Link
+                      to={`/kelompok-desa/${row.id}`}
+                      className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-purple-800 hover:bg-secondary-dark focus:outline-none"
+                    >
+                      Lihat Detail
+                    </Link>
+                  </div>
                 </div>
               </div>
             ))
         ) : (
-          <div className="flex flex-col items-center justify-center h-64 bg-white text-gray-600">
+          <div className="col-span-full flex flex-col items-center justify-center h-64 bg-white rounded-lg shadow-sm text-gray-500">
             <FontAwesomeIcon
               icon={faMagnifyingGlass}
-              className="text-gray-500 mb-2"
+              className="text-gray-400 mb-3"
               size="2x"
             />
-            <p>
-              Data Tidak Ditemukan, silahkan hapus beberapa filter atau ganti
-              kata pencarian
+            <p className="text-center max-w-md">
+              Data tidak ditemukan. Silakan coba dengan filter atau kata pencarian
+              yang berbeda.
             </p>
           </div>
         )}
-        <div className="flex flex-col justify-between items-center p-4 bg-white text-sm">
-          <div>
-            Menampilkan {page * rowsPerPage + 1} -{" "}
-            {Math.min((page + 1) * rowsPerPage, data.length)} dari {data.length}{" "}
-            data
-          </div>
-          <div className="flex items-center mt-4">
-            <div>
-              <p>Tampilkan: </p>
-            </div>
-            <div>
-              <select
-                value={rowsPerPage}
-                onChange={handleChangeRowsPerPage}
-                className="mr-4 py-1 px-3 border rounded-md"
-              >
-                {[10, 25, 50].map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-          <div className="mt-4">{renderPageNumbers()}</div>
+      </div>
+
+      {/* Pagination */}
+      <div className="flex flex-col sm:flex-row justify-between items-center p-4 bg-white rounded-lg shadow-sm">
+        <div className="mb-3 sm:mb-0 text-sm text-gray-600">
+          Menampilkan {page * rowsPerPage + 1} -{" "}
+          {Math.min((page + 1) * rowsPerPage, data.length)} dari {data.length}{" "}
+          data
         </div>
+        <div className="flex items-center space-x-2">
+          <select
+            value={rowsPerPage}
+            onChange={handleChangeRowsPerPage}
+            className="py-1 px-3 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-secondary"
+          >
+            {[10, 25, 50].map((option) => (
+              <option key={option} value={option}>
+                {option} per halaman
+              </option>
+            ))}
+          </select>
+          <div className="flex space-x-1">{renderPageNumbers()}</div>
+        </div>
+      </div>
       </div>
     );
   }
 
   return (
     <div>
-      <div className="overflow-x-auto relative mt-3">
+      <div className="overflow-x-auto relative">
         <table className="min-w-full bg-white border-collapse text-sm">
           <thead className="bg-white">
             <tr>
@@ -437,12 +482,13 @@ const Table = ({ columns = [], initialData = [], isMobile, onUpdate }) => {
                   </div>
                 </th>
               ))}
-              <th className="py-3 px-4 font-semibold border-b-8 border-base text-center">
-                Status
-              </th>
-              <th className="py-3 px-4 font-semibold border-b-8 border-base text-center">
+               <th className="py-3 px-4 font-semibold border-b-8 border-base text-center">
                 Catatan
               </th>
+              <th className="py-3 px-4 font-semibold border-b-8 border-base bg-white text-center sticky right-20 z-10" style={{ zIndex: 1 }}>
+                Status
+              </th>
+             
               <th
                 className="py-3 px-4 font-semibold border-b-8 border-base text-center sticky right-0 bg-white"
                 style={{ zIndex: 1 }}
@@ -473,7 +519,24 @@ const Table = ({ columns = [], initialData = [], isMobile, onUpdate }) => {
                         </td>
                       );
                     })}
-                    <td className="py-2 px-4 text-center border-b-8 font-light border-base">
+
+                     <td className="py-2 px-4 text-center border-b-8 font-light border-base whitespace-nowrap">
+                      {/* Catatan untuk Pegawai, bisa edit, untuk Ketua Forum hanya tampilkan catatan */}
+                      {profil.role === "Pegawai" ? (
+                        <button
+                          onClick={() => openNoteModal(row)}
+                          className="text-purple-600 hover:text-purple-800 text-sm"
+                        >
+                          {row.catatan ? "Edit Catatan" : "Tambah Catatan"}
+                        </button>
+                      ) : (
+                        <div className="py-2 px-4 text-center font-light">
+                          {row.catatan}
+                        </div>
+                      )}
+                    </td>
+
+                    <td className="py-2 px-4 text-center border-b-8 font-light border-base bg-white sticky right-20 z-10" style={{ zIndex: 1 }}>
                       {/* Jika Role Pegawai, tampilkan input status */}
                       {profil.role === "Pegawai" ? (
                         <div className="flex justify-center space-x-2">
@@ -518,28 +581,14 @@ const Table = ({ columns = [], initialData = [], isMobile, onUpdate }) => {
                         </div>
                       )}
                     </td>
-                    <td className="py-2 px-4 text-center border-b-8 font-light border-base whitespace-nowrap">
-                      {/* Catatan untuk Pegawai, bisa edit, untuk Ketua Forum hanya tampilkan catatan */}
-                      {profil.role === "Pegawai" ? (
-                        <button
-                        onClick={() => openNoteModal(row)}
-                        className="text-secondary underline"
-                      >
-                        {row.catatan ? "Edit Catatan" : "Buat Catatan"}
-                      </button>
-                      ) : (
-                        <div className="py-2 px-4 text-center font-light">
-                          {row.catatan}
-                        </div>
-                      )}
-                    </td>
+                   
 
                     <td
                       className="py-2 px-4 text-center border-b-8 font-light border-base sticky right-0 bg-white"
                       style={{ zIndex: 1 }}
                     >
                       <Link to={`/kelompok-desa/${row.id}`}>
-                        <button className="bg-secondary text-white py-1 px-2 rounded-md">
+                        <button className="bg-purple-700 text-white py-1 px-2 rounded-md">
                           Detail
                         </button>
                       </Link>

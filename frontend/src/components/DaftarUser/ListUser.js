@@ -157,7 +157,7 @@ const ListUser = () => {
   return (
     <>
       <div className="p-7">
-        <div className={`ml-0 p-3 bg-white w-full`}>
+        <div className={`ml-0 p-3 bg-white w-full shadow-md`}>
           <div className="flex flex-col md:items-start bg-white p-3 w-full">
             <div className="border-b-2 border-grey items-start md:border-none pb-2 md:pb-0 lg:ml-3">
               <h1 className="text-lg lg:text-xl font-medium text-gray-800">Daftar User</h1>
@@ -166,7 +166,7 @@ const ListUser = () => {
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center w-full mt-4 gap-2 lg:ml-3">
               <button
                 onClick={() => setIsModalOpen(true)}
-                className="bg-secondary text-white py-2 px-4 rounded-md text-sm w-full md:w-auto hover:bg-purple-400"
+                className="bg-purple-700 text-white py-2 px-4 rounded-md text-sm w-full md:w-auto hover:bg-purple-500"
               >
                 + Tambah User
               </button>
@@ -179,7 +179,7 @@ const ListUser = () => {
                   onChange={(e) => setSearch(e.target.value)}
                   className="text-sm px-3 py-2 border border-gray-600 rounded-l-md focus:outline-none focus:ring-2 focus:ring-secondary w-full"
                 />
-                <button className="p-2 px-3 bg-secondary rounded-r-md hover:bg-secondary-dark transition-colors">
+                <button className="p-2 px-3 bg-purple-700 rounded-r-md hover:bg-secondary-dark transition-colors">
                   <FontAwesomeIcon
                     icon={faMagnifyingGlass}
                     className="text-white"

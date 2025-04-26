@@ -226,7 +226,7 @@ const ReportKelompokDesa = ({
   const ReportTitle = () => (
     <View style={styles.titleContainer}>
       <Text style={styles.reportTitle}>
-        Dokumentasi Kegiatan Kelompok Desa {desa.kelompok_desa}
+        Laporan Kegiatan Kelompok Desa {desa.nama}
       </Text>
       <View style={styles.underline} />
     </View>
@@ -363,7 +363,7 @@ const ReportKelompokDesa = ({
           ))}
         </View>
       ) : (
-        <Text style={styles.tableCol}>Tidak ada data produk</Text>
+        <Text style={styles.tableCol}></Text>
       )}
     </View>
   );
@@ -431,7 +431,7 @@ const ReportKelompokDesa = ({
                 ))}
               </>
             ) : (
-              <Text style={styles.tableCol}>Tidak ada data pengurus</Text>
+              <Text style={styles.tableCol}></Text>
             )}
           </View>
 
@@ -440,7 +440,7 @@ const ReportKelompokDesa = ({
               <Produk />
             </>
           ) : (
-            <Text style={styles.tableCol}>Tidak ada data produk</Text>
+            <Text style={styles.tableCol}></Text>
           )}
 
           {galeri.length > 0 ? (

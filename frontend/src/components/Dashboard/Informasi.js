@@ -1,6 +1,6 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPrint } from "@fortawesome/free-solid-svg-icons";
+import { faPrint, faUsers, faMapMarkerAlt, faCalendarAlt, faBoxOpen } from "@fortawesome/free-solid-svg-icons";
 import ReportDashboard from "./ReportDashboard";
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import { useLocation, useParams, Link } from "react-router-dom";
@@ -30,13 +30,12 @@ const Informasi = ({
     if (chartRef.current) {
       const canvas = chartRef.current.querySelector("canvas");
       if (canvas) {
-        // Buat canvas baru dengan ukuran yang sesuai
         const newCanvas = document.createElement("canvas");
-        newCanvas.width = 400; // Sesuaikan dengan ukuran yang diinginkan
+        newCanvas.width = 400;
         newCanvas.height = 400;
 
         const context = newCanvas.getContext("2d");
-        context.drawImage(canvas, 0, 0, 400, 400); // Render ulang dengan ukuran yang sesuai
+        context.drawImage(canvas, 0, 0, 400, 400);
 
         const image = newCanvas.toDataURL("image/png");
         setImage(image);
@@ -52,140 +51,160 @@ const Informasi = ({
 
   const handleGeneratePDF = async () => {
     try {
-      // Konversi grafik ke gambar
       convertChartToImage(lineChart, setLineChartImage);
       convertChartToImage(doughnutChart, setDoughnutChartImage);
 
-      // Tunggu hingga semua gambar siap
       setTimeout(() => {
         if (LineChartImage && DoughnutChartImage) {
           console.log("Semua gambar siap, PDF bisa dihasilkan.");
         } else {
           console.warn("Gambar belum siap, harap tunggu.");
         }
-      }, 1000); // Beri waktu untuk rendering
+      }, 1000);
     } catch (error) {
       console.error("Gagal menghasilkan gambar:", error);
     }
   };
 
   return (
-    <div className="flex flex-col space-y-6 lg:space-y-0 lg:flex-row p-0 lg:p-2">
-      <div className="flex flex-col w-full space-y-6">
-        <div className="bg-white p-6 shadow rounded-md">
-          <div className="pb-1 lg:border-b-2 border-black flex flex-col md:flex-row justify-between items-start md:items-center">
-            <h1 className="text-xl font-semibold mb-2 md:mb-0 line-clamp-2">
+    <div className="bg-white rounded-lg shadow-md overflow-hidden">
+      {/* Header Section */}
+      <div className="bg-gradient-to-r from-purple-800 to-purple-600 p-6 text-white">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
+          <div>
+            <h1 className="text-2xl font-bold mb-1">
               {isDashboard
-                ? "Informasi Program Desa Prima Provinsi D.I. Yogyakarta"
+                ? "Program Desa Prima Provinsi D.I. Yogyakarta"
                 : isKabupaten
-                ? `Informasi Program Desa Prima ${
-                    nama_kabupaten.includes("Yogyakarta") ? "" : "Kabupaten "
-                  }${nama_kabupaten}`
-                : "Informasi Program Desa Prima"}
+                ? `Program Desa Prima ${nama_kabupaten.includes("Yogyakarta") ? "" : "Kabupaten "}${nama_kabupaten}`
+                : "Program Desa Prima"}
             </h1>
-            <div className="flex flex-row space-x-3 pb-0 lg:pb-2">
-              {/* Tombol Daftar Kelompok */}
-              {isKabupaten && (
-                <div className="px-2 py-1 font-semibold bg-secondary hover:bg-purple-400 rounded-md shadow-sm cursor-pointer text-white flex items-center justify-center min-h-[40px]">
-                  <Link
-                    to={`/daftar-kelompok?kabupaten=${
-                      data.nama_kabupaten === "Kota Yogyakarta"
-                        ? data.nama_kabupaten
-                        : `KAB. ${data.nama_kabupaten}`
-                    }`}
-                  >
-                    Daftar Kelompok
-                  </Link>
-                </div>
-              )}
-
-              {/* Tombol Cetak */}
-              <div className="flex justify-center px-2 py-1 md:px-1 md:py-1 space-x-2 text-sm lg:text-lg font-semibold bg-blue-200 hover:bg-blue-400 rounded-md shadow-sm cursor-pointer text-blue-700 hover:text-white">
-                <PDFDownloadLink
-                  document={
-                    <ReportDashboard
-                      page={pageType}
-                      profil={profil}
-                      data={data}
-                      lineChartImage={lineChart}
-                      doughnutChartImage={doughnutChart}
-                      isMobile={isMobile}
-                    />
-                  }
-                  fileName="dashboard-desa.pdf"
-                  className="flex justify-center px-2 py-1 space-x-2 font-semibold bg-blue-200 hover:bg-blue-400 rounded-md shadow-sm cursor-pointer text-blue-700 hover:text-white"
-                  onClick={handleGeneratePDF}
-                >
-                  <>
-                    Unduh
-                    <FontAwesomeIcon className="m-1" icon={faPrint} />
-                  </>
-                </PDFDownloadLink>
-              </div>
-            </div>
+            <p className="text-purple-100">Ringkasan informasi program</p>
           </div>
+          
+          <div className="flex flex-wrap gap-3 mt-4 md:mt-0">
+            {isKabupaten && (
+              <Link
+                to={`/daftar-kelompok?kabupaten=${
+                  data.nama_kabupaten === "Kota Yogyakarta"
+                    ? data.nama_kabupaten
+                    : `KAB. ${data.nama_kabupaten}`
+                }`}
+                className="flex items-center px-4 py-2 bg-white text-purple-600 rounded-lg shadow hover:bg-purple-50 transition-colors"
+              >
+                <FontAwesomeIcon icon={faUsers} className="mr-2" />
+                Daftar Kelompok
+              </Link>
+            )}
 
-          <div className="mt-5 ml-2 flex flex-col space-y-4 lg:space-y-0 lg:space-x-20 lg:flex-row">
-            {/* Bagian Kiri */}
-            <div className="space-y-2 w-full lg:w-1/2">
-              <div className="flex flex-col lg:flex-row items-start">
-                <p className="text-gray-600 flex-shrink-0 w-full lg:w-1/2 mb-1">
-                  <strong>Periode Pembentukan</strong>
-                </p>
-                <p className="text-gray-600 lg:ml-2 mb-2">
-                  {formatTanggal(data.tanggal_awal)} -{" "}
-                  {formatTanggal(data.tanggal_akhir)} 
-                </p>
-              </div>
-              <div className="flex flex-col lg:flex-row items-start">
-                <p className="text-gray-600 flex-shrink-0 w-full lg:w-1/2 mb-1">
-                  <strong>Jumlah Pelaku Usaha</strong>
-                </p>
-                <p className="text-gray-600 lg:ml-2 mb-2">
-                  {data.jumlahAnggota}
-                </p>
-              </div>
-              <div className="flex flex-col lg:flex-row items-start">
-                <p className="text-gray-600 flex-shrink-0 w-full lg:w-1/2 mb-1">
-                  <strong>Total Kelompok Desa Prima</strong>
-                </p>
-                <p className="text-gray-600 lg:ml-2 mb-2">
-                  {data.totalJumlahKelompok}
-                </p>
-              </div>
-              <div className="flex flex-col lg:flex-row items-start">
-                <p className="text-gray-600 flex-shrink-0 w-full lg:w-1/2">
-                  <strong>Jumlah Produk</strong>
-                </p>
-                <p className="text-gray-600 lg:ml-2">{data.produkPerDesa}</p>
+            <PDFDownloadLink
+              document={
+                <ReportDashboard
+                  page={pageType}
+                  profil={profil}
+                  data={data}
+                  lineChartImage={lineChart}
+                  doughnutChartImage={doughnutChart}
+                  isMobile={isMobile}
+                />
+              }
+              fileName="dashboard-desa.pdf"
+              className="flex items-center px-4 py-2 bg-white text-purple-600 rounded-lg shadow hover:bg-purple-50 transition-colors"
+              onClick={handleGeneratePDF}
+            >
+              <>
+                <FontAwesomeIcon icon={faPrint} className="mr-2" />
+                Unduh Laporan
+              </>
+            </PDFDownloadLink>
+          </div>
+        </div>
+      </div>
+
+      {/* Content Section */}
+      <div className="p-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Left Column */}
+          <div className="space-y-4">
+    {/* Each item with fixed icon width */}
+    <div className="flex items-start">
+      <div className="w-12 mr-3 flex justify-center"> {/* Fixed width container */}
+        <FontAwesomeIcon icon={faCalendarAlt} className="mt-2 text-3xl text-purple-600" />
+      </div>
+      <div className="flex-1">
+        <h3 className="text-gray-500 text-sm font-medium">Periode Pembentukan</h3>
+        <p className="text-gray-800 font-semibold">
+          {formatTanggal(data.tanggal_awal)} - {formatTanggal(data.tanggal_akhir)}
+        </p>
+      </div>
+    </div>
+
+    <div className="flex items-start">
+      <div className="w-12 mr-3 flex justify-center">
+        <FontAwesomeIcon icon={faUsers} className="mt-2 text-3xl text-purple-600" />
+      </div>
+      <div className="flex-1">
+        <h3 className="text-gray-500 text-sm font-medium">Jumlah Pelaku Usaha</h3>
+        <p className="text-gray-800 font-semibold">{data.jumlahAnggota}</p>
+      </div>
+    </div>
+
+    <div className="flex items-start">
+      <div className="w-12 mr-3 flex justify-center">
+        <FontAwesomeIcon icon={faMapMarkerAlt} className="mt-2 text-3xl text-purple-600" />
+      </div>
+      <div className="flex-1">
+        <h3 className="text-gray-500 text-sm font-medium">Total Kelompok Desa Prima</h3>
+        <p className="text-gray-800 font-semibold">{data.totalJumlahKelompok}</p>
+      </div>
+    </div>
+
+    <div className="flex items-start">
+      <div className="w-12 mr-3 flex justify-center">
+        <FontAwesomeIcon icon={faBoxOpen} className="mt-2 text-3xl text-purple-600" />
+      </div>
+      <div className="flex-1">
+        <h3 className="text-gray-500 text-sm font-medium">Jumlah Produk</h3>
+        <p className="text-gray-800 font-semibold">{data.produkPerDesa}</p>
+      </div>
+    </div>
+  </div>
+
+          {/* Right Column - Status Kelompok */}
+          <div className="space-y-4">
+            <div className="bg-green-50 p-4 rounded-lg border-l-4 border-green-500">
+              <div className="flex justify-between items-center">
+                <div>
+                  <h3 className="text-gray-500 text-sm font-medium">Kelompok Maju</h3>
+                  <p className="text-gray-800 font-semibold">{data.desaMaju}</p>
+                </div>
+                <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
+                  Maju
+                </span>
               </div>
             </div>
 
-            {/* Bagian Kanan */}
-            <div className="space-y-2 w-full lg:w-1/2">
-              <div className="flex flex-col lg:flex-row items-start">
-                <p className="text-gray-600 flex-shrink-0 w-full lg:w-2/3">
-                  <strong>Jumlah Kelompok Maju</strong>
-                </p>
-                <p className="flex items-center justify-center lg:w-20 text-sm lg:text-lg bg-green-200 text-green-800 px-4 py-1 rounded-md">
-                  {data.desaMaju}
-                </p>
+            <div className="bg-yellow-50 p-4 rounded-lg border-l-4 border-yellow-500">
+              <div className="flex justify-between items-center">
+                <div>
+                  <h3 className="text-gray-500 text-sm font-medium">Kelompok Berkembang</h3>
+                  <p className="text-gray-800 font-semibold">{data.desaBerkembang}</p>
+                </div>
+                <span className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-medium">
+                  Berkembang
+                </span>
               </div>
-              <div className="flex flex-col lg:flex-row items-start">
-                <p className="text-gray-600 flex-shrink-0 w-full lg:w-2/3">
-                  <strong>Jumlah Kelompok Berkembang</strong>
-                </p>
-                <p className="flex items-center justify-center lg:w-20 text-sm lg:text-lg bg-yellow-200 text-yellow-800 px-4 py-1 rounded-md">
-                  {data.desaBerkembang}
-                </p>
-              </div>
-              <div className="flex flex-col lg:flex-row items-start">
-                <p className="text-gray-600 flex-shrink-0 w-full lg:w-2/3">
-                  <strong>Jumlah Kelompok Tumbuh</strong>
-                </p>
-                <p className="flex items-center justify-center lg:w-20 text-sm lg:text-lg bg-red-200 text-red-800 px-4 py-1 rounded-md">
-                  {data.desaTumbuh}
-                </p>
+            </div>
+
+            <div className="bg-red-50 p-4 rounded-lg border-l-4 border-red-500">
+              <div className="flex justify-between items-center">
+                <div>
+                  <h3 className="text-gray-500 text-sm font-medium">Kelompok Tumbuh</h3>
+                  <p className="text-gray-800 font-semibold">{data.desaTumbuh}</p>
+                </div>
+                <span className="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-medium">
+                  Tumbuh
+                </span>
               </div>
             </div>
           </div>

@@ -342,25 +342,25 @@ const UserModal = ({ isOpen, onClose, selectedUser }) => {
 
                 {formData.role === "Ketua Forum" && (
                   <div ref={aksesRef} className="relative mb-2">
-                    {/* Label utama "Akses" */}
                     <label className="block text-sm font-medium text-gray-900">
                       Akses Kabupaten
                     </label>
 
-                    {/* Sub-label dengan validasi */}
+                    {/* Perubahan di sini: gunakan OR untuk mengecek string kosong */}
                     <label
                       className={`block text-xs ${
-                        submitted && !formData.kabupatenId
+                        submitted &&
+                        (!formData.kabupatenId || formData.kabupatenId === "")
                           ? "text-red-600"
                           : "text-gray-500"
                       }`}
                     >
-                      {submitted && !formData.kabupatenId
+                      {submitted &&
+                      (!formData.kabupatenId || formData.kabupatenId === "")
                         ? "Harap pilih akses kabupaten/kota!"
                         : "Pilih akses kabupaten/kota"}
                     </label>
 
-                    {/* Dropdown kabupaten */}
                     <select
                       name="kabupatenId"
                       value={formData.kabupatenId || ""}
@@ -371,13 +371,15 @@ const UserModal = ({ isOpen, onClose, selectedUser }) => {
                         })
                       }
                       className={`custom-select block w-full rounded-md border-0 py-2 px-2 mt-1 text-gray-900 shadow-sm ${
-                        submitted && !formData.kabupatenId
+                        submitted &&
+                        (!formData.kabupatenId || formData.kabupatenId === "")
                           ? "ring-2 ring-inset ring-red-600"
                           : "ring-1 ring-inset ring-gray-300"
                       } placeholder:text-gray-400 focus:ring-inset focus:ring-secondary sm:text-sm`}
-                      required
                     >
-                      <option value="">Pilih Kabupaten</option>
+                      <option value="" disabled={formData.kabupatenId !== ""}>
+                        Pilih Kabupaten
+                      </option>
                       {aksesKabList.map((kabupaten) => (
                         <option key={kabupaten.id} value={kabupaten.id}>
                           {kabupaten.nama_kabupaten}

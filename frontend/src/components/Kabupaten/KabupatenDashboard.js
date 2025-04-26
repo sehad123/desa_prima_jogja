@@ -18,6 +18,20 @@ const mapKabupatenName = (nama_kabupaten) => {
   return kabupatenMapping[nama_kabupaten] || nama_kabupaten;
 };
 
+const mapKabupatenNameForEndpoint = (nama_kabupaten) => {
+  const kabupatenMapping = {
+    "Kulon Progo": "kulon-progo",
+    Sleman: "sleman",
+    Bantul: "bantul",
+    "Kota Yogyakarta": "yogyakarta",
+    Gunungkidul: "gunungkidul",
+  };
+  return (
+    kabupatenMapping[nama_kabupaten] ||
+    nama_kabupaten.toLowerCase().replace(" ", "-")
+  );
+};
+
 const KabupatenDashboard = () => {
   const { nama_kabupaten } = useParams();
   const [profil, setProfil] = useState({});
@@ -116,16 +130,22 @@ const KabupatenDashboard = () => {
 
         for (const category of categories) {
           try {
-            const mappedNamaKabupatenKategori = mapKabupatenName(
+            const endpointName = mapKabupatenNameForEndpoint(
               kabupatenData.nama_kabupaten
             );
             const response = await axios.get(
-              `http://localhost:5000/api/desa/count/${mappedNamaKabupatenKategori}/${category}`
+              `http://localhost:5000/api/desa/count/${endpointName}/${category}`
             );
+
+            // Sesuaikan dengan struktur response endpoint Anda
             countData[category] = response.data.count || 0;
           } catch (err) {
             console.error(`Gagal memuat data untuk kategori ${category}`, err);
-            countData[category] = 0;
+
+            // Fallback: hitung manual dari data desa jika endpoint tidak tersedia
+            countData[category] = desaData.filter(
+              (d) => d.kategori && d.kategori.toLowerCase() === category
+            ).length;
           }
         }
 
@@ -193,10 +213,12 @@ const KabupatenDashboard = () => {
 
   return (
     <>
-       <Header profil={profil}/>
+      {profil.role === "ketua forum" && <Header profil={profil} />}
       <div className="p-5">
-        <DashboardComponent 
-          data={kabupaten} lineChartData={desaList} profil={profil}
+        <DashboardComponent
+          data={kabupaten}
+          lineChartData={desaList}
+          profil={profil}
         />
       </div>
     </>

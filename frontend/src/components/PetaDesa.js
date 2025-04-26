@@ -4,20 +4,37 @@ import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChevronDown } from "@fortawesome/free-solid-svg-icons";
+import { faChevronDown, faMapMarkerAlt } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from "react-router-dom";
 import { Audio } from "react-loader-spinner";
+
+// Custom marker icons
+const createCustomIcon = (color) => {
+  return L.divIcon({
+    html: `<div style="background-color:${color}; width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-weight:bold; border:2px solid white; box-shadow:0 2px 4px rgba(0,0,0,0.2);">${color === '#EF4444' ? 'T' : color === '#F59E0B' ? 'B' : 'M'}</div>`,
+    className: '',
+    iconSize: [24, 24],
+    iconAnchor: [12, 24]
+  });
+};
+
+const categoryIcons = {
+  'Maju': createCustomIcon('#10B981'),
+  'Berkembang': createCustomIcon('#F59E0B'),
+  'Tumbuh': createCustomIcon('#EF4444'),
+  'default': createCustomIcon('#94A3B8')
+};
 
 const PetaDesa = () => {
   const [desaList, setDesaList] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
   const [kabupatenData, setKabupatenData] = useState([]);
-  const [selectedKabupaten, setSelectedKabupaten] = useState(""); // Nama Kabupaten untuk filter marker
-  const [selectedKabupatenId, setSelectedKabupatenId] = useState(""); // ID Kabupaten untuk daftar kecamatan
+  const [selectedKabupaten, setSelectedKabupaten] = useState("");
+  const [selectedKabupatenId, setSelectedKabupatenId] = useState("");
   const [selectedKecamatan, setSelectedKecamatan] = useState("");
-  const [kecamatanList, setKecamatanList] = useState([]); // New state for kecamatan
+  const [kecamatanList, setKecamatanList] = useState([]);
   const [selectedKategori, setSelectedKategori] = useState("");
+  const [mapReady, setMapReady] = useState(false);
 
   const navigate = useNavigate();
 
@@ -29,11 +46,10 @@ const PetaDesa = () => {
   const fetchDesaData = async () => {
     try {
       const response = await axios.get("http://localhost:5000/api/desa");
-      console.log("Data Desa:", response.data); // Periksa struktur data desa
       setDesaList(response.data);
       setLoading(false);
     } catch (err) {
-      setError("Gagal memuat data desa.");
+      console.error("Gagal memuat data desa:", err);
       setLoading(false);
     }
   };
@@ -41,7 +57,6 @@ const PetaDesa = () => {
   const fetchKabupatenData = async () => {
     try {
       const response = await axios.get("https://ibnux.github.io/data-indonesia/kabupaten/34.json");
-      console.log("Data Kabupaten:", response.data); // Periksa struktur data kabupaten
       setKabupatenData(response.data);
     } catch (err) {
       console.error("Gagal memuat data kabupaten:", err);
@@ -52,7 +67,6 @@ const PetaDesa = () => {
     axios
       .get(`https://ibnux.github.io/data-indonesia/kecamatan/${kabupatenId}.json`)
       .then((res) => {
-        console.log("Data Kecamatan:", res.data); // Periksa struktur data kecamatan
         setKecamatanList(res.data);
       })
       .catch((err) => console.error(err));
@@ -62,33 +76,24 @@ const PetaDesa = () => {
     if (selectedKabupatenId) {
       fetchKecamatan(selectedKabupatenId);
     } else {
-      setKecamatanList([]); // Reset kecamatan jika tidak ada kabupaten yang dipilih
+      setKecamatanList([]);
     }
   }, [selectedKabupatenId]);
 
   const handleKabupatenChange = (e) => {
     const kabupaten = e.target.value === "" ? "" : e.target.options[e.target.selectedIndex].text;
-  const kabupatenId = e.target.value;
-
-    console.log("Selected Kabupaten Nama:", kabupaten);
-    console.log("Selected Kabupaten ID:", kabupatenId);
-
-    setSelectedKabupaten(kabupaten); // Untuk filter marker
-    setSelectedKabupatenId(kabupatenId); // Untuk fetch kecamatan
-    setSelectedKecamatan(""); // Reset kecamatan saat kabupaten berubah
+    const kabupatenId = e.target.value;
+    setSelectedKabupaten(kabupaten);
+    setSelectedKabupatenId(kabupatenId);
+    setSelectedKecamatan("");
   };
 
-
   const handleKecamatanChange = (e) => {
-    const value = e.target.value;
-    console.log("Selected Kecamatan ID:", value); // Periksa nilai selectedKecamatan
-    setSelectedKecamatan(value);
+    setSelectedKecamatan(e.target.value);
   };
 
   const handleKategoriChange = (e) => {
-    const value = e.target.value;
-    console.log("Selected Kategori:", value); // Periksa nilai selectedKategori
-    setSelectedKategori(value);
+    setSelectedKategori(e.target.value);
   };
 
   const filterDesa = () => {
@@ -96,7 +101,6 @@ const PetaDesa = () => {
       const matchKabupaten = selectedKabupaten ? desa.kabupatenNama === selectedKabupaten : true;
       const matchKecamatan = selectedKecamatan ? desa.kecamatanNama === selectedKecamatan : true;
       const matchKategori = selectedKategori ? desa.kategori === selectedKategori : true;
-
       return matchKabupaten && matchKecamatan && matchKategori;
     });
   };
@@ -109,111 +113,170 @@ const PetaDesa = () => {
     );
   }
 
-  if (error) {
-    return <div className="text-center text-xl text-red-500">{error}</div>;
-  }
-
   return (
-    <div className="p-5">
-    <div className="py-3 px-5 bg-white rounded-md shadow-md">
-      <div className="mx-6 my-5 flex justify-between items-center">
-        <h1 className="text-lg lg:text-xl font-bold mx-auto">Sebaran Kelompok Desa Prima Daerah Istimewa Yogyakarta</h1>
+    <div className="p-4 lg:p-6">
+      {/* Header Section */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-800">
+              Sebaran Kelompok Desa Prima
+            </h1>
+            <p className="text-gray-500 mt-1">
+              Daerah Istimewa Yogyakarta
+            </p>
+          </div>
+          <div className="flex items-center space-x-2">
+            <span className="inline-flex items-center px-3 py-1 rounded-full bg-blue-50 text-blue-600 text-sm">
+              <FontAwesomeIcon icon={faMapMarkerAlt} className="mr-1.5" />
+              {desaList.length} Desa
+            </span>
+          </div>
+        </div>
       </div>
 
-      <div className="flex flex-col md:flex-row mx-4 gap-4 mb-5">
-        <div className="md:w-1/3 flex flex-wrap items-center space-y-2 relative">
-          <p className="text-sm lg:text-lg">Kabupaten/Kota</p>
-          <select
-            className="text-sm lg:text-lg border border-gray-300 rounded px-4 py-2 w-full appearance-none"
-            onChange={handleKabupatenChange}
-            value={selectedKabupatenId} // Gunakan ID untuk tracking daftar kecamatan
+      {/* Filter Controls */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* Kabupaten Filter */}
+          <div className="space-y-1">
+            <label className="block text-sm font-medium text-gray-700">Kabupaten/Kota</label>
+            <div className="relative">
+              <select
+                className="block w-full pl-3 pr-10 py-2 text-secondary border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 rounded-lg appearance-none"
+                onChange={handleKabupatenChange}
+                value={selectedKabupatenId}
+              >
+                <option value="">Semua Kabupaten</option>
+                {kabupatenData.map((kabupaten) => (
+                  <option key={kabupaten.id} value={kabupaten.id}>
+                    {kabupaten.nama}
+                  </option>
+                ))}
+              </select>
+              <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                <FontAwesomeIcon icon={faChevronDown} className="text-gray-400" />
+              </div>
+            </div>
+          </div>
+
+          {/* Kecamatan Filter */}
+          <div className="space-y-1">
+            <label className="block text-sm font-medium text-gray-700">Kecamatan</label>
+            <div className="relative">
+              <select
+                className="block w-full pl-3 pr-10 py-2 text-secondary border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 rounded-lg appearance-none disabled:opacity-50"
+                onChange={handleKecamatanChange}
+                value={selectedKecamatan}
+                disabled={!selectedKabupatenId}
+              >
+                <option value="">Semua Kecamatan</option>
+                {kecamatanList.map((kecamatan) => (
+                  <option key={kecamatan.id} value={kecamatan.nama}>
+                    {kecamatan.nama}
+                  </option>
+                ))}
+              </select>
+              <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                <FontAwesomeIcon icon={faChevronDown} className="text-gray-400" />
+              </div>
+            </div>
+          </div>
+
+          {/* Kategori Filter */}
+          <div className="space-y-1">
+            <label className="block text-sm font-medium text-gray-700">Kategori</label>
+            <div className="relative">
+              <select
+                className="block w-full pl-3 pr-10 py-2 text-secondary border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 rounded-lg appearance-none"
+                onChange={handleKategoriChange}
+                value={selectedKategori}
+              >
+                <option value="">Semua Kategori</option>
+                <option value="Maju">Maju</option>
+                <option value="Berkembang">Berkembang</option>
+                <option value="Tumbuh">Tumbuh</option>
+              </select>
+              <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                <FontAwesomeIcon icon={faChevronDown} className="text-gray-400" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Map Container */}
+      <div className="bg-white p-3 rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div className="h-[600px] w-full relative">
+          <MapContainer 
+            center={[-7.7956, 110.3695]} 
+            zoom={10} 
+            scrollWheelZoom={true} 
+            style={{ height: "100%", width: "100%", borderRadius: "0.5rem" }}
+            whenReady={() => setMapReady(true)}
           >
-            <option className="text-sm lg:text-lg" value="">
-              Semua
-            </option>
-            {kabupatenData.map((kabupaten) => (
-              <option key={kabupaten.id} value={kabupaten.id}>
-                {kabupaten.nama}
-              </option>
-            ))}
-          </select>
+            <TileLayer 
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" 
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            />
 
-          <div className="absolute right-3 top-1/2 transform -translate-y-1 pointer-events-none">
-            <FontAwesomeIcon icon={faChevronDown} className="text-gray-500" />
-          </div>
-        </div>
+            {!mapReady && (
+              <div className="absolute inset-0 bg-gray-50 bg-opacity-70 flex items-center justify-center z-[1000]">
+                <div className="text-center">
+                  <Audio type="Bars" color="#3B82F6" height={50} width={50} />
+                  <p className="mt-2 text-gray-600">Memuat peta...</p>
+                </div>
+              </div>
+            )}
 
-        <div className="md:w-1/3 flex flex-wrap items-center space-y-2 relative">
-          <p className="text-sm lg:text-lg">Kecamatan</p>
-          <select className="text-sm lg:text-lg border border-gray-300 rounded px-4 py-2 w-full appearance-none" onChange={handleKecamatanChange} value={selectedKecamatan} disabled={!selectedKabupatenId}>
-            <option className="text-sm lg:text-lg" value="">
-              Semua
-            </option>
-            {kecamatanList.map((kecamatan) => (
-              <option key={kecamatan.id} value={kecamatan.nama}>
-                {kecamatan.nama}
-              </option>
-            ))}
-          </select>
-
-          <div className="absolute right-3 top-1/2 transform -translate-y-1 pointer-events-none">
-            <FontAwesomeIcon icon={faChevronDown} className="text-gray-500" />
-          </div>
-        </div>
-
-        <div className="md:w-1/3 flex flex-wrap items-center space-y-2 relative">
-          <p className="text-sm lg:text-lg">Kategori</p>
-          <select className="text-sm lg:text-lg border border-gray-300 rounded px-4 py-2 w-full appearance-none pr-8" onChange={handleKategoriChange} value={selectedKategori}>
-            <option className="text-sm lg:text-lg" value="">
-              Semua
-            </option>
-            <option className="text-sm lg:text-lg" value="Maju">
-              Maju
-            </option>
-            <option className="text-sm lg:text-lg" value="Berkembang">
-              Berkembang
-            </option>
-            <option className="text-sm lg:text-lg" value="Tumbuh">
-              Tumbuh
-            </option>
-          </select>
-          {/* Ikon Dropdown */}
-          <div className="absolute right-3 top-1/2 transform -translate-y-1 pointer-events-none">
-            <FontAwesomeIcon icon={faChevronDown} className="text-gray-500" />
-          </div>
+            {filterDesa().length === 0 ? (
+              <div className="absolute inset-0 flex items-center justify-center z-[500]">
+                <div className="bg-white p-4 rounded-lg shadow-md text-center">
+                  <p className="text-gray-600">Tidak ada desa yang sesuai dengan filter</p>
+                </div>
+              </div>
+            ) : (
+              filterDesa()
+                .filter((desa) => desa.latitude && desa.longitude)
+                .map((desa) => (
+                  <Marker
+                    key={desa.id}
+                    position={[desa.latitude, desa.longitude]}
+                    icon={categoryIcons[desa.kategori] || categoryIcons.default}
+                  >
+                    <Popup className="custom-popup">
+                      <div className="space-y-1">
+                        <h3 className="font-bold text-blue-600">{desa.kelompok_desa}</h3>
+                        <p className="text-sm text-gray-600">
+                          <span className="inline-block w-20">Kategori:</span>
+                          <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                            desa.kategori === 'Maju' ? 'bg-green-100 text-green-800' :
+                            desa.kategori === 'Berkembang' ? 'bg-yellow-100 text-yellow-800' :
+                            'bg-red-100 text-red-800'
+                          }`}>
+                            {desa.kategori}
+                          </span>
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          <span className="inline-block w-20">Kabupaten:</span>
+                          {desa.kabupatenNama}
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          <span className="inline-block w-20">Kecamatan:</span>
+                          {desa.kecamatanNama}
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          <span className="inline-block w-20">Kelurahan:</span>
+                          {desa.kelurahanNama}
+                        </p>
+                      </div>
+                    </Popup>
+                  </Marker>
+                ))
+            )}
+          </MapContainer>
         </div>
       </div>
-
-      <div className="w-full px-2 h-[600px]">
-        <MapContainer center={[-7.7956, 110.3695]} zoom={10} scrollWheelZoom={true} style={{ height: "100%", width: "100%" }}>
-          <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-
-          {filterDesa().length === 0 ? (
-            <div className="text-center text-lg text-red-500">Tidak ada desa yang sesuai dengan filter.</div>
-          ) : (
-            filterDesa()
-              .filter((desa) => desa.latitude && desa.longitude) // Hanya render marker jika ada koordinat
-              .map((desa) => (
-                <Marker
-                  key={desa.id}
-                  position={[desa.latitude, desa.longitude]}
-                  icon={L.icon({
-                    iconUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png",
-                    iconSize: [25, 41],
-                    iconAnchor: [12, 41],
-                  })}
-                >
-                  <Popup>
-                    <strong className="text-sm lg:text-lg">{desa.kelompok_desa}</strong>
-                    <br className="text-sm lg:text-lg" />
-                    {desa.kabupatenNama}, Kec. {desa.kecamatanNama}, Kel. {desa.kelurahanNama}
-                  </Popup>
-                </Marker>
-              ))
-          )}
-        </MapContainer>
-      </div>
-    </div>
     </div>
   );
 };

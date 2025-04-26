@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React from "react";
 import { Doughnut } from "react-chartjs-2";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
@@ -14,132 +14,141 @@ const DoughnutChart = ({ data, chartRef }) => {
     totalJumlahKelompok,
   } = data;
 
-  // Fungsi untuk menentukan offset Y berdasarkan ukuran layar
-  const getCenterYOffset = () => {
-    const width = window.innerWidth;
-
-    if (width < 500) {
-      return 50; // HP menggunakan aturan desktop full
-    } else if (width < 1024) {
-      return 30; // Setengah desktop
-    } else {
-      return 50; // Desktop full
-    }
-  };
-
-  // Plugin untuk menampilkan teks di tengah
-  const centerTextPlugin = {
-    id: "centerText",
-    afterDraw: (chart) => {
-      const {
-        ctx,
-        chartArea: { width, height },
-      } = chart;
-      if (!chart.config.data.datasets.length) return;
-
-      // Ambil totalDesa dari options
-      const totalDesaValue = chart.config.options.plugins.centerText.totalDesa;
-
-      // Hitung total data di chart
-      const totalData = chart.config.options.plugins.centerText.totalJumlahDesa;
-      const percentageKelompok = ((totalData / totalDesaValue) * 100).toFixed(
-        1
-      );
-
-      ctx.save();
-      ctx.font = "bold 30px sans-serif";
-      ctx.fillStyle = "#000";
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-
-      // Posisi teks di tengah chart
-      const centerX = width / 2;
-      const centerY = height / 2;
-
-      const centerYOffset = getCenterYOffset(); // Dapatkan offset Y berdasarkan ukuran layar
-
-      // Gambar teks persentase
-      ctx.fillText(`${percentageKelompok}%`, centerX, centerY + centerYOffset);
-
-      // Gambar teks "Kelompok Desa"
-      ctx.font = "bold 13px sans-serif";
-      ctx.fillText("Kelompok Desa", centerX, centerY + centerYOffset + 21);
-
-      ctx.restore();
-    },
+  // Modern color palette
+  const colors = {
+    maju: "#10B981",
+    berkembang: "#F59E0B",
+    tumbuh: "#EF4444",
+    proses: "#94A3B8",
+    textDark: "#1E293B",
+    textLight: "#64748B"
   };
 
   const desaDalamProses = jumlah_desa - totalJumlahKelompok;
+  const percentageKelompok = ((totalJumlahKelompok / jumlah_desa) * 100).toFixed(1);
 
   const doughnutChartData = {
     labels: ["Maju", "Berkembang", "Tumbuh", "Dalam Proses"],
     datasets: [
       {
         data: [desaMaju, desaBerkembang, desaTumbuh, desaDalamProses],
-        backgroundColor: ["#4CAF50", "#FFC107", "#FF5722", "#808080"],
+        backgroundColor: [
+          colors.maju,
+          colors.berkembang,
+          colors.tumbuh,
+          colors.proses
+        ],
+        borderWidth: 0,
+        borderRadius: desaDalamProses > 0 ? 4 : 0, // Only add borderRadius if there's "Dalam Proses" data
+        spacing: 2, // Small gap between segments
       },
     ],
   };
 
   const doughnutChartOptions = {
-    cutout: "50%", // Pastikan ada ruang untuk teks di tengah
+    cutout: "60%", // More modern with larger center space
     responsive: true,
     maintainAspectRatio: false,
+    animation: {
+      animateScale: true,
+      animateRotate: true,
+    },
     plugins: {
-      centerText: {
-        totalDesa: jumlah_desa,
-        totalJumlahDesa: totalJumlahKelompok,
-      },
       tooltip: {
+        enabled: true,
+        backgroundColor: colors.textDark,
+        titleFont: {
+          size: 14,
+          weight: "bold"
+        },
+        bodyFont: {
+          size: 12
+        },
+        padding: 12,
+        cornerRadius: 8,
+        displayColors: false,
         callbacks: {
           label: (context) => {
-            const dataset = context.dataset;
-            const value = dataset.data[context.dataIndex];
-            const total = dataset.data.reduce((acc, val) => acc + val, 0);
-            const percentage = ((value / total) * 100).toFixed(1);
-            return `${context.label}: ${value} (${percentage}%)`;
+            const label = context.label || '';
+            const value = context.raw || 0;
+            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+            const percentage = Math.round((value / total) * 100);
+            return `${label}: ${value} desa (${percentage}%)`;
           },
-        },
+          title: () => null // Remove title
+        }
       },
       legend: {
-        position: "top",
+        position: "bottom",
+        align: "center",
         labels: {
-          boxWidth: 25,
+          boxWidth: 16,
+          boxHeight: 16,
+          padding: 16,
           font: {
-            size: 14,
+            size: 12,
+            family: "'Inter', sans-serif"
           },
+          color: colors.textDark,
+          usePointStyle: true,
+          pointStyle: "circle"
         },
+        onHover: (e) => (e.native.target.style.cursor = "pointer"),
+        onLeave: (e) => (e.native.target.style.cursor = "default"),
       },
       datalabels: {
-        display: true,
+        display: (context) => {
+          // Only display labels for segments larger than 5% of the chart
+          const value = context.dataset.data[context.dataIndex];
+          const total = context.dataset.data.reduce((a, b) => a + b, 0);
+          const percentage = (value / total) * 100;
+          return percentage > 5;
+        },
         color: "#fff",
         font: {
-          size: 12,
+          size: 15,
           weight: "bold",
+          family: "'Inter', sans-serif"
         },
+        padding: 2,
         formatter: (value, context) => {
-          const total = context.dataset.data.reduce((acc, val) => acc + val, 0);
-          const percentage = ((value / total) * 100).toFixed(1);
+          const total = context.dataset.data.reduce((a, b) => a + b, 0);
+          const percentage = Math.round((value / total) * 100);
           return `${percentage}%`;
         },
       },
     },
   };
 
+  // Center text component
+  const CenterText = () => (
+    <div className="mb-12 absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+      <span className="text-3xl font-bold" style={{ color: colors.textDark }}>
+        {percentageKelompok}%
+      </span>
+      <span className="text-sm" style={{ color: colors.textLight }}>
+        Kelompok Desa
+      </span>
+    </div>
+  );
+
   return (
-    <>
-      <h2 className="text-sm lg:text-lg font-bold text-center">
-        Persentase Kelompok Menurut Kategori
+    <div className="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
+      <h2 className="text-lg font-semibold text-center mb-4" style={{ color: colors.textDark }}>
+        Distribusi Desa Berdasarkan Kategori
       </h2>
-      <div className="relative flex justify-center items-center w-full h-[300px] lg:h-[400px]">
+      <div className="relative w-full h-[300px] lg:h-[350px]">
         <Doughnut
           ref={chartRef}
           data={doughnutChartData}
           options={doughnutChartOptions}
-          plugins={[centerTextPlugin]} // Plugin untuk teks di tengah
         />
+        <CenterText />
       </div>
-    </>
+      <div className="mt-2 text-xs text-center" style={{ color: colors.textLight }}>
+        Total {jumlah_desa} desa | {totalJumlahKelompok} desa terkategori
+      </div>
+    </div>
   );
 };
 

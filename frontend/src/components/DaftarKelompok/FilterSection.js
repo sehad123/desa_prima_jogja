@@ -1,6 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBars, faAngleLeft, faAngleUp, faAngleDown } from "@fortawesome/free-solid-svg-icons";
+import { 
+  faBars, 
+  faAngleLeft, 
+  faAngleUp, 
+  faAngleDown,
+  faFilter,
+  faCalendarAlt,
+  faUsers,
+  faMoneyBillWave
+} from "@fortawesome/free-solid-svg-icons";
 import useMediaQuery from "../useMediaQuery";
 
 const FilterSection = ({
@@ -16,14 +25,27 @@ const FilterSection = ({
   userRole,
   formatKabupatenName,
 }) => {
-      const isMobile = useMediaQuery("(max-width: 768px)");
-      
-  const [kategoriDropdownOpen, setKategoriDropdownOpen] = React.useState(false);
-  const [kabupatenDropdownOpen, setKabupatenDropdownOpen] = React.useState(false);
-  const [kecamatanDropdownOpen, setKecamatanDropdownOpen] = React.useState(false);
-  const [showKategoriDropdown, setShowKategoriDropdown] = useState(false);
-    const [showKecamatanDropdown, setShowKecamatanDropdown] = useState(false);
-    const [showKabupatenDropdown, setShowKabupatenDropdown] = useState(false);
+  const isMobile = useMediaQuery("(max-width: 768px)");
+  const [activeDropdown, setActiveDropdown] = useState(null);
+
+  // Fungsi untuk memfilter data berdasarkan pilihan yang sudah dipilih
+  const getFilteredData = () => {
+    let filtered = [...desaList];
+    
+    // Filter berdasarkan kategori jika ada
+    if (search.kategori.length > 0) {
+      filtered = filtered.filter(desa => search.kategori.includes(desa.kategori));
+    }
+    
+    // Filter berdasarkan kabupaten jika ada
+    if (search.kabupatenNama.length > 0) {
+      filtered = filtered.filter(desa => search.kabupatenNama.includes(desa.kabupaten_kota));
+    }
+    
+    return filtered;
+  };
+
+  const filteredData = getFilteredData();
 
   const handleSearchChange = (e) => {
     const { name, value } = e.target;
@@ -33,352 +55,280 @@ const FilterSection = ({
   const handleStartDateChange = (e) => setStartDate(e.target.value);
   const handleEndDateChange = (e) => setEndDate(e.target.value);
 
+  const toggleDropdown = (dropdown) => {
+    setActiveDropdown(activeDropdown === dropdown ? null : dropdown);
+  };
+
+  // Reset kecamatan jika kabupaten diubah
+  useEffect(() => {
+    if (search.kabupatenNama.length === 0) {
+      setSearch(prev => ({ ...prev, kecamatanNama: [] }));
+    }
+  }, [search.kabupatenNama, setSearch]);
+
   useEffect(() => {
     const handleClickOutside = (event) => {
-      // Untuk kategori dropdown
-      if (
-        !event.target.closest(".kategori-dropdown-container") && 
-        !event.target.closest(".kategori-dropdown-button")
-      ) {
-        setKategoriDropdownOpen(false);
-      }
-      
-      // Untuk kabupaten dropdown
-      if (
-        !event.target.closest(".kabupaten-dropdown-container") && 
-        !event.target.closest(".kabupaten-dropdown-button")
-      ) {
-        setKabupatenDropdownOpen(false);
-      }
-      
-      // Untuk kecamatan dropdown
-      if (
-        !event.target.closest(".kecamatan-dropdown-container") && 
-        !event.target.closest(".kecamatan-dropdown-button")
-      ) {
-        setKecamatanDropdownOpen(false);
+      if (!event.target.closest(".dropdown-container")) {
+        setActiveDropdown(null);
       }
     };
-  
+
     document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   return (
-    <div
-                className={`fixed top-28 md:top-0 left-auto md:relative w-11/12 md:w-1/5 bg-white shadow-md rounded-md p-4 z-40 z- transform ${
-                  isMobile ? "translate-x-0" : "translate-x-0"
-                } transition-transform duration-300 max-h-[80vh] overflow-y-auto`}
-              >
-                <div className="flex justify-between border-b-2 border-grey pb-4 mb-4">
-                  <div className="">
-                    <FontAwesomeIcon icon={faBars} className="" />
-                  </div>
-                  <div className="text-black text-lg font-normal">Filter Data</div>
-                  <div
-                    className="h-fit rounded-full hover:bg-inactive cursor-pointer transition-colors duration-300"
-                    onClick={toggleFilter}
-                  >
-                    <FontAwesomeIcon
-                      icon={isFilterVisible ? faAngleLeft : ""}
-                      className="text-left"
-                    />
-                  </div>
-                </div>
-                {/* Kategori */}
-                <div className="mb-4 kategori-dropdown-container">
-                  <button
-                    className="w-full text-left p-2 border rounded-lg flex items-center justify-between kategori-dropdown-button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setKategoriDropdownOpen((prev) => !prev);
+    <div className={`fixed top-28 md:top-0 left-auto md:relative w-11/12 md:w-80 bg-white shadow-xl rounded-lg p-4 z-40 transform transition-all duration-300 max-h-[80vh] overflow-y-auto ${isMobile ? "translate-x-0" : "translate-x-0"}`}>
+      {/* Header */}
+      <div className="flex justify-between items-center pb-4">
+        <div className="flex items-center space-x-3">
+          <FontAwesomeIcon icon={faFilter} className="text-indigo-600" />
+          <h3 className="text-lg font-semibold text-gray-800">Filter Data</h3>
+        </div>
+        <button
+          onClick={toggleFilter}
+          className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+        >
+          <FontAwesomeIcon
+            icon={isFilterVisible ? faAngleLeft : faAngleLeft}
+            className="text-gray-500"
+          />
+        </button>
+      </div>
+
+      {/* Filter Sections */}
+      <div className="space-y-4">
+        {/* Kategori */}
+        <div className="dropdown-container">
+          <button
+            className="w-full flex justify-between items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+            onClick={() => toggleDropdown('kategori')}
+          >
+            <span className="font-medium text-gray-700">Kategori</span>
+            <FontAwesomeIcon
+              icon={activeDropdown === 'kategori' ? faAngleUp : faAngleDown}
+              className="text-gray-500"
+            />
+          </button>
+          {activeDropdown === 'kategori' && (
+            <div className="mt-1 bg-gray-50 rounded-lg p-1">
+              {["Maju", "Tumbuh", "Berkembang"].map((kategori) => (
+                <label key={kategori} className="flex items-center space-x-3 p-1 rounded hover:bg-gray-200 transition-colors">
+                  <input
+                    type="checkbox"
+                    name="kategori"
+                    value={kategori}
+                    checked={search.kategori.includes(kategori)}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      const isChecked = e.target.checked;
+                      setSearch((prev) => ({
+                        ...prev,
+                        kategori: isChecked
+                          ? [...prev.kategori, value]
+                          : prev.kategori.filter((item) => item !== value),
+                      }));
                     }}
-                  >
-                    Kategori
-                    <FontAwesomeIcon
-                      className="float-right cursor-pointer"
-                      icon={kategoriDropdownOpen ? faAngleUp : faAngleDown}
-                    />
-                  </button>
-                  {kategoriDropdownOpen && (
-                    <div
-                      className="flex flex-col mt-2 bg-white border rounded-lg p-2"
-                      onClick={(e) => e.stopPropagation()} // Mencegah dropdown menutup ketika klik di dalamnya
-                    >
-                      {["Maju", "Tumbuh", "Berkembang"].map((kategori) => (
-                        <label
-                          key={kategori}
-                          className="inline-flex items-center m-1"
-                        >
-                          <input
-                            type="checkbox"
-                            name="kategori"
-                            value={kategori}
-                            checked={search.kategori.includes(kategori)}
-                            onChange={(e) => {
-                              const value = e.target.value;
-                              const isChecked = e.target.checked;
-                              setSearch((prev) => ({
-                                ...prev,
-                                kategori: isChecked
-                                  ? [...prev.kategori, value]
-                                  : prev.kategori.filter((item) => item !== value),
-                              }));
-                            }}
-                          />
-                          <span className="ml-2 text-black text-sm">
-                            {kategori}
-                          </span>
-                        </label>
-                      ))}
-                    </div>
-                  )}
-                </div>
-    
-                {/* Kabupaten */}
-                {userRole === "Pegawai" ||
-                  (userRole === "Admin" && ( // Hanya tampilkan filter kabupaten untuk role pegawai
-                    <div className="mb-4 kabupaten-dropdown-container">
-                      <button
-                        className="w-full text-left p-2 border rounded-lg flex items-center justify-between kabupaten-dropdown-button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setKabupatenDropdownOpen((prev) => !prev);
-                        }}
-                      >
-                        Kabupaten
-                        <FontAwesomeIcon
-                          className="float-right cursor-pointer"
-                          icon={kabupatenDropdownOpen ? faAngleUp : faAngleDown}
+                    className="h-4 w-4 text-indigo-600 rounded focus:ring-indigo-500"
+                  />
+                  <span className="text-gray-700">{kategori}</span>
+                </label>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Kabupaten - Conditionally rendered */}
+        {userRole === "Pegawai" && (
+          <div className="dropdown-container">
+            <button
+              className="w-full flex justify-between items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+              onClick={() => toggleDropdown('kabupaten')}
+            >
+              <span className="font-medium text-gray-700">Kabupaten</span>
+              <FontAwesomeIcon
+                icon={activeDropdown === 'kabupaten' ? faAngleUp : faAngleDown}
+                className="text-gray-500"
+              />
+            </button>
+            {activeDropdown === 'kabupaten' && (
+              <div className="mt-1 p-1 bg-gray-50 rounded-lg max-h-60 overflow-y-auto">
+                {filteredData
+                  .map((desa) => desa.kabupaten_kota)
+                  .filter((value, index, self) => self.indexOf(value) === index)
+                  .map((kabupaten_kota) => {
+                    const formattedName = formatKabupatenName(kabupaten_kota);
+                    return (
+                      <label key={kabupaten_kota} className="flex items-center space-x-3 p-1 rounded hover:bg-gray-200 transition-colors">
+                        <input
+                          type="checkbox"
+                          name="kabupatenNama"
+                          value={kabupaten_kota}
+                          checked={search.kabupatenNama.includes(kabupaten_kota)}
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            const isChecked = e.target.checked;
+                            setSearch((prev) => ({
+                              ...prev,
+                              kabupatenNama: isChecked
+                                ? [...prev.kabupatenNama, value]
+                                : prev.kabupatenNama.filter((item) => item !== value),
+                              kecamatanNama: [] // Reset kecamatan saat kabupaten berubah
+                            }));
+                          }}
+                          className="h-4 w-4 text-indigo-600 rounded focus:ring-indigo-500"
                         />
-                      </button>
-                      {kabupatenDropdownOpen && (
-                        <div
-                          className="flex flex-col mt-2 bg-white border rounded-lg p-2"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          {desaList
-                            .map((desa) => desa.kabupaten_kota)
-                            .filter(
-                              (value, index, self) => self.indexOf(value) === index
-                            )
-                            .map((kabupaten_kota) => {
-                              const formattedName = formatKabupatenName(kabupaten_kota);
-                              return (
-                                <label
-                                  key={kabupaten_kota}
-                                  className="inline-flex items-center m-1"
-                                >
-                                  <input
-                                    type="checkbox"
-                                    name="kabupatenNama"
-                                    value={kabupaten_kota} // Tetap simpan value asli
-                                    checked={search.kabupatenNama.includes(
-                                      kabupaten_kota
-                                    )}
-                                    onChange={(e) => {
-                                      const value = e.target.value;
-                                      const isChecked = e.target.checked;
-                                      setSearch((prev) => ({
-                                        ...prev,
-                                        kabupatenNama: isChecked
-                                          ? [...prev.kabupatenNama, value]
-                                          : prev.kabupatenNama.filter(
-                                              (item) => item !== value
-                                            ),
-                                      }));
-                                    }}
-                                  />
-                                  <span className="ml-2 text-black text-sm">
-                                    {formattedName}
-                                  </span>
-                                </label>
-                              );
-                            })}
-                        </div>
-                      )}
-                    </div>
-                  ))}
-    
-                {/* Kecamatan */}
-                <div className="mb-4 kecamatan-dropdown-container">
-                  <button
-                    className="w-full text-left p-2 border rounded-lg flex items-center justify-between kecamatan-dropdown-button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setKecamatanDropdownOpen((prev) => !prev);
-                    }}
-                  >
-                    Kecamatan
-                    <FontAwesomeIcon
-                      className="float-right cursor-pointer"
-                      icon={kecamatanDropdownOpen ? faAngleUp : faAngleDown}
-                    />
-                  </button>
-                  {kecamatanDropdownOpen && (
-                    <div
-                      className="flex flex-col mt-2 bg-white border rounded-lg p-2"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      {search.kabupatenNama.length > 0
-                        ? // Jika ada kabupaten yang dipilih, tampilkan kecamatan dari kabupaten tersebut saja
-                          desaList
-                            .filter((desa) =>
-                              search.kabupatenNama.includes(desa.kabupaten)
-                            )
-                            .map((desa) => desa.kecamatanNama)
-                            .filter(
-                              (value, index, self) => self.indexOf(value) === index
-                            )
-                            .map((kecamatan) => (
-                              <label
-                                key={kecamatan}
-                                className="inline-flex items-center m-1"
-                              >
-                                <input
-                                  type="checkbox"
-                                  name="kecamatanNama"
-                                  value={kecamatan}
-                                  checked={search.kecamatanNama.includes(kecamatan)}
-                                  onChange={(e) => {
-                                    const value = e.target.value;
-                                    const isChecked = e.target.checked;
-                                    setSearch((prev) => ({
-                                      ...prev,
-                                      kecamatanNama: isChecked
-                                        ? [...prev.kecamatanNama, value]
-                                        : prev.kecamatanNama.filter(
-                                            (item) => item !== value
-                                          ),
-                                    }));
-                                  }}
-                                />
-                                <span className="ml-2 text-black text-sm">
-                                  {kecamatan}
-                                </span>
-                              </label>
-                            ))
-                        : // Jika tidak ada kabupaten yang dipilih, tampilkan semua kecamatan
-                          desaList
-                            .map((desa) => desa.kecamatanNama)
-                            .filter(
-                              (value, index, self) => self.indexOf(value) === index
-                            )
-                            .map((kecamatan) => (
-                              <label
-                                key={kecamatan}
-                                className="inline-flex items-center m-1"
-                              >
-                                <input
-                                  type="checkbox"
-                                  name="kecamatanNama"
-                                  value={kecamatan}
-                                  checked={search.kecamatanNama.includes(kecamatan)}
-                                  onChange={(e) => {
-                                    const value = e.target.value;
-                                    const isChecked = e.target.checked;
-                                    setSearch((prev) => ({
-                                      ...prev,
-                                      kecamatanNama: isChecked
-                                        ? [...prev.kecamatanNama, value]
-                                        : prev.kecamatanNama.filter(
-                                            (item) => item !== value
-                                          ),
-                                    }));
-                                  }}
-                                />
-                                <span className="ml-2 text-black text-sm">
-                                  {kecamatan}
-                                </span>
-                              </label>
-                            ))}
-                    </div>
-                  )}
-                </div>
-    
-                {/* Tanggal */}
-                <div className="mb-4">
-                  <label className="block text-left">Tanggal</label>
-                  <p className="block m-2 text-sm text-black font-light text-left">
-                    Dari
-                  </p>
-                  <input
-                    type="date"
-                    name="startDate"
-                    value={startDate}
-                    onChange={handleStartDateChange}
-                    className="w-full border rounded-md py-2 px-3 font-light text-sm"
-                    placeholder="Dari"
-                  />
-                  <p className="block m-2 text-sm text-black font-light text-left">
-                    Sampai
-                  </p>
-                  <input
-                    type="date"
-                    name="endDate"
-                    value={endDate}
-                    onChange={handleEndDateChange}
-                    className="w-full border rounded-md py-2 px-3 font-light text-sm"
-                    placeholder="Sampai"
-                  />
-                </div>
-    
-                {/* Jumlah Anggota */}
-                <div className="mb-4">
-                  <label className="block text-left">Jumlah Anggota</label>
-                  <p className="block m-2 text-sm text-black font-light text-left">
-                    Dari
-                  </p>
-                  <input
-                    type="number"
-                    name="anggotaDari"
-                    value={search.anggotaDari}
-                    onChange={handleSearchChange}
-                    className="w-full border rounded-md py-2 px-3 font-light text-sm"
-                    placeholder="0"
-                  />
-                  <p className="block m-2 text-sm text-black font-light text-left">
-                    Sampai
-                  </p>
-                  <input
-                    type="number"
-                    name="anggotaSampai"
-                    value={search.anggotaSampai}
-                    onChange={handleSearchChange}
-                    className="w-full border rounded-md py-2 px-3 font-light text-sm"
-                    placeholder="0"
-                  />
-                </div>
-    
-                {/* Jumlah Dana */}
-                <div>
-                  <label className="block text-left">Jumlah Dana</label>
-                  <p className="block m-2 text-sm text-black font-light text-left">
-                    Dari
-                  </p>
-                  <input
-                    type="number"
-                    name="danaDari"
-                    value={search.danaDari}
-                    onChange={handleSearchChange}
-                    className="w-full border rounded-md py-2 px-3 font-light text-sm"
-                    placeholder="0"
-                  />
-                  <p className="block m-2 text-sm text-black font-light text-left">
-                    Sampai
-                  </p>
-                  <input
-                    type="number"
-                    name="danaSampai"
-                    value={search.danaSampai}
-                    onChange={handleSearchChange}
-                    className="w-full border rounded-md py-2 px-3 font-light text-sm"
-                    placeholder="0"
-                  />
-                </div>
+                        <span className="text-gray-700">{formattedName}</span>
+                      </label>
+                    );
+                  })}
               </div>
+            )}
+          </div>
+        )}
+
+        {/* Kecamatan */}
+        <div className="dropdown-container">
+          <button
+            className="w-full flex justify-between items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+            onClick={() => toggleDropdown('kecamatan')}
+          >
+            <span className="font-medium text-gray-700">Kecamatan</span>
+            <FontAwesomeIcon
+              icon={activeDropdown === 'kecamatan' ? faAngleUp : faAngleDown}
+              className="text-gray-500"
+            />
+          </button>
+          {activeDropdown === 'kecamatan' && (
+            <div className="mt-1 p-1 bg-gray-50 rounded-lg max-h-60 overflow-y-auto">
+              {filteredData
+                .filter(desa => 
+                  search.kabupatenNama.length === 0 || 
+                  search.kabupatenNama.includes(desa.kabupaten_kota)
+                )
+                .map((desa) => desa.kecamatanNama)
+                .filter((value, index, self) => self.indexOf(value) === index)
+                .map((kecamatan) => (
+                  <label key={kecamatan} className="flex items-center space-x-3 p-1 rounded hover:bg-gray-200 transition-colors">
+                    <input
+                      type="checkbox"
+                      name="kecamatanNama"
+                      value={kecamatan}
+                      checked={search.kecamatanNama.includes(kecamatan)}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        const isChecked = e.target.checked;
+                        setSearch((prev) => ({
+                          ...prev,
+                          kecamatanNama: isChecked
+                            ? [...prev.kecamatanNama, value]
+                            : prev.kecamatanNama.filter((item) => item !== value),
+                        }));
+                      }}
+                      className="h-4 w-4 text-indigo-600 rounded focus:ring-indigo-500"
+                    />
+                    <span className="text-gray-700">{kecamatan}</span>
+                  </label>
+                ))}
+            </div>
+          )}
+        </div>
+
+        {/* Tanggal */}
+        <div className="space-y-2">
+          <div className="flex items-center space-x-3">
+            <FontAwesomeIcon icon={faCalendarAlt} className="text-indigo-600" />
+            <span className="font-medium text-gray-700">Tanggal Bentuk</span>
+          </div>
+          <div className="grid grid-cols-1 gap-2">
+            <div className="flex flex-col">
+              <label className="text-left text-sm text-gray-500 mb-1">Dari</label>
+              <input
+                type="date"
+                name="startDate"
+                value={startDate}
+                onChange={handleStartDateChange}
+                className="w-full border border-gray-300 rounded-lg py-2 px-3 text-sm focus:ring-indigo-500 focus:border-indigo-500"
+              />
+            </div>
+            <div className="flex flex-col">
+              <label className="text-left text-sm text-gray-500 mb-1">Sampai</label>
+              <input
+                type="date"
+                name="endDate"
+                value={endDate}
+                onChange={handleEndDateChange}
+                className="w-full border border-gray-300 rounded-lg py-2 px-3 text-sm focus:ring-indigo-500 focus:border-indigo-500"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Jumlah Anggota */}
+        <div className="space-y-2">
+          <div className="flex items-center space-x-3">
+            <FontAwesomeIcon icon={faUsers} className="text-indigo-600" />
+            <span className="font-medium text-gray-700">Jumlah Anggota</span>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="flex flex-col">
+              <label className="text-sm text-gray-500 mb-1">Dari</label>
+              <input
+                type="number"
+                name="anggotaDari"
+                value={search.anggotaDari}
+                onChange={handleSearchChange}
+                className="w-full border border-gray-300 rounded-lg py-2 px-3 text-sm focus:ring-indigo-500 focus:border-indigo-500"
+                placeholder="0"
+              />
+            </div>
+            <div className="flex flex-col">
+              <label className="text-sm text-gray-500 mb-1">Sampai</label>
+              <input
+                type="number"
+                name="anggotaSampai"
+                value={search.anggotaSampai}
+                onChange={handleSearchChange}
+                className="w-full border border-gray-300 rounded-lg py-2 px-3 text-sm focus:ring-indigo-500 focus:border-indigo-500"
+                placeholder="0"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Jumlah Dana */}
+        <div className="space-y-2">
+          <div className="flex items-center space-x-3">
+            <FontAwesomeIcon icon={faMoneyBillWave} className="text-indigo-600" />
+            <span className="font-medium text-gray-700">Jumlah Dana</span>
+          </div>
+          <div className="grid grid-cols-1 gap-2">
+            <div className="flex flex-col">
+              <label className="text-left text-sm text-gray-500 mb-1">Dari</label>
+              <input
+                type="number"
+                name="danaDari"
+                value={search.danaDari}
+                onChange={handleSearchChange}
+                className="w-full border border-gray-300 rounded-lg py-2 px-3 text-sm focus:ring-indigo-500 focus:border-indigo-500"
+                placeholder="0"
+              />
+            </div>
+            <div className="flex flex-col">
+              <label className="text-left text-sm text-gray-500 mb-1">Sampai</label>
+              <input
+                type="number"
+                name="danaSampai"
+                value={search.danaSampai}
+                onChange={handleSearchChange}
+                className="w-full border border-gray-300 rounded-lg py-2 px-3 text-sm focus:ring-indigo-500 focus:border-indigo-500"
+                placeholder="0"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
 

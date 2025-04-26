@@ -53,7 +53,7 @@ const createUser = async (userData) => {
                             Math.random().toString(36).slice(-8) + 'A1!';
 
     // Hash password
-    const hashedPassword = await bcrypt.hash(generatedPassword, 10);
+    const hashedPassword = await bcrypt.hash(generatedPassword, 8);
 
     // Siapkan data untuk Prisma
     const userCreateData = {

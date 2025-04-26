@@ -11,7 +11,7 @@ module.exports = {
         secondary: "#542d48",
         inactive: "#efeaea",
         accent: "#fcd503",
-        base: "#FFF8E1",
+        base: "#FAF5FF",
         blue: {
           200: "#B3CDE0",
         },
@@ -24,7 +24,7 @@ module.exports = {
         },
         purple: {
           200: "#e1d4dc",
-          400: "#8c3673"
+          400: "#8c3673",
         },
       },
     },

@@ -100,8 +100,8 @@ const ReportDashboard = ({
       borderColor: "grey",
     },
     doughnutChartImage: {
-      width: 200, // Ukuran tetap untuk doughnut chart
-      height: 220,
+      width: isMobile? 180 : 198,
+      height: isMobile ? 220 : 200,
       alignSelf: "center",
     },
     lineChartImage: {
@@ -198,6 +198,51 @@ const ReportDashboard = ({
     </View>
   );
 
+  // Di ReportDashboard.js
+  const ChartWithTitleDoughnut = ({
+    title,
+    chartImage,
+    chartStyle,
+    centerText,
+  }) => {
+    return (
+      <View style={styles.chartContainer} wrap={false}>
+        <Text style={{ fontSize: 12, fontWeight: "bold", marginBottom: 15 }}>
+          {title}
+        </Text>
+        <View style={{ position: "relative" }}>
+          <Image src={chartImage} style={chartStyle} />
+          {centerText && (
+            <View
+              style={{
+                position: "absolute",
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+                textAlign: "center",
+              }}
+            >
+              <Text
+                style={{
+                  fontSize: 24,
+                  fontWeight: "bold",
+                  marginBottom: 12,
+                  marginLeft: 20,
+                  marginTop: 10,
+                }}
+              >
+                {centerText.percentage}%
+              </Text>
+              <Text style={{ fontSize: 12, marginLeft: 7 }}>
+                {centerText.label}
+              </Text>
+            </View>
+          )}
+        </View>
+      </View>
+    );
+  };
+
   const ChartWithTitle = ({ title, chartImage, chartStyle }) => {
     return (
       <View style={styles.chartContainer} wrap={false}>
@@ -226,10 +271,14 @@ const ReportDashboard = ({
           <ProgramDetails />
 
           {/* Doughnut Chart */}
-          <ChartWithTitle
+          <ChartWithTitleDoughnut
             title="Distribusi Kategori Kelompok Desa"
             chartImage={doughnutChartImage}
             chartStyle={styles.doughnutChartImage}
+            centerText={{
+              percentage: persentaseKelompokDesa,
+              label: "Kelompok Desa",
+            }}
           />
 
           <ChartWithTitle

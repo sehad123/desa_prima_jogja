@@ -1,98 +1,113 @@
 import React from "react";
-import { FaCheckCircle, FaExclamationTriangle, FaBell } from "react-icons/fa";
+import {
+  FaCheckCircle,
+  FaExclamationTriangle,
+  FaBell,
+  FaEdit,
+} from "react-icons/fa";
+import { FiChevronRight } from "react-icons/fi";
+import { formatTanggal } from "../../utils/format";
 
-const RealColor = ({ numReal, numTarget }) => {
-  const num = Math.min(numReal / numTarget, 1);
-  
-  if (num < 0.25) {
-    return (
-      <>
-        <span className="text-red-900 bg-red-100 px-2 ml-1 rounded-md">
-          {numReal}
-        </span>
-        <span className="ml-auto text-xl font-bold text-red-600">
-          {(num * 100).toFixed(2)}%
-        </span>
-      </>
-    );
-  } else if (num < 0.5) {
-    return (
-      <>
-        <span className="text-orange-900 bg-orange-200 px-2 ml-1 rounded-md">
-          {numReal}
-        </span>
-        <span className="ml-auto text-xl font-bold text-orange-400">
-          {(num * 100).toFixed(2)}%
-        </span>
-      </>
-    );
-  } else if (num < 0.75) {
-    return (
-      <>
-        <span className="text-yellow-900 bg-yellow-100 px-2 ml-1 rounded-md">
-          {numReal}
-        </span>
-        <span className="ml-auto text-xl font-bold text-yellow-300">
-          {(num * 100).toFixed(2)}%
-        </span>
-      </>
-    );
-  } else if (num < 1) {
-    return (
-      <>
-        <span className="text-blue-900 bg-blue-100 px-2 ml-1 rounded-md">
-          {numReal}
-        </span>
-        <span className="ml-auto text-xl font-bold text-blue-600">
-          {(num * 100).toFixed(2)}%
-        </span>
-      </>
-    );
-  } else {
-    return (
-      <>
-        <span className="text-green-900 bg-green-100 px-2 ml-1 rounded-md">
-          {numReal}
-        </span>
-        <span className="ml-auto text-xl font-bold text-green-600">
-          {(num * 100).toFixed(2)}%
-        </span>
-      </>
-    );
-  }
+const ProgressIndicator = ({ numReal, numTarget }) => {
+  const percentage = Math.min(numReal / numTarget, 1);
+  const percentageDisplay = (percentage * 100).toFixed(1);
+
+  // Color scale based on percentage
+  const getColorClasses = (percentage) => {
+    if (percentage < 0.25)
+      return {
+        bg: "bg-red-100",
+        progress: "bg-red-500",
+        text: "text-red-600",
+        border: "border-red-300", // Perbedaan lebih jelas
+      };
+    if (percentage < 0.5)
+      return {
+        bg: "bg-yellow-100",
+        progress: "bg-yellow-500",
+        text: "text-yellow-600",
+        border: "border-yellow-300",
+      };
+    if (percentage < 0.75)
+      return {
+        bg: "bg-blue-100",
+        progress: "bg-blue-500",
+        text: "text-blue-600",
+        border: "border-blue-300",
+      };
+    if (percentage < 1)
+      return {
+        bg: "bg-green-100",
+        progress: "bg-green-500",
+        text: "text-green-600",
+        border: "border-green-300",
+      };
+    return {
+      bg: "bg-green-100",
+      progress: "bg-green-500",
+      text: "text-green-600",
+      border: "border-green-300",
+    };
+  };
+
+  const colors = getColorClasses(percentage);
+
+  return (
+    <div className="flex items-center gap-2">
+      <div
+        className={`flex-1 h-2.5 rounded-full ${colors.bg} ${colors.border} border relative overflow-visible`}
+      >
+        <div
+          className={`h-full rounded-full ${colors.progress} absolute top-0 left-0`}
+          style={{ 
+            width: `${percentage * 100}%`,
+            minWidth: '2px' // Pastikan selalu terlihat meski persentase kecil
+          }}
+        ></div>
+      </div>
+      <span className={`text-sm font-semibold ${colors.text}`}>
+        {percentageDisplay}%
+      </span>
+    </div>
+  );
 };
 
-const renderStatusIcon = (statusIcon) => {
-  switch (statusIcon) {
-    case "disetujui":
-      return <FaCheckCircle className="text-green-500 text-lg mr-2" />;
-    case "perlu-perhatian":
-      return <FaExclamationTriangle className="text-red-500 text-lg mr-2" />;
-    case "perlu-dikoreksi":
-      return <FaBell className="text-yellow-300 text-lg mr-2" />;
-    default:
-      return null;
-  }
-};
+const StatusBadge = ({ status }) => {
+  const statusConfig = {
+    disetujui: {
+      icon: <FaCheckCircle className="text-green-500" />,
+      bg: "bg-green-50",
+      text: "text-green-700",
+    },
+    "perlu-perhatian": {
+      icon: <FaExclamationTriangle className="text-red-500" />,
+      bg: "bg-red-50",
+      text: "text-red-700",
+    },
+    "perlu-dikoreksi": {
+      icon: <FaBell className="text-yellow-500" />,
+      bg: "bg-yellow-50",
+      text: "text-yellow-700",
+    },
+  };
 
-const formatTanggal = (tanggal) => {
-  const date = new Date(tanggal);
-  const options = { day: "numeric", month: "long", year: "numeric" };
-  return new Intl.DateTimeFormat("id-ID", options).format(date);
-};
+  const config = statusConfig[status] || {};
 
-const truncateText = (text, maxLength) => {
-  if (text.length > maxLength) {
-    return text.substring(0, maxLength) + "...";
-  }
-  return text;
+  return (
+    <div
+      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${config.bg} ${config.text}`}
+    >
+      {config.icon && <span className="mr-1.5">{config.icon}</span>}
+      {status.replace(/-/g, " ")}
+    </div>
+  );
 };
 
 const KabupatenCard = ({ kabupaten, onEdit, onDelete, onClick }) => {
   const counts = kabupaten.counts || {};
   const totalKelompok =
     (counts.maju || 0) + (counts.berkembang || 0) + (counts.tumbuh || 0);
-  
+
   const formattedPeriode =
     kabupaten.tanggal_awal && kabupaten.tanggal_akhir
       ? `${formatTanggal(kabupaten.tanggal_awal)} - ${formatTanggal(
@@ -102,62 +117,89 @@ const KabupatenCard = ({ kabupaten, onEdit, onDelete, onClick }) => {
 
   return (
     <div
-      className="bg-white rounded-md shadow-md p-4 border-[1px] border-gray-300 hover:bg-slate-100 relative"
+      className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow border border-gray-300 overflow-hidden hover:border-purple-200 cursor-pointer"
       onClick={onClick}
     >
-      <div className="flex justify-between items-start mb-1">
-        <div className="flex items-center">
-          {renderStatusIcon(kabupaten.statusIcon)}
-          <h2 className="text-xl font-semibold text-gray-800">
-            {kabupaten.nama_kabupaten}
-          </h2>
-        </div>
-        <div className="relative">
+      <div className="p-5">
+        <div className="flex justify-between items-start mb-3">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <h2 className="text-lg font-semibold text-gray-800">
+                {kabupaten.nama_kabupaten}
+              </h2>
+              {kabupaten.statusIcon && (
+                <StatusBadge status={kabupaten.statusIcon} />
+              )}
+            </div>
+            <p className="text-sm text-gray-500">{formattedPeriode}</p>
+          </div>
+
           <button
             onClick={(e) => {
               e.stopPropagation();
               onEdit();
             }}
-            className="bg-secondary text-white py-1 px-2 rounded-md text-sm hover:bg-purple-400"
+            className="text-gray-400 hover:text-purple-600 transition-colors p-1"
+            aria-label="Edit"
           >
-            Edit
+            <FaEdit className="text-lg" />
           </button>
         </div>
+
+        <div className="space-y-3 text-sm text-gray-700">
+          <div className="flex">
+            <span className="text-gray-500">Ketua Forum</span>
+            <span className="font-medium text-right ml-4">
+              {kabupaten.ketua_forum || "Tidak tersedia"}
+            </span>
+          </div>
+
+          <div className="flex pb-2">
+            <span className="text-gray-500">Jumlah Desa</span>
+            <span className="font-medium ml-4">
+              {kabupaten.jumlah_desa || 0}
+            </span>
+          </div>
+
+          <div className="pt-2 border-t border-gray-300">
+            <div className="grid grid-cols-3 gap-2 text-center mb-2">
+              <div>
+                <div className="text-xs text-gray-500 mb-1">Maju</div>
+                <div className="bg-green-100 text-green-600 p-1 rounded-full text-sm font-medium">
+                  {counts.maju || 0}
+                </div>
+              </div>
+              <div>
+                <div className="text-xs text-gray-500 mb-1">Berkembang</div>
+                <div className="bg-yellow-100 text-yellow-600 p-1 rounded-full text-sm font-medium">
+                  {counts.berkembang || 0}
+                </div>
+              </div>
+              <div>
+                <div className="text-xs text-gray-500 mb-1">Tumbuh</div>
+                <div className="bg-red-100 text-red-600 p-1 rounded-full text-sm font-medium">
+                  {counts.tumbuh || 0}
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-3">
+              <div className="mb-1">
+                Total Kelompok{" "}
+                <span className="font-semibold">{totalKelompok} desa</span>
+              </div>
+              <ProgressIndicator
+                numReal={totalKelompok}
+                numTarget={kabupaten.jumlah_desa}
+              />
+            </div>
+          </div>
+        </div>
       </div>
-      
-      <p className="text-gray-500 text-sm mb-3">{formattedPeriode}</p>
-      
-      <div className="mb-2 text-slate-800 text-sm">
-        <div className="flex items-center">
-          <span className="w-1/2">Ketua Forum</span>
-          <p className="flex">
-            : {truncateText(kabupaten.ketua_forum, 35) || "Tidak tersedia"}
-          </p>
-        </div>
-        <div className="flex items-center">
-          <span className="w-1/2">Jumlah Desa</span>
-          <p className="flex">: {kabupaten.jumlah_desa || "Tidak tersedia"}</p>
-        </div>
-        <div className="flex items-center">
-          <span className="w-1/2">Kategori Maju</span>
-          <p className="flex">: {counts.maju || 0}</p>
-        </div>
-        <div className="flex items-center">
-          <span className="w-1/2">Kategori Berkembang</span>
-          <p className="flex">: {counts.berkembang || 0}</p>
-        </div>
-        <div className="flex items-center">
-          <span className="w-1/2">Kategori Tumbuh</span>
-          <p className="flex">: {counts.tumbuh || 0}</p>
-        </div>
-        <div className="flex items-center">
-          <span className="w-1/2">Total Kelompok</span>
-          <p className="flex">:</p>
-          <RealColor
-            numReal={totalKelompok}
-            numTarget={kabupaten.jumlah_desa}
-          />
-        </div>
+
+      <div className="px-5 py-3 bg-purple-600 border-t border-gray-100 flex justify-between items-center">
+        <span className="text-xs text-white">Klik untuk detail</span>
+        <FiChevronRight className="text-gray-400" />
       </div>
     </div>
   );

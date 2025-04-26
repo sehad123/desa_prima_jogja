@@ -334,6 +334,23 @@ const KelompokModal = ({ isOpen, onClose, selectedDesa, kabupatenName }) => {
     e.preventDefault();
     setSubmitted(true);
 
+    const requiredFields = {
+      'nama': 'Nama Kelompok Desa',
+      'kabupaten_kota': 'Kabupaten/Kota',
+      'kecamatan': 'Kecamatan',
+      'kelurahan': 'Kelurahan',
+      'tanggal_pembentukan': 'Tanggal Pembentukan',
+      'latitude': 'Latitude',
+      'longitude': 'Longitude'
+    };
+  
+    for (const [field, name] of Object.entries(requiredFields)) {
+      if (!formData[field]) {
+        toast.error(`${name} harus diisi`, { position: "top-right" });
+        return;
+      }
+    }
+
     const formattedKabupaten = formatKabupatenName(formData.kabupatenNama);
 
     const {
@@ -812,7 +829,7 @@ const KelompokModal = ({ isOpen, onClose, selectedDesa, kabupatenName }) => {
                     onChange={handleChange}
                     placeholder="-7.9902294"
                     className={`block w-full rounded-md border-0 py-2 px-2 mt-1 text-gray-900 shadow-sm ${
-                      coordinateError.latitude
+                      coordinateError.latitude && submitted && formData.latitude
                         ? "ring-2 ring-inset ring-red-600"
                         : "ring-1 ring-inset ring-gray-300"
                     } placeholder:text-gray-400 focus:ring-inset focus:ring-secondary sm:text-sm`}
@@ -840,7 +857,7 @@ const KelompokModal = ({ isOpen, onClose, selectedDesa, kabupatenName }) => {
                     onChange={handleChange}
                     placeholder="110.8318301"
                     className={`block w-full rounded-md border-0 py-2 px-2 mt-1 text-gray-900 shadow-sm ${
-                      coordinateError.longitude
+                      submitted && formData.longitude && coordinateError.longitude 
                         ? "ring-2 ring-inset ring-red-600"
                         : "ring-1 ring-inset ring-gray-300"
                     } placeholder:text-gray-400 focus:ring-inset focus:ring-secondary sm:text-sm`}
