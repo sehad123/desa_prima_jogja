@@ -649,6 +649,120 @@ const countTotalProdukByKabupaten = async (namaKabupaten) => {
   }
 };
 
+const deleteMultipleItems = async (desaId, type, ids) => {
+  try {
+    // Validasi parameter
+    if (!desaId || isNaN(desaId)) {
+      throw new Error('ID desa tidak valid');
+    }
+
+    if (!Array.isArray(ids)) {
+      throw new Error('Parameter ids harus berupa array');
+    }
+
+    if (ids.length === 0) {
+      throw new Error('Tidak ada ID yang diberikan');
+    }
+
+    // Validasi semua ID (untuk Prisma yang menggunakan Int ID)
+    const invalidIds = ids.filter(id => isNaN(id));
+    if (invalidIds.length > 0) {
+      throw new Error(`ID tidak valid: ${invalidIds.join(', ')}`);
+    }
+
+    // Pemilihan model dengan error handling
+    let modelConfig;
+    const normalizedType = type.toLowerCase().trim();
+    
+    switch (normalizedType) {
+      case 'produk':
+        modelConfig = {
+          model: prisma.produk,
+          relationField: 'kelompokId'
+        };
+        break;
+      case 'pengurus':
+        modelConfig = {
+          model: prisma.pengurus,
+          relationField: 'kelompokId'
+        };
+        break;
+      case 'notulensi':
+      case 'materi':
+        modelConfig = {
+          model: prisma.notulensi,
+          relationField: 'kelompokId'
+        };
+        break;
+      case 'galeri':
+        modelConfig = {
+          model: prisma.galeri,
+          relationField: 'kelompokId'
+        };
+        break;
+      default:
+        throw new Error(`Tipe '${type}' tidak dikenali`);
+    }
+
+    // Eksekusi penghapusan dengan Prisma
+    const deleteResult = await modelConfig.model.deleteMany({
+      where: {
+        id: { in: ids.map(id => parseInt(id)) },
+        [modelConfig.relationField]: parseInt(desaId)
+      }
+    });
+
+    if (deleteResult.count === 0) {
+      throw new Error('Tidak ada dokumen yang terhapus (mungkin tidak ditemukan)');
+    }
+
+    // Hapus file-file terkait jika ada
+if (['galeri', 'pengurus', 'produk', 'notulensi'].includes(normalizedType)) {
+  // Tentukan field yang akan dipilih berdasarkan tipe
+  const fieldMap = {
+    'galeri': 'gambar',
+    'pengurus': 'foto',
+    'produk': 'foto',
+    'notulensi': 'file'
+  };
+  
+  const fieldToSelect = fieldMap[normalizedType];
+  
+  const items = await modelConfig.model.findMany({
+    where: { id: { in: ids.map(id => parseInt(id)) } },
+    select: { [fieldToSelect]: true }
+  });
+
+  for (const item of items) {
+    const filePath = item[fieldToSelect];
+    if (filePath) {
+      try {
+        const fullPath = path.join(__dirname, 'uploads', filePath);
+        if (fs.existsSync(fullPath)) {
+          fs.unlinkSync(fullPath);
+        }
+      } catch (fileError) {
+        console.error(`Gagal menghapus file ${filePath}:`, fileError);
+      }
+    }
+  }
+}
+
+    return {
+      success: true,
+      message: `Berhasil menghapus ${deleteResult.count} item`,
+      deletedCount: deleteResult.count
+    };
+  } catch (error) {
+    console.error('Error in deleteMultipleItems:', {
+      message: error.message,
+      stack: error.stack,
+      inputParams: { desaId, type, ids }
+    });
+    throw error;
+  }
+};
+
 // Fungsi untuk menghitung total baris pada tabel kabupaten
 // Service - Menambahkan log dan error handling
 
@@ -714,4 +828,5 @@ module.exports = {
   countAnggotaByKabupaten,
   countProdukByDesaPerKabupaten,
   countTotalProdukByKabupaten,
+  deleteMultipleItems
 };

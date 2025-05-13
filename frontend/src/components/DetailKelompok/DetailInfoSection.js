@@ -24,7 +24,7 @@ const DetailInfoSection = ({
       case "Berkembang":
         return "bg-yellow-100 text-yellow-800";
       case "Tumbuh":
-        return "bg-blue-100 text-blue-800";
+        return "bg-blue-100 text-red-800";
       default:
         return "bg-gray-100 text-gray-800";
     }
@@ -196,7 +196,7 @@ const DetailInfoSection = ({
             <span>Unduh</span>
           </PDFDownloadLink>
 
-          {profil?.role === "ketua forum" && (
+          {profil?.role === "Ketua Forum" && (
             <>
               <button
                 onClick={onEdit}

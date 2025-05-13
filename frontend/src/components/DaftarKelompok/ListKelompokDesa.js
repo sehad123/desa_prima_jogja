@@ -314,9 +314,9 @@ const ListKelompokDesa = () => {
         "Nama Produk": desa.produk.length > 0 ? desa.produk[0].nama : "-",
         "Harga Produk":
           desa.produk.length > 0
-            ? `Rp ${desa.produk[0].hargaAwal.toLocaleString(
+            ? `Rp ${desa.produk[0].harga_awal.toLocaleString(
                 "id-ID"
-              )} - Rp ${desa.produk[0].hargaAkhir.toLocaleString("id-ID")}`
+              )} - Rp ${desa.produk[0].harga_akhir.toLocaleString("id-ID")}`
             : "-",
         "Nama Pengurus": desa.pengurus.length > 0 ? desa.pengurus[0].nama : "-",
         "Jabatan Pengurus":
@@ -337,9 +337,9 @@ const ListKelompokDesa = () => {
         "Jumlah Anggota Awal": "",
         Kategori: "",
         "Nama Produk": produk.nama,
-        "Harga Produk": `Rp ${produk.hargaAwal.toLocaleString(
+        "Harga Produk": `Rp ${produk.harga_awal.toLocaleString(
           "id-ID"
-        )} - Rp ${produk.hargaAkhir.toLocaleString("id-ID")}`,
+        )} - Rp ${produk.harga_akhir.toLocaleString("id-ID")}`,
         "Nama Pengurus": "", // Kolom pengurus dikosongkan
         "Jabatan Pengurus": "",
         "No HP Pengurus": "",
@@ -472,6 +472,7 @@ const ListKelompokDesa = () => {
           />
 
           <ActiveFilters
+            userRole={userRole}
             search={search}
             setSearch={setSearch}
             startDate={startDate}

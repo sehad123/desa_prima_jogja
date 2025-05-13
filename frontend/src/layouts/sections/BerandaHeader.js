@@ -260,7 +260,7 @@ const BerandaHeader = () => {
                 <Link
                   key={index}
                   to={menu.href}
-                  className={`block px-3 py-2 rounded-md text-base font-medium flex items-center ${
+                  className={`px-3 py-2 rounded-md text-base font-medium flex items-center ${
                     location.pathname === menu.href
                       ? "bg-white/10 text-white"
                       : "text-purple-100 hover:text-white hover:bg-white/5"

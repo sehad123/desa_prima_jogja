@@ -811,19 +811,62 @@ router.get("/total-produk-per-kabupaten/:kabupaten", async (req, res) => {
 // Route untuk menghapus multiple items
 router.post("/:id/delete-multiple", async (req, res) => {
   try {
-    const { type, ids } = req.body;
+    console.log('Incoming request:', {
+      params: req.params,
+      body: req.body,
+      headers: req.headers
+    });
 
-    if (!type || !ids || !Array.isArray(ids)) {
-      return res.status(400).json({ error: "Invalid request body" });
+    // Validasi input
+    const { type, ids } = req.body;
+    const desaId = req.params.id;
+
+    if (!type || typeof type !== 'string') {
+      return res.status(400).json({ 
+        error: "Parameter 'type' harus ada dan berupa string",
+        received: type
+      });
     }
 
-    const result = await deleteMultipleItems(req.params.id, type, ids);
+    if (!ids || !Array.isArray(ids)) {
+      return res.status(400).json({ 
+        error: "Parameter 'ids' harus ada dan berupa array",
+        received: ids
+      });
+    }
+
+    if (ids.length === 0) {
+      return res.status(400).json({ 
+        error: "Array 'ids' tidak boleh kosong"
+      });
+    }
+
+    // Eksekusi penghapusan
+    const result = await deleteMultipleItems(desaId, type, ids);
+    
+    console.log('Delete successful:', result);
     res.json(result);
+
   } catch (error) {
-    console.error(`Error deleting multiple items:`, error);
+    console.error('Error in delete route:', {
+      message: error.message,
+      stack: error.stack,
+      request: {
+        params: req.params,
+        body: req.body
+      }
+    });
+
     res.status(500).json({
-      error: error.message || "Failed to delete items",
-      details: error.details, // Jika ada detail error tambahan
+      error: error.message || "Gagal menghapus item",
+      type: "server_error",
+      details: process.env.NODE_ENV === 'development' ? {
+        stack: error.stack,
+        receivedData: {
+          params: req.params,
+          body: req.body
+        }
+      } : undefined
     });
   }
 });

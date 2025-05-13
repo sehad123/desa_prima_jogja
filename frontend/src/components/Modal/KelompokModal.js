@@ -35,6 +35,7 @@ const KelompokModal = ({ isOpen, onClose, selectedDesa, kabupatenName }) => {
   const [isKecamatanOpen, setIsKecamatanOpen] = useState(false);
   const [isKelurahanOpen, setIsKelurahanOpen] = useState(false);
   const [categoryNotification, setCategoryNotification] = useState("");
+  const [loadingCoordinates, setLoadingCoordinates] = useState(false);
   const [showCategoryNotification, setShowCategoryNotification] =
     useState(false);
   const kabupatenRef = useRef(null);
@@ -210,6 +211,30 @@ const KelompokModal = ({ isOpen, onClose, selectedDesa, kabupatenName }) => {
     }
   };
 
+  // Fungsi untuk mendapatkan koordinat dari Nominatim API
+  const getCoordinatesFromAddress = async (address) => {
+    try {
+      setLoadingCoordinates(true);
+      const response = await axios.get(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}, Yogyakarta, Indonesia&limit=1`
+      );
+      
+      if (response.data && response.data.length > 0) {
+        return {
+          latitude: response.data[0].lat,
+          longitude: response.data[0].lon
+        };
+      }
+      return { latitude: "", longitude: "" };
+    } catch (error) {
+      console.error("Error fetching coordinates:", error);
+      toast.error("Gagal mendapatkan koordinat");
+      return { latitude: "", longitude: "" };
+    } finally {
+      setLoadingCoordinates(false);
+    }
+  };
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (
@@ -240,7 +265,7 @@ const KelompokModal = ({ isOpen, onClose, selectedDesa, kabupatenName }) => {
     };
   }, []);
 
-  const handleChange = (e) => {
+  const handleChange = async (e) => {
     const { name, value } = e.target;
 
     // Validasi khusus untuk latitude dan longitude
@@ -315,11 +340,44 @@ const KelompokModal = ({ isOpen, onClose, selectedDesa, kabupatenName }) => {
     // Untuk field kelurahan
     if (name === "kelurahan") {
       const selectedKelurahan = kelurahanList.find((k) => k.id === value);
+      const kelurahanName = selectedKelurahan?.nama || "";
+      
       setFormData((prev) => ({
         ...prev,
         kelurahan: value,
-        kelurahanNama: selectedKelurahan?.nama || "",
+        kelurahanNama: kelurahanName,
+        latitude: "", // Reset while loading
+        longitude: "" // Reset while loading
       }));
+    
+      if (value && kelurahanName) {
+        try {
+          setLoadingCoordinates(true);
+          
+          const kecamatanName = kecamatanList.find(k => k.id === formData.kecamatan)?.nama || "";
+          const kabupatenName = kabupatenList.find(k => k.id === formData.kabupaten_kota)?.nama || "";
+          
+          // Format address for better geocoding results
+          const fullAddress = `Kelurahan ${kelurahanName}, Kecamatan ${kecamatanName}, ${kabupatenName}, Daerah Istimewa Yogyakarta, Indonesia`;
+          
+          const response = await axios.get(
+            `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(fullAddress)}&limit=1`
+          );
+          
+          if (response.data && response.data.length > 0) {
+            setFormData(prev => ({
+              ...prev,
+              latitude: response.data[0].lat,
+              longitude: response.data[0].lon
+            }));
+          }
+        } catch (error) {
+          console.error("Error fetching coordinates:", error);
+          toast.error("Gagal mendapatkan koordinat otomatis. Silakan isi manual.");
+        } finally {
+          setLoadingCoordinates(false);
+        }
+      }
       return;
     }
 
@@ -340,8 +398,7 @@ const KelompokModal = ({ isOpen, onClose, selectedDesa, kabupatenName }) => {
       'kecamatan': 'Kecamatan',
       'kelurahan': 'Kelurahan',
       'tanggal_pembentukan': 'Tanggal Pembentukan',
-      'latitude': 'Latitude',
-      'longitude': 'Longitude'
+     
     };
   
     for (const [field, name] of Object.entries(requiredFields)) {
@@ -813,62 +870,52 @@ const KelompokModal = ({ isOpen, onClose, selectedDesa, kabupatenName }) => {
 
               {/* Latitude dan Longitude */}
               <div className="flex space-x-4 mb-2">
-                {/* Latitude */}
-                <div className="w-full">
-                  <label className="block text-sm font-medium text-gray-900">
-                    Latitude
-                  </label>
-                  <label className="block text-xs text-gray-900">
-                    Tuliskan latitude
-                    <p>Contoh: -7.9902294 (Gunakan titik, bukan koma)</p>
-                  </label>
-                  <input
-                    type="text"
-                    name="latitude"
-                    value={formData.latitude}
-                    onChange={handleChange}
-                    placeholder="-7.9902294"
-                    className={`block w-full rounded-md border-0 py-2 px-2 mt-1 text-gray-900 shadow-sm ${
-                      coordinateError.latitude && submitted && formData.latitude
-                        ? "ring-2 ring-inset ring-red-600"
-                        : "ring-1 ring-inset ring-gray-300"
-                    } placeholder:text-gray-400 focus:ring-inset focus:ring-secondary sm:text-sm`}
-                  />
-                  {coordinateError.latitude && (
-                    <p className="mt-1 text-xs text-red-600">
-                      {coordinateError.latitude}
-                    </p>
-                  )}
-                </div>
+  {/* Latitude */}
+  <div className="w-full">
+    <label className="block text-sm font-medium text-gray-900">
+      Latitude
+      {loadingCoordinates && (
+        <span className="ml-2 text-xs text-blue-500">Mencari koordinat...</span>
+      )}
+    </label>
+    <input
+      type="text"
+      name="latitude"
+      value={formData.latitude}
+      onChange={handleChange}
+      readOnly={loadingCoordinates}
+      className={`block w-full rounded-md border-0 py-2 px-2 mt-1 text-gray-900 shadow-sm ${
+        loadingCoordinates ? "bg-gray-100" : ""
+      } ${
+        coordinateError.latitude && submitted && formData.latitude
+          ? "ring-2 ring-inset ring-red-600"
+          : "ring-1 ring-inset ring-gray-300"
+      } placeholder:text-gray-400 focus:ring-inset focus:ring-secondary sm:text-sm`}
+    />
+  </div>
 
-                {/* Longitude */}
-                <div className="w-full">
-                  <label className="block text-sm font-medium text-gray-900">
-                    Longitude
-                  </label>
-                  <label className="block text-xs text-gray-900">
-                    Tuliskan longitude
-                    <p>Contoh: 110.8318301 (Gunakan titik, bukan koma)</p>
-                  </label>
-                  <input
-                    type="text"
-                    name="longitude"
-                    value={formData.longitude}
-                    onChange={handleChange}
-                    placeholder="110.8318301"
-                    className={`block w-full rounded-md border-0 py-2 px-2 mt-1 text-gray-900 shadow-sm ${
-                      submitted && formData.longitude && coordinateError.longitude 
-                        ? "ring-2 ring-inset ring-red-600"
-                        : "ring-1 ring-inset ring-gray-300"
-                    } placeholder:text-gray-400 focus:ring-inset focus:ring-secondary sm:text-sm`}
-                  />
-                  {coordinateError.longitude && (
-                    <p className="mt-1 text-xs text-red-600">
-                      {coordinateError.longitude}
-                    </p>
-                  )}
-                </div>
-              </div>
+  {/* Longitude */}
+  <div className="w-full">
+    <label className="block text-sm font-medium text-gray-900">
+      Longitude
+    </label>
+    <input
+      type="text"
+      name="longitude"
+      value={formData.longitude}
+      onChange={handleChange}
+      readOnly={loadingCoordinates}
+      className={`block w-full rounded-md border-0 py-2 px-2 mt-1 text-gray-900 shadow-sm ${
+        loadingCoordinates ? "bg-gray-100" : ""
+      } ${
+        submitted && formData.longitude && coordinateError.longitude 
+          ? "ring-2 ring-inset ring-red-600"
+          : "ring-1 ring-inset ring-gray-300"
+      } placeholder:text-gray-400 focus:ring-inset focus:ring-secondary sm:text-sm`}
+    />
+    {/* ... error message tetap ... */}
+  </div>
+</div>
             </div>
 
             <div className="w-full flex justify-end">

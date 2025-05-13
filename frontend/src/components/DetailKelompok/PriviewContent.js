@@ -28,36 +28,32 @@ const PreviewContent = ({ selectedTab, selectedItem, onEdit, onDelete, onDownloa
       case "Produk":
         return (
           <div className="p-6">
-            <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-              <div className="p-6">
+            <div className="bg-white  overflow-hidden">
+          
                 <h3 className="text-xl font-bold text-gray-800 mb-6 text-center">Detail Produk</h3>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                  <div className="space-y-4">
+                
                     {renderDetailRow("Nama Produk", selectedItem.nama)}
-                    {renderDetailRow("Harga", `${formatRupiah(selectedItem.hargaAwal)} - ${formatRupiah(selectedItem.hargaAkhir)}`)}
-                    {renderDetailRow("Pelaku Usaha", selectedItem.pelakuUsaha)}
-                  </div>
-                  <div className="space-y-4">
+                    {renderDetailRow("Harga", `${formatRupiah(selectedItem.harga_awal)} - ${formatRupiah(selectedItem.harga_akhir)}`)}
+                    {renderDetailRow("Pelaku Usaha", selectedItem.pelaku_usaha)}
                     {renderDetailRow("Nomor HP", selectedItem.nohp)}
                     {renderDetailRow("Deskripsi", selectedItem.deskripsi)}
-                  </div>
-                </div>
+                 
 
-                <div className="bg-gray-50 rounded-lg p-4 mb-6">
-                  <div className="aspect-w-16 aspect-h-9 bg-white rounded-md overflow-hidden shadow-inner">
-                    <img
-                      src={`http://localhost:5000${selectedItem.foto}`}
-                      alt={selectedItem.nama}
-                      className="w-full h-full object-contain"
-                      onError={(e) => {
-                        e.target.src = 'https://via.placeholder.com/500x300?text=Gambar+Tidak+Tersedia';
-                      }}
-                    />
-                  </div>
-                </div>
+                    <div className="rounded-lg p-4 my-6">
+  <div className="bg-white rounded-md overflow-hidden shadow-inner max-w-xs mx-auto">
+    <img
+      src={`http://localhost:5000${selectedItem.foto}`}
+      alt={selectedItem.nama}
+      className="w-full h-auto max-h-180 object-contain" // max-h-48 membatasi tinggi maksimal
+      onError={(e) => {
+        e.target.src = 'https://via.placeholder.com/500x300?text=Gambar+Tidak+Tersedia';
+      }}
+    />
+  </div>
+</div>
 
-                <div className="flex justify-end space-x-3">
+                {/* <div className="flex justify-end space-x-3">
                   <button
                     onClick={() => onEdit(selectedItem, "produk")}
                     className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center space-x-2"
@@ -76,8 +72,8 @@ const PreviewContent = ({ selectedTab, selectedItem, onEdit, onDelete, onDownloa
                     </svg>
                     <span>Hapus</span>
                   </button>
-                </div>
-              </div>
+                </div> */}
+             
             </div>
           </div>
         );
@@ -106,7 +102,7 @@ const PreviewContent = ({ selectedTab, selectedItem, onEdit, onDelete, onDownloa
                   Diunggah pada {formatTanggal(selectedItem.createdAt)}
                 </div>
 
-                <div className="flex justify-center space-x-3">
+                {/* <div className="flex justify-center space-x-3">
                   <button
                     onClick={onDownload}
                     className="px-4 py-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition-colors flex items-center space-x-2"
@@ -125,7 +121,7 @@ const PreviewContent = ({ selectedTab, selectedItem, onEdit, onDelete, onDownloa
                     </svg>
                     <span>Hapus</span>
                   </button>
-                </div>
+                </div> */}
               </div>
             </div>
           </div>
@@ -135,10 +131,10 @@ const PreviewContent = ({ selectedTab, selectedItem, onEdit, onDelete, onDownloa
         return (
           <div className="p-6">
             <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-              <div className="p-6">
+            
                 <h3 className="text-xl font-bold text-gray-800 mb-6 text-center">Preview Dokumen</h3>
                 
-                <div className="bg-gray-50 rounded-lg p-4 mb-6 h-[500px]">
+                <div className="bg-gray-50 rounded-lg mb-6 h-[500px]">
                   <iframe
                     src={`http://localhost:5000/uploads/${selectedItem.file}`}
                     className="w-full h-full border-0 rounded-md"
@@ -155,7 +151,7 @@ const PreviewContent = ({ selectedTab, selectedItem, onEdit, onDelete, onDownloa
                   </div>
                 </div>
 
-                <div className="flex justify-center space-x-3">
+                {/* <div className="flex justify-center space-x-3">
                   <button
                     onClick={() => window.open(`http://localhost:5000/uploads/${selectedItem.file}`, "_blank")}
                     className="px-4 py-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition-colors flex items-center space-x-2"
@@ -174,8 +170,8 @@ const PreviewContent = ({ selectedTab, selectedItem, onEdit, onDelete, onDownloa
                     </svg>
                     <span>Hapus</span>
                   </button>
-                </div>
-              </div>
+                </div> */}
+             
             </div>
           </div>
         );

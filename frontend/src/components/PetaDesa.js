@@ -206,8 +206,8 @@ const PetaDesa = () => {
       </div>
 
       {/* Map Container */}
-      <div className="bg-white p-3 rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-        <div className="h-[600px] w-full relative">
+      <div className="bg-white p-3 rounded-xl shadow-sm border border-gray-100 overflow-hidden ">
+        <div className="h-[600px] w-full relative ">
           <MapContainer 
             center={[-7.7956, 110.3695]} 
             zoom={10} 
@@ -221,7 +221,7 @@ const PetaDesa = () => {
             />
 
             {!mapReady && (
-              <div className="absolute inset-0 bg-gray-50 bg-opacity-70 flex items-center justify-center z-[1000]">
+              <div className="absolute inset-0 bg-gray-50 bg-opacity-70 flex items-center justify-center">
                 <div className="text-center">
                   <Audio type="Bars" color="#3B82F6" height={50} width={50} />
                   <p className="mt-2 text-gray-600">Memuat peta...</p>

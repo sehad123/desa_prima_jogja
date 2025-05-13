@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { toast } from "react-hot-toast";
+import { toast } from 'react-hot-toast';
 import axios from "axios";
 
 export const useSelectionHandlers = (initialSelectedItems = []) => {
@@ -78,11 +78,17 @@ export const useFileHandlers = () => {
       let fullUrl;
       
       try {
-        fullUrl = url.startsWith("http")
-          ? url
-          : url.startsWith("/")
-          ? `http://localhost:5000${url}`
-          : `http://localhost:5000/${url}`;
+        if (url.startsWith("http") || url.startsWith("blob:")) {
+          fullUrl = url;
+        } else {
+          // Jika path tidak dimulai dengan '/uploads', tambahkan
+          const normalizedPath = url.startsWith('/') ? url : `/${url}`;
+          if (!normalizedPath.startsWith('/uploads')) {
+            fullUrl = `http://localhost:5000/uploads${normalizedPath}`;
+          } else {
+            fullUrl = `http://localhost:5000${normalizedPath}`;
+          }
+        }
       } catch (e) {
         throw new Error("Format URL tidak valid");
       }
@@ -114,248 +120,210 @@ export const useFileHandlers = () => {
         window.URL.revokeObjectURL(blobUrl);
       }, 100);
 
-      toast.update(toastId, {
-        render: "Download berhasil!",
-        type: "success",
-        isLoading: false,
-      });
+      toast.dismiss(toastId);
+      toast.success("Download berhasil!");
     } catch (error) {
       console.error("Download error:", error);
-      toast.update(toastId, {
-        render: error.message || "Gagal mengunduh file",
-        type: "error",
-        isLoading: false,
-      });
+      toast.dismiss(toastId);
+      toast.error(error.message || "Gagal mengunduh file");
     }
   };
 
   const handleDownloadMultiple = async (selectedItems, selectedTab) => {
-    if (selectedItems.length === 0) {
-      toast.warning("Pilih setidaknya satu item untuk diunduh");
+    if (!selectedItems?.length) {
+      toast.error("Tidak ada item yang dipilih");
       return;
     }
+  
+    // Debug struktur data
+    console.log("Selected Items Structure:", selectedItems);
+  
+   // Normalisasi dan validasi item
+  const downloadableItems = selectedItems.map(item => {
+    // Normalisasi properti file
+    const fileUrl = item?.gambar || item?.file || item?.url || item?.foto || null;
+    
+    // Validasi URL - tambahkan pengecekan untuk string biasa yang mungkin nama file
+    const isValidUrl = fileUrl && typeof fileUrl === 'string' && fileUrl.trim().length > 0;
+    
+    return {
+      ...item,
+      fileUrl: isValidUrl ? fileUrl : null,
+      isValidUrl,
+      itemName: item?.nama || item?.nama_produk || `Item ${item?.id || 'unknown'}`
+    };
+  }).filter(item => item.isValidUrl);
 
-    const toastId = `download-${Date.now()}`;
-    toast.loading(`Mempersiapkan ${selectedItems.length} file...`, {
-      toastId,
-    });
-
+  // Rest of your function remains the same...
+  if (downloadableItems.length === 0) {
+    toast.error("Tidak ada item dengan URL file yang valid untuk diunduh");
+    console.error("Item tidak valid:", selectedItems);
+    return;
+  }
+  
+    const totalFiles = downloadableItems.length;
+    let successfulDownloads = 0;
+    const failedDownloads = [];
+    const loadingToast = toast.loading(`Mempersiapkan ${totalFiles} file...`);
+  
     try {
-      let successful = 0;
-      const failedDownloads = [];
-
-      const downloadPDF = async (item, index) => {
+      for (const [index, item] of downloadableItems.entries()) {
+        const currentPosition = index + 1;
+        
         try {
-          if (!item.file) throw new Error("File tidak tersedia di database");
+          toast.dismiss(loadingToast);
+          toast.loading(`Mengunduh ${currentPosition}/${totalFiles}: ${item.itemName}...`);
+  
+          // Pastikan URL lengkap (jika relative path)
+          let fullUrl = item.fileUrl;
+          if (!fullUrl.startsWith('http') && !fullUrl.startsWith('blob:')) {
+            fullUrl = `${process.env.REACT_APP_API_URL || ''}${fullUrl}`;
+          }
+  
+          console.log(`Downloading: ${item.itemName}`, { url: fullUrl });
+  
+          // Generate nama file
+          let fileName = `${selectedTab}_${item.itemName.replace(/[^a-z0-9]/gi, '_')}`;
+          const urlExt = fullUrl.split('.').pop().split(/\#|\?/)[0];
+          if (urlExt && urlExt.length <= 5 && !fileName.includes('.')) {
+            fileName += `.${urlExt.toLowerCase()}`;
+          }
+  
+          // Download file
+          await downloadFile(fullUrl, fileName);
+          successfulDownloads++;
           
-          const fileName = `Notulensi_${item.catatan || item.id}.pdf`;
-          const baseUrl = "http://localhost:5000";
-          let filePath = item.file.replace(/^\/+/, "");
-          if (!filePath.startsWith("uploads/")) {
-            filePath = `uploads/${filePath}`;
-          }
-          const fileUrl = `${baseUrl}/${filePath}`;
-
-          const headResponse = await fetch(fileUrl, {
-            method: "HEAD",
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-            },
-          });
-
-          if (!headResponse.ok) {
-            throw new Error(`File tidak ditemukan (${headResponse.status})`);
-          }
-
-          const response = await fetch(fileUrl, {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-            },
-          });
-
-          if (!response.ok) throw new Error(`Gagal mengambil file (${response.status})`);
-
-          const blob = await response.blob();
-          const blobUrl = window.URL.createObjectURL(blob);
-          const a = document.createElement("a");
-          a.href = blobUrl;
-          a.download = fileName;
-          document.body.appendChild(a);
-          a.click();
-
-          setTimeout(() => {
-            document.body.removeChild(a);
-            window.URL.revokeObjectURL(blobUrl);
-          }, 100);
-
-          return true;
         } catch (error) {
-          console.error(`Gagal mengunduh ${item.nama || `item ${index}`}:`, error);
-          throw error;
+          console.error(`Gagal mengunduh ${item.itemName}:`, error);
+          failedDownloads.push({
+            item: item.itemName,
+            error: error.message,
+            url: item.fileUrl,
+            details: error.stack
+          });
         }
-      };
-
-      if (selectedTab === "Notulensi / Materi") {
-        for (const [index, item] of selectedItems.entries()) {
-          try {
-            toast.update(toastId, {
-              render: `Mengunduh ${index + 1}/${selectedItems.length}: ${
-                item.nama || `File ${index + 1}`
-              }`,
-              isLoading: true,
-            });
-
-            await downloadPDF(item, index);
-            successful++;
-          } catch (error) {
-            failedDownloads.push({
-              id: item.id,
-              nama: item.nama,
-              error: error.message,
-            });
-          }
-          await new Promise((resolve) => setTimeout(resolve, 500));
-        }
+  
+        await new Promise(resolve => setTimeout(resolve, 300));
       }
-
-      const BATCH_SIZE = 2;
-      for (let i = 0; i < selectedItems.length; i += BATCH_SIZE) {
-        const batch = selectedItems.slice(i, i + BATCH_SIZE);
-        await Promise.allSettled(
-          batch.map(async (item, idx) => {
-            try {
-              let downloadUrl, filename;
-
-              if (selectedTab.toLowerCase().includes("galeri")) {
-                downloadUrl = item.gambar;
-                filename = `Galeri_${item.desaId}_${
-                  item.gambar?.split("/").pop() || Date.now()
-                }.jpg`;
-              } else if (selectedTab.toLowerCase().includes("produk")) {
-                downloadUrl = item.foto;
-                filename = `Produk_${
-                  item.nama?.replace(/[^a-z0-9]/gi, "_") || item.id
-                }.${item.foto?.split(".").pop() || "jpg"}`;
-              } else {
-                return;
-              }
-
-              if (!downloadUrl) throw new Error("URL tidak valid");
-
-              toast.update(toastId, {
-                render: `Memproses ${i + idx + 1}/${
-                  selectedItems.length
-                }: ${filename.substring(0, 20)}...`,
-                type: "default",
-                isLoading: true,
-              });
-
-              await downloadFile(downloadUrl, filename);
-              successful++;
-            } catch (error) {
-              console.error(`Gagal mengunduh ${item.nama || "item"}:`, error);
-              throw error;
-            }
-          })
+  
+      // Hasil akhir
+      toast.dismiss(loadingToast);
+      if (successfulDownloads > 0) {
+        toast.success(`${successfulDownloads}/${totalFiles} file berhasil diunduh`);
+      }
+      if (failedDownloads.length > 0) {
+        console.error("Detail kegagalan:", failedDownloads);
+        toast.error(
+          `${failedDownloads.length} file gagal. Lihat konsol untuk detail.`,
+          { duration: 5000 }
         );
-        await new Promise((resolve) => setTimeout(resolve, 1000));
       }
-
-      if (successful > 0) {
-        toast.update(toastId, {
-          render: `${successful}/${selectedItems.length} file berhasil diunduh`,
-          type: "success",
-          isLoading: false
-        });
-      } else {
-        toast.update(toastId, {
-          render: "Tidak ada file yang berhasil diunduh",
-          type: "error",
-          isLoading: false
-        });
-      }
+  
     } catch (error) {
+      toast.dismiss(loadingToast);
+      toast.error(`Error sistem: ${error.message}`);
       console.error("Error utama:", error);
-      toast.update(toastId, {
-        render: "❌ Terjadi kesalahan sistem saat mengunduh",
-        type: "error",
-        isLoading: false,
-      });
     }
   };
 
-  const handleDeleteMultiple = async (selectedItems, selectedTab, id, fetchFunctions) => {
-    // Validasi tambahan
-    if (!selectedItems || !Array.isArray(selectedItems)) {
-      toast.error("Data item tidak valid");
-      throw new Error("selectedItems harus berupa array");
-    }
-  
-    if (selectedItems.length === 0) {
-      toast.warning("Pilih minimal 1 item", {
-        toastId: "delete-warning",
-      });
-      return;
-    }
-  
-    const toastId = toast.loading("Memproses penghapusan...", {
-      toastId: "delete-loading"
-    });
-  
+  const handleDeleteMultiple = async (selectedItems, selectedTab, desaId, fetchFunctions) => {
+    const toastId = toast.loading("Memproses penghapusan...");
+    
     try {
-      const validItems = selectedItems.filter(
-        (item) => item?.id && (!item.desaId || item.desaId.toString() === id)
-      );
-  
-      const type = {
-        Produk: "produk",
-        Pengurus: "pengurus",
-        "Notulensi / Materi": "notulensi",
-        Galeri: "galeri",
-      }[selectedTab];
-  
-      if (!type) {
-        throw new Error("Jenis tab tidak valid");
+      // Validasi input lebih ketat
+      if (!selectedItems || !Array.isArray(selectedItems)) {
+        toast.dismiss(toastId);
+        return toast.error("Data item tidak valid");
       }
   
+      if (selectedItems.length === 0) {
+        toast.dismiss(toastId);
+        return toast.error("Tidak ada item yang dipilih");
+      }
+  
+      // Mapping endpoint ke type dengan validasi
+      const endpointMap = {
+        "Produk": "produk",
+        "Pengurus": "pengurus",
+        "Notulensi / Materi": "notulensi",
+        "Galeri": "galeri"
+      };
+  
+      const type = endpointMap[selectedTab];
+      if (!type) {
+        toast.dismiss(toastId);
+        return toast.error(`Jenis konten '${selectedTab}' tidak valid`);
+      }
+  
+      // Validasi ID
+      const invalidIds = selectedItems.filter(item => !item.id).map(item => item.id);
+      if (invalidIds.length > 0) {
+        toast.dismiss(toastId);
+        return toast.error(`Beberapa ID tidak valid`);
+      }
+  
+      // Siapkan payload dengan validasi
+      const payload = {
+        ids: selectedItems.map(item => item.id),
+        type
+      };
+  
+      // Kirim request dengan timeout
       const response = await axios.post(
-        `http://localhost:5000/api/desa/${id}/delete-multiple`,
-        { type, ids: validItems.map((i) => i.id) },
+        `${process.env.REACT_APP_API_BASE_URL || "http://localhost:5000/api"}/desa/${desaId}/delete-multiple`,
+        payload,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-            "Content-Type": "application/json",
+            "Content-Type": "application/json"
           },
+          timeout: 10000 // 10 detik timeout
         }
       );
   
-      // Update toast dengan delay
-      setTimeout(() => {
-        toast.update(toastId, {
-          render: `Berhasil menghapus ${validItems.length} item`,
-          type: "success",
-          isLoading: false
-        });
-      }, 500);
+      // Handle response lebih robust
+      if (!response.data) {
+        throw new Error("Tidak ada data response dari server");
+      }
   
-      // Refresh data
-      await Promise.all(
-        Object.values(fetchFunctions)
-          .filter(fn => typeof fn === "function")
-          .map(fn => fn())
-      );
-  
-      return response.data;
+      if (response.data.success) {
+        toast.success(`${selectedItems.length} item berhasil dihapus`);
+        
+        // Refresh data dengan error handling
+        try {
+          await Promise.allSettled([
+            fetchFunctions.fetchDesaDetail(),
+            fetchFunctions[`fetch${selectedTab.replace(/ /g, "")}`]()
+          ]);
+        } catch (fetchError) {
+          // console.error("Gagal refresh data:", fetchError);
+          // toast("Item berhasil dihapus tetapi gagal refresh data", {
+          //   icon: '⚠️', // Emoji warning
+          //   style: {
+          //     background: '#ffcc00',
+          //     color: '#000'
+          //   }
+          // });
+        }
+      } else {
+        throw new Error(response.data.message || "Gagal menghapus item");
+      }
     } catch (error) {
-      console.error("Error:", error);
-      
-      toast.update(toastId, {
-        render: error.response?.data?.message || "Gagal menghapus item",
-        type: "error",
-        isLoading: false,
+      console.error("Delete error details:", {
+        message: error.message,
+        response: error.response?.data,
+        config: error.config,
+        stack: error.stack
       });
+  
+      const errorMessage = error.response?.data?.error || 
+                         error.response?.data?.message || 
+                         error.message || 
+                         "Terjadi kesalahan server";
       
-      throw error;
+      toast.error(`Gagal menghapus: ${errorMessage}`);
+    } finally {
+      toast.dismiss(toastId);
     }
   };
 

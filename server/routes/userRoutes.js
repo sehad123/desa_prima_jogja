@@ -53,11 +53,11 @@ router.get("/list/:id", async (req, res) => {
 router.post("/users/list", async (req, res) => {
   try {
     // Validasi awal di route handler
-    if (!req.body.nama && !req.body.email && !req.body.role) {
+    if (!req.body.name && !req.body.email && !req.body.role) {
       return res.status(400).json({ error: "Nama, email, dan role wajib diisi" });
     }
 
-    if (!req.body.nama) {
+    if (!req.body.name) {
       return res.status(400).json({ error: "Nama harus diisi" });
     }
 

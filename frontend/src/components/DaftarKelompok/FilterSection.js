@@ -8,6 +8,7 @@ import {
   faFilter,
   faCalendarAlt,
   faUsers,
+  userRole,
   faMoneyBillWave
 } from "@fortawesome/free-solid-svg-icons";
 import useMediaQuery from "../useMediaQuery";
@@ -139,53 +140,53 @@ const FilterSection = ({
         </div>
 
         {/* Kabupaten - Conditionally rendered */}
-        {userRole === "Pegawai" && (
-          <div className="dropdown-container">
-            <button
-              className="w-full flex justify-between items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-              onClick={() => toggleDropdown('kabupaten')}
-            >
-              <span className="font-medium text-gray-700">Kabupaten</span>
-              <FontAwesomeIcon
-                icon={activeDropdown === 'kabupaten' ? faAngleUp : faAngleDown}
-                className="text-gray-500"
-              />
-            </button>
-            {activeDropdown === 'kabupaten' && (
-              <div className="mt-1 p-1 bg-gray-50 rounded-lg max-h-60 overflow-y-auto">
-                {filteredData
-                  .map((desa) => desa.kabupaten_kota)
-                  .filter((value, index, self) => self.indexOf(value) === index)
-                  .map((kabupaten_kota) => {
-                    const formattedName = formatKabupatenName(kabupaten_kota);
-                    return (
-                      <label key={kabupaten_kota} className="flex items-center space-x-3 p-1 rounded hover:bg-gray-200 transition-colors">
-                        <input
-                          type="checkbox"
-                          name="kabupatenNama"
-                          value={kabupaten_kota}
-                          checked={search.kabupatenNama.includes(kabupaten_kota)}
-                          onChange={(e) => {
-                            const value = e.target.value;
-                            const isChecked = e.target.checked;
-                            setSearch((prev) => ({
-                              ...prev,
-                              kabupatenNama: isChecked
-                                ? [...prev.kabupatenNama, value]
-                                : prev.kabupatenNama.filter((item) => item !== value),
-                              kecamatanNama: [] // Reset kecamatan saat kabupaten berubah
-                            }));
-                          }}
-                          className="h-4 w-4 text-indigo-600 rounded focus:ring-indigo-500"
-                        />
-                        <span className="text-gray-700">{formattedName}</span>
-                      </label>
-                    );
-                  })}
-              </div>
-            )}
-          </div>
-        )}
+{(userRole === "Pegawai" || userRole === "Admin") && (
+  <div className="dropdown-container">
+    <button
+      className="w-full flex justify-between items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+      onClick={() => toggleDropdown('kabupaten')}
+    >
+      <span className="font-medium text-gray-700">Kabupaten</span>
+      <FontAwesomeIcon
+        icon={activeDropdown === 'kabupaten' ? faAngleUp : faAngleDown}
+        className="text-gray-500"
+      />
+    </button>
+    {activeDropdown === 'kabupaten' && (
+      <div className="mt-1 p-1 bg-gray-50 rounded-lg max-h-60 overflow-y-auto">
+        {filteredData
+          .map((desa) => desa.kabupaten_kota)
+          .filter((value, index, self) => self.indexOf(value) === index)
+          .map((kabupaten_kota) => {
+            const formattedName = formatKabupatenName(kabupaten_kota);
+            return (
+              <label key={kabupaten_kota} className="flex items-center space-x-3 p-1 rounded hover:bg-gray-200 transition-colors">
+                <input
+                  type="checkbox"
+                  name="kabupatenNama"
+                  value={kabupaten_kota}
+                  checked={search.kabupatenNama.includes(kabupaten_kota)}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    const isChecked = e.target.checked;
+                    setSearch((prev) => ({
+                      ...prev,
+                      kabupatenNama: isChecked
+                        ? [...prev.kabupatenNama, value]
+                        : prev.kabupatenNama.filter((item) => item !== value),
+                      kecamatanNama: [] // Reset kecamatan saat kabupaten berubah
+                    }));
+                  }}
+                  className="h-4 w-4 text-indigo-600 rounded focus:ring-indigo-500"
+                />
+                <span className="text-gray-700">{formattedName}</span>
+              </label>
+            );
+          })}
+      </div>
+    )}
+  </div>
+)}
 
         {/* Kecamatan */}
         <div className="dropdown-container">

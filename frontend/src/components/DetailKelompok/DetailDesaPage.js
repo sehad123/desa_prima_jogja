@@ -233,7 +233,7 @@ const DetailDesaPage = () => {
   const renderTabContent = () => {
     const commonProps = {
       onSelect: handleItemSelect,
-      selectedItems: selectedItems || [],
+      selectedItems: selectedItems,
       toggleSelectItem: toggleSelectItem,
       toggleSelectAll: () => toggleSelectAll(currentFiles),
       toggleOption: toggleOption,

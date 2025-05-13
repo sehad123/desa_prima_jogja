@@ -1,4 +1,5 @@
 import React from "react";
+import { useLocation } from "react-router-dom";
 
 const ActiveFilters = ({
   search,
@@ -10,12 +11,19 @@ const ActiveFilters = ({
   formatCurrency,
   clearFilters
 }) => {
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const kabupatenFromURL = queryParams.get('kabupaten');
+
   const formatKabupatenName = (name) => {
     if (!name) return name;
     if (name.includes("KAB.")) return name;
     if (name.includes("Kota")) return name;
     return name;
   };
+
+  const isKabupatenFromUI = search.kabupatenNama.length > 0 && 
+                           !kabupatenFromURL;
 
   return (
     <div className="flex flex-wrap gap-2 text-sm ml-3 p-3">
@@ -41,7 +49,7 @@ const ActiveFilters = ({
             ))}
 
             {/* Tampilkan filter kabupaten yang aktif */}
-            {search.kabupatenNama.map((kabupaten) => {
+            {isKabupatenFromUI && search.kabupatenNama.map((kabupaten) => {
               const formattedName = formatKabupatenName(kabupaten);
               return (
                 <div
@@ -63,8 +71,9 @@ const ActiveFilters = ({
                     x
                   </button>
                 </div>
-              );
-            })}
+               );
+              })}
+
 
             {/* Tampilkan filter kecamatan yang aktif */}
             {search.kecamatanNama.map((kecamatan) => (
@@ -127,29 +136,7 @@ const ActiveFilters = ({
                 </span>
               </div>
             )}
-            {/* Tampilkan filter tanggal */}
-            {startDate && (
-              <div className="bg-gray-200 text-black px-2 py-1 rounded">
-                Mulai: {startDate}
-                <button
-                  className="ml-2 text-gray-500"
-                  onClick={() => setStartDate("")}
-                >
-                  x
-                </button>
-              </div>
-            )}
-            {endDate && (
-              <div className="bg-gray-200 text-black px-2 py-1 rounded">
-                Selesai: {endDate}
-                <button
-                  className="ml-2 text-gray-500"
-                  onClick={() => setEndDate("")}
-                >
-                  x
-                </button>
-              </div>
-            )}
+
 
             {/* Tampilkan filter jumlah anggota */}
   {(search.anggotaDari || search.anggotaSampai) && (
@@ -186,21 +173,21 @@ const ActiveFilters = ({
   )}
 
 {(search.kategori.length > 0 ||
-   search.kabupatenNama.length > 0 ||
-   search.kecamatanNama.length > 0 ||
-   startDate ||
-   endDate ||
-   search.anggotaDari ||
-   search.anggotaSampai ||
-   search.danaDari ||
-   search.danaSampai ) && (
-    <div
-      className="bg-red-200 text-red-700 px-2 py-1 rounded cursor-pointer"
-      onClick={clearFilters}
-    >
-      Bersihkan Semua x
-    </div>
-  )}
+        isKabupatenFromUI ||
+        search.kecamatanNama.length > 0 ||
+        startDate ||
+        endDate ||
+        search.anggotaDari ||
+        search.anggotaSampai ||
+        search.danaDari ||
+        search.danaSampai) && (
+        <div
+          className="bg-red-200 text-red-700 px-2 py-1 rounded cursor-pointer"
+          onClick={clearFilters}
+        >
+          Bersihkan Semua x
+        </div>
+      )}
           </div>
   );
 };

@@ -24,9 +24,7 @@ const SearchSection = ({
           ? `Daftar Kelompok Desa - ${kabupatenName}`
           : "Daftar Kelompok Desa"}
       </h1>
-      {userRole === "Ketua Forum" && (
-        <p className="text-sm text-gray-500 mt-1">Kabupaten {kabupatenName}</p>
-      )}
+     
     </div>
 
     {/* Desktop Search */}
@@ -56,7 +54,7 @@ const SearchSection = ({
   
   {/* Action Buttons */}
   <div className="flex flex-col space-y-4 sm:flex-row sm:space-y-0 sm:space-x-4 mb-6 md:mb-0">
-  {profil?.role === "ketua forum" && (
+  {profil?.role === "Ketua Forum" && (
     <>
     <button
       onClick={() => setIsModalOpen(true)}

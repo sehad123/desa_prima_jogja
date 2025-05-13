@@ -448,7 +448,7 @@ const ReportKelompokDesa = ({
               <Galeri />
             </>
           ) : (
-            <Text style={styles.tableCol}>Tidak ada galeri</Text>
+            <Text style={styles.tableCol}></Text>
           )}
         </View>
 

@@ -538,7 +538,7 @@ const Table = ({ columns = [], initialData = [], isMobile, onUpdate }) => {
 
                     <td className="py-2 px-4 text-center border-b-8 font-light border-base bg-white sticky right-20 z-10" style={{ zIndex: 1 }}>
                       {/* Jika Role Pegawai, tampilkan input status */}
-                      {profil.role === "Pegawai" ? (
+                      {(profil.role === "Pegawai" || profil.role === "Admin")? (
                         <div className="flex justify-center space-x-2">
                         <button
                           className={`py-1 px-2 rounded-md ${
