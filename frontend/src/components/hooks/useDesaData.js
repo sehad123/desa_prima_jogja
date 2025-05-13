@@ -9,6 +9,7 @@ const useDesaData = (kabupatenName) => {
   const [galeri, setGaleri] = useState([]);
   const [produk, setProduk] = useState([]);
   const [pengurus, setPengurus] = useState([]);
+  const [kas, setKas] = useState([]);
   const [notulensi, setNotulensi] = useState([]);
   const [error, setError] = useState(null);
   const [desaList, setDesaList] = useState([]);
@@ -19,25 +20,25 @@ const useDesaData = (kabupatenName) => {
     return null;
   }, []);
 
-  const fetchData = useCallback(async (endpoint, setter) => {
-    try {
-      const token = localStorage.getItem("authToken");
-      if (!token) {
-        setError("Token tidak ditemukan");
+  const fetchData = useCallback(
+    async (endpoint, setter) => {
+      try {
+        const token = localStorage.getItem("authToken");
+        if (!token) {
+          setError("Token tidak ditemukan");
+          return false;
+        }
+
+        const response = await axios.get(`http://localhost:5000/api/desa/${id}/${endpoint}`, { headers: { Authorization: `Bearer ${token}` } });
+        setter(response.data);
+        return true;
+      } catch (err) {
+        handleError(err, endpoint);
         return false;
       }
-
-      const response = await axios.get(
-        `http://localhost:5000/api/desa/${id}/${endpoint}`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      setter(response.data);
-      return true;
-    } catch (err) {
-      handleError(err, endpoint);
-      return false;
-    }
-  }, [id, handleError]);
+    },
+    [id, handleError]
+  );
 
   const fetchDesaData = useCallback(async (kabupaten_kota) => {
     try {
@@ -47,20 +48,20 @@ const useDesaData = (kabupatenName) => {
         setError("Token tidak ditemukan");
         return;
       }
-      
+
       // Gunakan parameter kabupaten_kota jika ada
-      let url = 'http://localhost:5000/api/desa';
+      let url = "http://localhost:5000/api/desa";
       if (kabupaten_kota) {
         url += `?kabupaten=${encodeURIComponent(kabupaten_kota)}`;
       }
-      
+
       const response = await axios.get(url, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
       });
-      
+
       setDesaList(response.data);
     } catch (err) {
-      setError(err.response?.data?.message || 'Gagal memuat data desa');
+      setError(err.response?.data?.message || "Gagal memuat data desa");
     } finally {
       setLoading(false);
     }
@@ -82,32 +83,35 @@ const useDesaData = (kabupatenName) => {
         return;
       }
 
-      const [desaResponse, galeriResponse, produkResponse, pengurusResponse, notulensiResponse] = 
-        await Promise.all([
-          axios.get(`http://localhost:5000/api/desa/${id}`, {
-            headers: { Authorization: `Bearer ${token}` }
-          }),
-          axios.get(`http://localhost:5000/api/desa/${id}/galeri`, {
-            headers: { Authorization: `Bearer ${token}` }
-          }),
-          axios.get(`http://localhost:5000/api/desa/${id}/produk`, {
-            headers: { Authorization: `Bearer ${token}` }
-          }),
-          axios.get(`http://localhost:5000/api/desa/${id}/pengurus`, {
-            headers: { Authorization: `Bearer ${token}` }
-          }),
-          axios.get(`http://localhost:5000/api/desa/${id}/notulensi`, {
-            headers: { Authorization: `Bearer ${token}` }
-          })
-        ]);
+      const [desaResponse, galeriResponse, produkResponse, pengurusResponse, notulensiResponse, kasResponse] = await Promise.all([
+        axios.get(`http://localhost:5000/api/desa/${id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+        axios.get(`http://localhost:5000/api/desa/${id}/galeri`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+        axios.get(`http://localhost:5000/api/desa/${id}/produk`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+        axios.get(`http://localhost:5000/api/desa/${id}/pengurus`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+        axios.get(`http://localhost:5000/api/desa/${id}/kas`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+        axios.get(`http://localhost:5000/api/desa/${id}/notulensi`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+      ]);
 
       setDesa({
         ...desaResponse.data,
-        nama: desaResponse.data.nama || []
+        nama: desaResponse.data.nama || [],
       });
       setGaleri(galeriResponse.data);
       setProduk(produkResponse.data);
       setPengurus(pengurusResponse.data);
+      setKas(kasResponse.data);
       setNotulensi(notulensiResponse.data);
     } catch (err) {
       handleError(err, "detail desa");
@@ -116,6 +120,7 @@ const useDesaData = (kabupatenName) => {
       setProduk([]);
       setPengurus([]);
       setNotulensi([]);
+      setKas([]);
     }
   }, [id, handleError]);
 
@@ -132,26 +137,28 @@ const useDesaData = (kabupatenName) => {
         setLoading(false);
       }
     };
-    
+
     loadData();
   }, [id, kabupatenName, fetchDesaDetail, fetchDesaData]);
 
-  return { 
+  return {
     desa,
     desaList,
     galeri,
     produk,
     pengurus,
+    kas,
     notulensi,
     loading,
     error,
     fetchDesaData,
     fetchDesaDetail,
-    fetchGaleri: () => fetchData('galeri', setGaleri),
-    fetchProduk: () => fetchData('produk', setProduk),
-    fetchPengurus: () => fetchData('pengurus', setPengurus),
-    fetchNotulensi: () => fetchData('notulensi', setNotulensi),
-    refetchAll: id ? fetchDesaDetail : () => fetchDesaData(kabupatenName)
+    fetchGaleri: () => fetchData("galeri", setGaleri),
+    fetchProduk: () => fetchData("produk", setProduk),
+    fetchPengurus: () => fetchData("pengurus", setPengurus),
+    fetchNotulensi: () => fetchData("notulensi", setNotulensi),
+    fetchKas: () => fetchData("kas", setKas),
+    refetchAll: id ? fetchDesaDetail : () => fetchDesaData(kabupatenName),
   };
 };
 

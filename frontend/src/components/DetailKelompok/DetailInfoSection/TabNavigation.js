@@ -16,6 +16,8 @@ import Pengurus from "./Tabs/Pengurus";
 import Produk from "./Tabs/Produk";
 import Notulensi from "./Tabs/Notulensi";
 import Galeri from "./Tabs/Galeri";
+import Kas from "./Tabs/Kas";
+import KasDesa from "../TabContent/Kas";
 
 const DetailDesaPage = () => {
   const { id } = useParams();
@@ -46,6 +48,7 @@ const DetailDesaPage = () => {
   const [galeri, setGaleri] = useState([]);
   const [produk, setProduk] = useState([]);
   const [pengurus, setPengurus] = useState([]);
+  const [kas, setKas] = useState([]);
   const [notulensi, setNotulensi] = useState([]);
   const [photo, setPhoto] = useState([]);
   const [note, setNote] = useState([]);
@@ -54,15 +57,10 @@ const DetailDesaPage = () => {
   const [isDeleteItemModalOpen, setIsDeleteItemModalOpen] = useState(false); // Modal konfirmasi hapus item
   const [showOptions, setShowOptions] = useState(false);
   const [visibleOptionId, setVisibleOptionId] = useState(null);
-  const [isDeleteMultipleModalOpen, setIsDeleteMultipleModalOpen] =
-    useState(false);
+  const [isDeleteMultipleModalOpen, setIsDeleteMultipleModalOpen] = useState(false);
 
   const handleClickOutside = (event) => {
-    if (
-      visibleOptionId &&
-      optionsRef.current[visibleOptionId] &&
-      !optionsRef.current[visibleOptionId].contains(event.target)
-    ) {
+    if (visibleOptionId && optionsRef.current[visibleOptionId] && !optionsRef.current[visibleOptionId].contains(event.target)) {
       setVisibleOptionId(null);
     }
   };
@@ -86,21 +84,15 @@ const DetailDesaPage = () => {
         const token = localStorage.getItem("authToken");
         if (!token) return;
 
-        const response = await axios.get(
-          "http://localhost:5000/users/profile",
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        const response = await axios.get("http://localhost:5000/users/profile", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
         setProfil(response.data); // Set nama dan NIP ke state
       } catch (error) {
-        console.error(
-          "Gagal mengambil profil:",
-          error.response?.data?.error || error.message
-        );
+        console.error("Gagal mengambil profil:", error.response?.data?.error || error.message);
       }
     };
 
@@ -127,9 +119,7 @@ const DetailDesaPage = () => {
 
   const fetchGaleri = async () => {
     try {
-      const response = await axios.get(
-        `http://localhost:5000/api/desa/${id}/galeri`
-      );
+      const response = await axios.get(`http://localhost:5000/api/desa/${id}/galeri`);
       setGaleri(response.data);
       console.log("Galeri Data:", response.data); // Tambahkan ini untuk debugging
     } catch (err) {
@@ -139,9 +129,7 @@ const DetailDesaPage = () => {
 
   const fetchNotulensi = async () => {
     try {
-      const response = await axios.get(
-        `http://localhost:5000/api/desa/${id}/notulensi`
-      );
+      const response = await axios.get(`http://localhost:5000/api/desa/${id}/notulensi`);
       setNotulensi(response.data);
       console.log("Notulensi Data:", response.data); // Tambahkan ini untuk debugging
     } catch (err) {
@@ -150,19 +138,23 @@ const DetailDesaPage = () => {
   };
   const fetchProduk = async () => {
     try {
-      const response = await axios.get(
-        `http://localhost:5000/api/desa/${id}/produk`
-      );
+      const response = await axios.get(`http://localhost:5000/api/desa/${id}/produk`);
       setProduk(response.data);
     } catch (err) {
       console.error("Gagal memuat Produk", err);
     }
   };
+  const fetchKas = async () => {
+    try {
+      const response = await axios.get(`http://localhost:5000/api/desa/${id}/kas`);
+      setKas(response.data);
+    } catch (err) {
+      console.error("Gagal memuat kas", err);
+    }
+  };
   const fetchPengurus = async () => {
     try {
-      const response = await axios.get(
-        `http://localhost:5000/api/desa/${id}/pengurus`
-      );
+      const response = await axios.get(`http://localhost:5000/api/desa/${id}/pengurus`);
       setPengurus(response.data);
     } catch (err) {
       console.error("Gagal memuat Pengurus", err);
@@ -176,13 +168,7 @@ const DetailDesaPage = () => {
   useEffect(() => {
     const fetchAllData = async () => {
       try {
-        await Promise.all([
-          fetchDesaDetail(),
-          fetchGaleri(),
-          fetchProduk(),
-          fetchPengurus(),
-          fetchNotulensi(),
-        ]);
+        await Promise.all([fetchDesaDetail(), fetchGaleri(), fetchProduk(), fetchPengurus(), fetchNotulensi(), fetchKas()]);
         setLoadingData(false);
       } catch (err) {
         console.error("Gagal memuat data:", err);
@@ -194,10 +180,10 @@ const DetailDesaPage = () => {
   }, [id]);
 
   const tabsMap = {
-    "Detail Kelompok": ["Pengurus", "Produk", "Notulensi / Materi", "Galeri"],
+    "Detail Kelompok": ["Kas", "Produk", "Notulensi / Materi", "Galeri", "Pengurus"],
   };
 
-  const defaultTab = "Pengurus";
+  const defaultTab = "Kas";
   const [selectedTab, setSelectedTab] = useState(() => {
     const storedTab = localStorage.getItem("selectedTab");
     const validTabs = tabsMap["Detail Kelompok"] || [];
@@ -231,6 +217,9 @@ const DetailDesaPage = () => {
     } else if (selectedTab === "Pengurus") {
       fetchPengurus();
       setCurrentFiles(pengurus);
+    } else if (selectedTab === "Kas") {
+      fetchPengurus();
+      setCurrentFiles(kas);
     }
   }, [selectedTab]);
 
@@ -249,6 +238,8 @@ const DetailDesaPage = () => {
         fetchProduk(); // Reload produk jika tab produk sedang aktif
       } else if (selectedTab === "Pengurus") {
         fetchPengurus(); // Reload pengurus jika tab pengurus sedang aktif
+      } else if (selectedTab === "Kas") {
+        fetchKas(); // Reload pengurus jika tab pengurus sedang aktif
       }
     }
     fetchDesaDetail();
@@ -263,9 +254,11 @@ const DetailDesaPage = () => {
       setCurrentFiles(produk);
     } else if (selectedTab === "Pengurus") {
       setCurrentFiles(pengurus);
+    } else if (selectedTab === "Kas") {
+      setCurrentFiles(kas);
     }
     // ... dan seterusnya
-  }, [selectedTab, galeri, notulensi, produk, pengurus]);
+  }, [selectedTab, galeri, notulensi, produk, pengurus, kas]);
 
   const toggleSelectItem = (item) => {
     if (Array.isArray(item)) {
@@ -348,8 +341,7 @@ const DetailDesaPage = () => {
             },
           });
 
-          if (!response.ok)
-            throw new Error(`Gagal mengambil file (${response.status})`);
+          if (!response.ok) throw new Error(`Gagal mengambil file (${response.status})`);
 
           const blob = await response.blob();
           const blobUrl = window.URL.createObjectURL(blob);
@@ -368,10 +360,7 @@ const DetailDesaPage = () => {
 
           return true;
         } catch (error) {
-          console.error(
-            `Gagal mengunduh ${item.nama || `item ${index}`}:`,
-            error
-          );
+          console.error(`Gagal mengunduh ${item.nama || `item ${index}`}:`, error);
           throw error;
         }
       };
@@ -381,9 +370,7 @@ const DetailDesaPage = () => {
         for (const [index, item] of selectedItems.entries()) {
           try {
             toast.update(toastId, {
-              render: `Mengunduh ${index + 1}/${selectedItems.length}: ${
-                item.nama || `File ${index + 1}`
-              }`,
+              render: `Mengunduh ${index + 1}/${selectedItems.length}: ${item.nama || `File ${index + 1}`}`,
               isLoading: true,
             });
 
@@ -411,9 +398,7 @@ const DetailDesaPage = () => {
             throw new Error("Token tidak ditemukan");
           }
 
-          const fullUrl = url.startsWith("http")
-            ? url
-            : `http://localhost:5000${url.startsWith("/") ? url : `/${url}`}`;
+          const fullUrl = url.startsWith("http") ? url : `http://localhost:5000${url.startsWith("/") ? url : `/${url}`}`;
 
           const response = await fetch(fullUrl, {
             headers: {
@@ -464,14 +449,10 @@ const DetailDesaPage = () => {
               // Determine URL and filename based on tab
               if (selectedTab.toLowerCase().includes("galeri")) {
                 downloadUrl = item.gambar;
-                filename = `Galeri_${item.desaId}_${
-                  item.gambar?.split("/").pop() || Date.now()
-                }.jpg`;
+                filename = `Galeri_${item.desaId}_${item.gambar?.split("/").pop() || Date.now()}.jpg`;
               } else if (selectedTab.toLowerCase().includes("produk")) {
                 downloadUrl = item.foto;
-                filename = `Produk_${
-                  item.nama?.replace(/[^a-z0-9]/gi, "_") || item.id
-                }.${item.foto?.split(".").pop() || "jpg"}`;
+                filename = `Produk_${item.nama?.replace(/[^a-z0-9]/gi, "_") || item.id}.${item.foto?.split(".").pop() || "jpg"}`;
               } else {
                 return;
               }
@@ -482,9 +463,7 @@ const DetailDesaPage = () => {
 
               // Update progress
               toast.update(toastId, {
-                render: `Memproses ${i + idx + 1}/${
-                  selectedItems.length
-                }: ${filename.substring(0, 20)}...`,
+                render: `Memproses ${i + idx + 1}/${selectedItems.length}: ${filename.substring(0, 20)}...`,
                 type: "default",
                 isLoading: true,
               });
@@ -553,11 +532,7 @@ const DetailDesaPage = () => {
       // Normalisasi URL
       let fullUrl;
       try {
-        fullUrl = url.startsWith("http")
-          ? url
-          : url.startsWith("/")
-          ? `http://localhost:5000${url}`
-          : `http://localhost:5000/${url}`;
+        fullUrl = url.startsWith("http") ? url : url.startsWith("/") ? `http://localhost:5000${url}` : `http://localhost:5000/${url}`;
       } catch (e) {
         throw new Error("Format URL tidak valid");
       }
@@ -580,8 +555,7 @@ const DetailDesaPage = () => {
       const blobUrl = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = blobUrl;
-      a.download =
-        filename || url.split("/").pop() || `file_${new Date().getTime()}`;
+      a.download = filename || url.split("/").pop() || `file_${new Date().getTime()}`;
       document.body.appendChild(a);
       a.click();
 
@@ -632,9 +606,7 @@ const DetailDesaPage = () => {
       });
 
       // 3. Validasi item
-      const validItems = selectedItems.filter(
-        (item) => item.id && (!item.desaId || item.desaId.toString() === id)
-      );
+      const validItems = selectedItems.filter((item) => item.id && (!item.desaId || item.desaId.toString() === id));
 
       // 4. Kirim request
       const type = {
@@ -642,6 +614,7 @@ const DetailDesaPage = () => {
         Pengurus: "pengurus",
         "Notulensi / Materi": "notulensi",
         Galeri: "galeri",
+        kas: "kas",
       }[selectedTab];
 
       const response = await axios.post(
@@ -668,6 +641,7 @@ const DetailDesaPage = () => {
       await fetchGaleri();
       await fetchNotulensi();
       await fetchProduk();
+      await fetchKas();
     } catch (error) {
       console.error("Error:", {
         message: error.message,
@@ -675,14 +649,10 @@ const DetailDesaPage = () => {
       });
 
       // Toast error spesifik
-      toast.error(
-        error.response?.data?.message ||
-          "Gagal menghapus item. Silakan coba lagi",
-        {
-          position: "top-center",
-          autoClose: 5000,
-        }
-      );
+      toast.error(error.response?.data?.message || "Gagal menghapus item. Silakan coba lagi", {
+        position: "top-center",
+        autoClose: 5000,
+      });
     } finally {
       setLoadingDeleteActivity(false);
     }
@@ -722,9 +692,7 @@ const DetailDesaPage = () => {
 
   const handleSelectFile = (file) => {
     setSelectedFiles((prev) => {
-      const newSelectedFiles = prev.includes(file)
-        ? prev.filter((f) => f !== file)
-        : [...prev, file];
+      const newSelectedFiles = prev.includes(file) ? prev.filter((f) => f !== file) : [...prev, file];
 
       return newSelectedFiles;
     });
@@ -797,47 +765,29 @@ const DetailDesaPage = () => {
   const handleDeleteItem = async () => {
     try {
       if (deleteItemType === "galeri") {
-        await axios.delete(
-          `http://localhost:5000/api/desa/${id}/galeri/${itemToDelete.id}`
-        );
+        await axios.delete(`http://localhost:5000/api/desa/${id}/galeri/${itemToDelete.id}`);
         toast.success(`Gambar berhasil dihapus!`);
         fetchGaleri();
       } else if (deleteItemType === "notulensi") {
-        await axios.delete(
-          `http://localhost:5000/api/desa/${id}/notulensi/${itemToDelete.id}`
-        );
-        toast.success(
-          `Notulensi "${itemToDelete.catatan || " "}" berhasil dihapus!`
-        );
+        await axios.delete(`http://localhost:5000/api/desa/${id}/notulensi/${itemToDelete.id}`);
+        toast.success(`Notulensi "${itemToDelete.catatan || " "}" berhasil dihapus!`);
         fetchNotulensi();
       } else if (deleteItemType === "produk") {
-        await axios.delete(
-          `http://localhost:5000/api/desa/${id}/produk/${itemToDelete.id}`
-        );
-        toast.success(
-          `Produk "${
-            itemToDelete.nama || itemToDelete.namaProduk || " "
-          }" berhasil dihapus!`
-        );
+        await axios.delete(`http://localhost:5000/api/desa/${id}/produk/${itemToDelete.id}`);
+        toast.success(`Produk "${itemToDelete.nama || itemToDelete.namaProduk || " "}" berhasil dihapus!`);
         fetchProduk();
       } else if (deleteItemType === "pengurus") {
-        await axios.delete(
-          `http://localhost:5000/api/desa/${id}/pengurus/${itemToDelete.id}`
-        );
-        toast.success(
-          `Pengurus "${
-            itemToDelete.nama || itemToDelete.namaPengurus || " "
-          }" berhasil dihapus!`
-        );
+        await axios.delete(`http://localhost:5000/api/desa/${id}/pengurus/${itemToDelete.id}`);
+        toast.success(`Pengurus "${itemToDelete.nama || itemToDelete.namaPengurus || " "}" berhasil dihapus!`);
+        fetchPengurus();
+      } else if (deleteItemType === "kas") {
+        await axios.delete(`http://localhost:5000/api/desa/${id}/kas/${itemToDelete.id}`);
+        toast.success(`Pengurus "${itemToDelete.nama_transaksi || itemToDelete.nama_transaksi || " "}" berhasil dihapus!`);
         fetchPengurus();
       }
       setIsDeleteItemModalOpen(false);
     } catch (err) {
-      toast.error(
-        `Gagal menghapus ${deleteItemType}: ${
-          err.response?.data?.message || err.message
-        }`
-      );
+      toast.error(`Gagal menghapus ${deleteItemType}: ${err.response?.data?.message || err.message}`);
       console.error(err);
     }
   };
@@ -892,14 +842,7 @@ const DetailDesaPage = () => {
         );
       case "Pengurus":
         return (
-          <Pengurus
-            pengurus={pengurus}
-            onAdd={(type, desa) => handleAdd(type, desa)}
-            onEdit={(type, desa) => handleEditModal(type, desa)}
-            onDelete={(file, type) => openDeleteItemModal(file, type)}
-            onSelect={handleItemSelect}
-            desa={desa}
-          />
+          <Pengurus pengurus={pengurus} onAdd={(type, desa) => handleAdd(type, desa)} onEdit={(type, desa) => handleEditModal(type, desa)} onDelete={(file, type) => openDeleteItemModal(file, type)} onSelect={handleItemSelect} desa={desa} />
         );
       case "Produk":
         return (
@@ -924,6 +867,8 @@ const DetailDesaPage = () => {
             desa={desa}
           />
         );
+      case "Kas":
+        return <KasDesa kas={kas} onAdd={(type, desa) => handleAdd(type, desa)} onEdit={(type, desa) => handleEditModal(type, desa)} onDelete={(file, type) => openDeleteItemModal(file, type)} onSelect={handleItemSelect} desa={desa} />;
       default:
         return null;
     }
@@ -931,41 +876,16 @@ const DetailDesaPage = () => {
 
   return (
     <>
-      <ToastContainer
-        position="top-center"
-        autoClose={5000}
-        newestOnTop
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss={false}
-        draggable
-        pauseOnHover
-        theme="light"
-      />
+      <ToastContainer position="top-center" autoClose={5000} newestOnTop closeOnClick rtl={false} pauseOnFocusLoss={false} draggable pauseOnHover theme="light" />
       <div className="p-5">
         <div className="flex flex-col space-y-5 lg:space-y-0 lg:flex-row py-2 space-x-0 lg:space-x-6">
           <div className="flex flex-col w-full lg:w-1/2 space-y-6">
-            <DetailInformasi
-              desa={desa}
-              profil={profil}
-              galeri={galeri}
-              produk={produk}
-              pengurus={pengurus}
-              onEdit={() => handleEdit(desa)}
-              onDelete={() => setIsDeleteModalOpen(true)}
-            />
+            <DetailInformasi desa={desa} profil={profil} galeri={galeri} produk={produk} pengurus={pengurus} kas={kas} onEdit={() => handleEdit(desa)} onDelete={() => setIsDeleteModalOpen(true)} />
 
             <div>
-              <TabPanel
-                tabs={tabs}
-                selectedTab={selectedTab}
-                onTabChange={onTabChange}
-                className="shadow rounded-md text-xs w-1/2"
-              />
+              <TabPanel tabs={tabs} selectedTab={selectedTab} onTabChange={onTabChange} className="shadow rounded-md text-xs w-1/2" />
 
-              <div className="bg-white p-4 pb-6 shadow rounded-md border-gray">
-                {renderTabContent()}
-              </div>
+              <div className="bg-white p-4 pb-6 shadow rounded-md border-gray">{renderTabContent()}</div>
             </div>
           </div>
           <div className="w-full lg:w-1/2 bg-white shadow-md rounded-md p-6 mt-4 lg:mt-0 ml-0 lg:ml-4">
@@ -973,41 +893,18 @@ const DetailDesaPage = () => {
               selectedTab={selectedTab}
               selectedItem={selectedItem}
               onDownload={downloadFile}
-              onEdit={(selectedItem, selectedTab) =>
-                handleEditModal(selectedItem, selectedTab.toLowerCase())
-              }
-              onDelete={(selectedItem, selectedTab) =>
-                openDeleteItemModal(
-                  selectedItem,
-                  selectedTab === "Notulensi / Materi"
-                    ? "notulensi"
-                    : selectedTab.toLowerCase()
-                )
-              }
+              onEdit={(selectedItem, selectedTab) => handleEditModal(selectedItem, selectedTab.toLowerCase())}
+              onDelete={(selectedItem, selectedTab) => openDeleteItemModal(selectedItem, selectedTab === "Notulensi / Materi" ? "notulensi" : selectedTab.toLowerCase())}
             />
           </div>
         </div>
       </div>
 
       {isDeleteMultipleModalOpen && (
-        <DeleteDetailModal
-          isOpen={isDeleteMultipleModalOpen}
-          onClose={() => setIsDeleteMultipleModalOpen(false)}
-          onConfirm={handleDeleteMultiple}
-          itemType={selectedTab.toLowerCase()}
-          itemName={`${selectedItems.length} item`}
-        />
+        <DeleteDetailModal isOpen={isDeleteMultipleModalOpen} onClose={() => setIsDeleteMultipleModalOpen(false)} onConfirm={handleDeleteMultiple} itemType={selectedTab.toLowerCase()} itemName={`${selectedItems.length} item`} />
       )}
 
-      {isDeleteModalOpen && (
-        <DeleteDetailModal
-          isOpen={isDeleteModalOpen}
-          onClose={handleDeleteModalClose}
-          onConfirm={handleDelete}
-          itemType="desa"
-          itemName={desa?.namaDesa}
-        />
-      )}
+      {isDeleteModalOpen && <DeleteDetailModal isOpen={isDeleteModalOpen} onClose={handleDeleteModalClose} onConfirm={handleDelete} itemType="desa" itemName={desa?.namaDesa} />}
 
       {isDeleteItemModalOpen && (
         <DeleteDetailModal
@@ -1022,28 +919,23 @@ const DetailDesaPage = () => {
               ? itemToDelete?.catatan
               : deleteItemType === "produk"
               ? itemToDelete?.nama || itemToDelete?.namaProduk
+              : deleteItemType === "kas"
+              ? itemToDelete?.nama_transaksi || itemToDelete?.nama_transaksi
               : itemToDelete?.nama || itemToDelete?.namaPengurus
           }
         />
       )}
 
-      {isModalOpen && modalType === "form" && (
-        <ModalForm onClose={handleModalClose} selectedDesa={selectedDesa} />
+      {isModalOpen && modalType === "form" && <ModalForm onClose={handleModalClose} selectedDesa={selectedDesa} />}
+      {isModalOpen && (
+        <ModalDetail
+          isOpen={isModalOpen}
+          onClose={handleModalClose}
+          selectedDesa={modalType === "notulensi" || modalType === "galeri" || modalType === "kas" ? selectedDesa : desa}
+          activeTab={modalType === "notulensi" ? "notulensiMateri" : modalType === "galeri" ? "galeriFoto" : modalType === "produk" ? "uraianProduk" : modalType === "kas" ? "kasDesa" : "pengurusDesa"}
+          initialData={["produk", "pengurus", "kas"].includes(modalType) ? entityToEdit : undefined}
+        />
       )}
-     {isModalOpen && (
-  <ModalDetail
-    isOpen={isModalOpen}
-    onClose={handleModalClose}
-    selectedDesa={modalType === "notulensi" || modalType === "galeri" ? selectedDesa : desa}
-    activeTab={
-      modalType === "notulensi" ? "notulensiMateri" :
-      modalType === "galeri" ? "galeriFoto" :
-      modalType === "produk" ? "uraianProduk" :
-      "pengurusDesa"
-    }
-    initialData={["produk", "pengurus"].includes(modalType) ? entityToEdit : undefined}
-  />
-)}
     </>
   );
 };

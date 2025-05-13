@@ -15,7 +15,6 @@ import ActiveFilters from "./ActiveFilters";
 import DataTable from "./DataTable";
 import useUserData from "../hooks/useUserData";
 
-
 const formatKabupatenName = (name) => {
   if (!name) return name;
   const lowerName = name.toLowerCase();
@@ -50,8 +49,8 @@ const columns = [
   { id: "nama", label: "Nama" },
   { id: "alamat", label: "Alamat" },
   { id: "tanggal_pembentukan", label: "Tanggal Bentuk" },
-  { id: "jumlah_dana_sekarang", label: "Jumlah Dana" },
-  { id: "jumlah_anggota_sekarang", label: "Jumlah Anggota" },
+  // { id: "jumlah_dana_sekarang", label: "Jumlah Dana" },
+  // { id: "jumlah_anggota_sekarang", label: "Jumlah Anggota" },
   { id: "kategori", label: "Kategori" },
 ];
 
@@ -70,7 +69,7 @@ class ErrorBoundary extends React.Component {
       return <div className="error-fallback">Terjadi kesalahan dalam menampilkan data</div>;
     }
 
-    return this.props.children; 
+    return this.props.children;
   }
 }
 
@@ -87,7 +86,7 @@ const ListKelompokDesa = () => {
   const [endDate, setEndDate] = useState("");
   const navigate = useNavigate();
   const location = useLocation();
-  const { profil } = useUserData(); 
+  const { profil } = useUserData();
   const { id } = useParams();
 
   const [search, setSearch] = useState({
@@ -134,19 +133,14 @@ const ListKelompokDesa = () => {
 
       let response;
       if (kabupatenName) {
-        response = await axios.get(
-          `http://localhost:5000/api/desa?kabupaten=${kabupatenName}`
-        );
+        response = await axios.get(`http://localhost:5000/api/desa?kabupaten=${kabupatenName}`);
       } else {
         response = await axios.get("http://localhost:5000/api/desa");
       }
 
       const desaListWithDetails = await Promise.all(
         response.data.map(async (desa) => {
-          const [produk, pengurus] = await Promise.all([
-            axios.get(`http://localhost:5000/api/desa/${desa.id}/produk`),
-            axios.get(`http://localhost:5000/api/desa/${desa.id}/pengurus`),
-          ]);
+          const [produk, pengurus] = await Promise.all([axios.get(`http://localhost:5000/api/desa/${desa.id}/produk`), axios.get(`http://localhost:5000/api/desa/${desa.id}/pengurus`)]);
           return { ...desa, produk: produk.data, pengurus: pengurus.data };
         })
       );
@@ -166,60 +160,24 @@ const ListKelompokDesa = () => {
   // Filtering logic
   useEffect(() => {
     const filteredData = desaList.filter((desa) => {
-      const isKategoriMatch =
-        search.kategori.length > 0
-          ? search.kategori.includes(desa.kategori)
-          : true;
+      const isKategoriMatch = search.kategori.length > 0 ? search.kategori.includes(desa.kategori) : true;
 
-      const isKecamatanMatch =
-        search.kecamatanNama.length > 0
-          ? search.kecamatanNama.includes(desa.kecamatanNama)
-          : true;
+      const isKecamatanMatch = search.kecamatanNama.length > 0 ? search.kecamatanNama.includes(desa.kecamatanNama) : true;
 
-      const isKabupatenMatch =
-        userRole === "Pegawai" || userRole === "Admin"
-          ? search.kabupatenNama.length > 0
-            ? search.kabupatenNama.includes(desa.kabupaten_kota)
-            : true
-          : true;
+      const isKabupatenMatch = userRole === "Pegawai" || userRole === "Admin" ? (search.kabupatenNama.length > 0 ? search.kabupatenNama.includes(desa.kabupaten_kota) : true) : true;
 
-      const isKelompokMatch = search.nama
-        ? desa.nama
-            .toLowerCase()
-            .includes(search.nama.toLowerCase())
-        : true;
+      const isKelompokMatch = search.nama ? desa.nama.toLowerCase().includes(search.nama.toLowerCase()) : true;
 
-      const isKelurahanMatch = search.kelurahanNama
-        ? desa.kelurahanNama
-            .toLowerCase()
-            .includes(search.kelurahanNama.toLowerCase())
-        : true;
+      const isKelurahanMatch = search.kelurahanNama ? desa.kelurahanNama.toLowerCase().includes(search.kelurahanNama.toLowerCase()) : true;
 
       const desaTanggal = new Date(desa.tanggal_pembentukan);
-      const isDateInRange =
-        (!startDate || new Date(startDate) <= desaTanggal) &&
-        (!endDate || desaTanggal <= new Date(endDate));
+      const isDateInRange = (!startDate || new Date(startDate) <= desaTanggal) && (!endDate || desaTanggal <= new Date(endDate));
 
-      const isAnggotaInRange =
-        (!search.anggotaDari ||
-          desa.jumlah_anggota_sekarang >= search.anggotaDari) &&
-        (!search.anggotaSampai ||
-          desa.jumlah_anggota_sekarang <= search.anggotaSampai);
+      const isAnggotaInRange = (!search.anggotaDari || desa.jumlah_anggota_sekarang >= search.anggotaDari) && (!search.anggotaSampai || desa.jumlah_anggota_sekarang <= search.anggotaSampai);
 
-      const isDanaInRange =
-        (!search.danaDari || desa.jumlah_dana_sekarang >= search.danaDari) &&
-        (!search.danaSampai || desa.jumlah_dana_sekarang <= search.danaSampai);
+      const isDanaInRange = (!search.danaDari || desa.jumlah_dana_sekarang >= search.danaDari) && (!search.danaSampai || desa.jumlah_dana_sekarang <= search.danaSampai);
 
-      return (
-        isKategoriMatch &&
-        isKecamatanMatch &&
-        isKabupatenMatch &&
-        isKelompokMatch &&
-        isKelurahanMatch &&
-        isDateInRange &&
-        isAnggotaInRange &&
-        isDanaInRange
-      );
+      return isKategoriMatch && isKecamatanMatch && isKabupatenMatch && isKelompokMatch && isKelurahanMatch && isDateInRange && isAnggotaInRange && isDanaInRange;
     });
 
     setFilteredDesaList(filteredData);
@@ -228,18 +186,14 @@ const ListKelompokDesa = () => {
   useEffect(() => {
     const filteredData = desaList.filter((desa) => {
       const keyword = search.keyword ? search.keyword.toLowerCase() : "";
-      const alamat =
-        `${desa.kabupaten}, ${desa.kecamatan}, ${desa.kelurahan}, ${desa.kabupaten_kota}`.toLowerCase();
+      const alamat = `${desa.kabupaten}, ${desa.kecamatan}, ${desa.kelurahan}, ${desa.kabupaten_kota}`.toLowerCase();
 
       return (
-        (desa.nama &&
-          desa.nama.toLowerCase().includes(keyword)) ||
+        (desa.nama && desa.nama.toLowerCase().includes(keyword)) ||
         (alamat && alamat.toLowerCase().includes(keyword)) ||
         (desa.kategori && desa.kategori.toLowerCase().includes(keyword)) ||
-        (desa.jumlah_anggota_sekarang &&
-          desa.jumlah_anggota_sekarang.toString().includes(keyword)) ||
-        (desa.jumlah_dana_sekarang &&
-          desa.jumlah_dana_sekarang.toString().includes(keyword)) ||
+        (desa.jumlah_anggota_sekarang && desa.jumlah_anggota_sekarang.toString().includes(keyword)) ||
+        (desa.jumlah_dana_sekarang && desa.jumlah_dana_sekarang.toString().includes(keyword)) ||
         (desa.tanggal_pembentukan &&
           new Date(desa.tanggal_pembentukan)
             .toLocaleDateString("id-ID", {
@@ -259,14 +213,11 @@ const ListKelompokDesa = () => {
     ...desa,
     no: index + 1,
     alamat: `${desa.kelurahan}, ${desa.kecamatan}, ${desa.kabupaten}`,
-    tanggal_pembentukan: new Date(desa.tanggal_pembentukan).toLocaleDateString(
-      "id-ID",
-      {
-        day: "numeric",
-        month: "long",
-        year: "numeric",
-      }
-    ), // Format the date to "12 Oktober 2024"
+    tanggal_pembentukan: new Date(desa.tanggal_pembentukan).toLocaleDateString("id-ID", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    }), // Format the date to "12 Oktober 2024"
     jumlah_dana_sekarang: new Intl.NumberFormat("id-ID", {
       style: "currency",
       currency: "IDR",
@@ -312,17 +263,10 @@ const ListKelompokDesa = () => {
       const firstRow = {
         ...desaRow,
         "Nama Produk": desa.produk.length > 0 ? desa.produk[0].nama : "-",
-        "Harga Produk":
-          desa.produk.length > 0
-            ? `Rp ${desa.produk[0].harga_awal.toLocaleString(
-                "id-ID"
-              )} - Rp ${desa.produk[0].harga_akhir.toLocaleString("id-ID")}`
-            : "-",
+        "Harga Produk": desa.produk.length > 0 ? `Rp ${desa.produk[0].harga_awal.toLocaleString("id-ID")} - Rp ${desa.produk[0].harga_akhir.toLocaleString("id-ID")}` : "-",
         "Nama Pengurus": desa.pengurus.length > 0 ? desa.pengurus[0].nama : "-",
-        "Jabatan Pengurus":
-          desa.pengurus.length > 0 ? desa.pengurus[0].jabatan : "-",
-        "No HP Pengurus":
-          desa.pengurus.length > 0 ? desa.pengurus[0].nohp : "-",
+        "Jabatan Pengurus": desa.pengurus.length > 0 ? desa.pengurus[0].jabatan : "-",
+        "No HP Pengurus": desa.pengurus.length > 0 ? desa.pengurus[0].nohp : "-",
       };
 
       // Baris tambahan untuk produk (jika ada lebih dari satu produk)
@@ -337,9 +281,7 @@ const ListKelompokDesa = () => {
         "Jumlah Anggota Awal": "",
         Kategori: "",
         "Nama Produk": produk.nama,
-        "Harga Produk": `Rp ${produk.harga_awal.toLocaleString(
-          "id-ID"
-        )} - Rp ${produk.harga_akhir.toLocaleString("id-ID")}`,
+        "Harga Produk": `Rp ${produk.harga_awal.toLocaleString("id-ID")} - Rp ${produk.harga_akhir.toLocaleString("id-ID")}`,
         "Nama Pengurus": "", // Kolom pengurus dikosongkan
         "Jabatan Pengurus": "",
         "No HP Pengurus": "",
@@ -418,106 +360,73 @@ const ListKelompokDesa = () => {
 
   return (
     <>
-    <ErrorBoundary>
-      <div
-        className={`App py-7 px-5 flex flex-col md:flex-row w-full lg:100% justify-center ${
-          isFilterVisible ? "w-full" : ""
-        } `}
-      >
-        {isMobile && (
+      <ErrorBoundary>
+        <div className={`App py-7 px-5 flex flex-col md:flex-row w-full lg:100% justify-center ${isFilterVisible ? "w-full" : ""} `}>
+          {isMobile && <div className={`fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 z-40 ${isFilterVisible ? "block" : "hidden"}`} onClick={toggleFilter}></div>}
+
           <div
-            className={`fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 z-40 ${
-              isFilterVisible ? "block" : "hidden"
-            }`}
-            onClick={toggleFilter}
-          ></div>
-        )}
-
-        <div
-          className={`${isFilterVisible ? "hidden" : "md:block"}
+            className={`${isFilterVisible ? "hidden" : "md:block"}
               hidden h-fit bg-white p-3 rounded-sm hover:bg-inactive cursor-pointer transition-colors duration-300`}
-          onClick={toggleFilter}
-        >
-          <FontAwesomeIcon icon={faFilter} style={{ color: "#A8A8A8" }} />
-        </div>
-        {/* Filter Section */}
-        {isFilterVisible && (
-          <FilterSection
-            isFilterVisible={isFilterVisible}
-            toggleFilter={toggleFilter}
-            search={search}
-            setSearch={setSearch}
-            startDate={startDate}
-            setStartDate={setStartDate}
-            endDate={endDate}
-            setEndDate={setEndDate}
-            desaList={desaList}
-            userRole={userRole}
-            formatKabupatenName={formatKabupatenName}
-          />
-        )}
+            onClick={toggleFilter}
+          >
+            <FontAwesomeIcon icon={faFilter} style={{ color: "#A8A8A8" }} />
+          </div>
+          {/* Filter Section */}
+          {isFilterVisible && (
+            <FilterSection
+              isFilterVisible={isFilterVisible}
+              toggleFilter={toggleFilter}
+              search={search}
+              setSearch={setSearch}
+              startDate={startDate}
+              setStartDate={setStartDate}
+              endDate={endDate}
+              setEndDate={setEndDate}
+              desaList={desaList}
+              userRole={userRole}
+              formatKabupatenName={formatKabupatenName}
+            />
+          )}
 
-        {/* Main Content */}
-        <div className={`ml-0 md:ml-4 bg-white w-full md:w-[80%]`}>
-          <SearchSection
-            profil={profil}
-            search={search}
-            setSearch={setSearch}
-            toggleFilter={toggleFilter}
-            isFilterVisible={isFilterVisible}
-            kabupatenName={kabupatenName}
-            userRole={userRole}
-            exportToExcel={exportToExcel}
-            setIsModalOpen={setIsModalOpen}
-          />
+          {/* Main Content */}
+          <div className={`ml-0 md:ml-4 bg-white w-full md:w-[80%]`}>
+            <SearchSection
+              profil={profil}
+              search={search}
+              setSearch={setSearch}
+              toggleFilter={toggleFilter}
+              isFilterVisible={isFilterVisible}
+              kabupatenName={kabupatenName}
+              userRole={userRole}
+              exportToExcel={exportToExcel}
+              setIsModalOpen={setIsModalOpen}
+            />
 
-          <ActiveFilters
-            userRole={userRole}
-            search={search}
-            setSearch={setSearch}
-            startDate={startDate}
-            setStartDate={setStartDate}
-            endDate={endDate}
-            setEndDate={setEndDate}
-            formatCurrency={formatCurrency}
-            clearFilters={clearFilters}
-          />
+            <ActiveFilters userRole={userRole} search={search} setSearch={setSearch} startDate={startDate} setStartDate={setStartDate} endDate={endDate} setEndDate={setEndDate} formatCurrency={formatCurrency} clearFilters={clearFilters} />
 
-          <DataTable
-            desaList={desaList || []}
-            filteredDesa={(filteredDesaList || []).map((desa, index) => ({
-              ...desa,
-              no: index + 1,
-              alamat: `${desa.kelurahan || ""}, ${desa.kecamatan || ""}, ${desa.kabupaten_kota || ""}`,
-              tanggal_pembentukan: desa.tanggal_pembentukan
-                ? new Date(desa.tanggal_pembentukan).toLocaleDateString(
-                    "id-ID",
-                    {
+            <DataTable
+              desaList={desaList || []}
+              filteredDesa={(filteredDesaList || []).map((desa, index) => ({
+                ...desa,
+                no: index + 1,
+                alamat: `${desa.kelurahan || ""}, ${desa.kecamatan || ""}, ${desa.kabupaten_kota || ""}`,
+                tanggal_pembentukan: desa.tanggal_pembentukan
+                  ? new Date(desa.tanggal_pembentukan).toLocaleDateString("id-ID", {
                       day: "numeric",
                       month: "long",
                       year: "numeric",
-                    }
-                  )
-                : "-",
-              jumlah_dana_sekarang: formatCurrency(
-                desa.jumlah_dana_sekarang || 0
-              ),
-            }))}
-            columns={columns}
-            isMobile={isMobile}
-            onUpdate={fetchDesaData}
-          />
+                    })
+                  : "-",
+                jumlah_dana_sekarang: formatCurrency(desa.jumlah_dana_sekarang || 0),
+              }))}
+              columns={columns}
+              isMobile={isMobile}
+              onUpdate={fetchDesaData}
+            />
+          </div>
         </div>
-      </div>
 
-      {isModalOpen && (
-        <Modal
-          isOpen={isModalOpen}
-          onClose={handleModalClose}
-          selectedDesa={selectedDesa}
-          kabupatenName={formattedKabupaten}
-        />
-      )}
+        {isModalOpen && <Modal isOpen={isModalOpen} onClose={handleModalClose} selectedDesa={selectedDesa} kabupatenName={formattedKabupaten} />}
       </ErrorBoundary>
     </>
   );

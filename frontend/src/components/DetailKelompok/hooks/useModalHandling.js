@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState } from "react";
 
 export const useModalHandlers = (defaultTab, fetchFunctions) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -9,7 +9,7 @@ export const useModalHandlers = (defaultTab, fetchFunctions) => {
   const [itemToDelete, setItemToDelete] = useState(null);
   const [deleteItemType, setDeleteItemType] = useState(null);
   const [entityToEdit, setEntityToEdit] = useState(null);
-  const [editEntityType, setEditEntityType] = useState('');
+  const [editEntityType, setEditEntityType] = useState("");
   const [selectedItem, setSelectedItem] = useState(null);
 
   const openDeleteItemModal = (item, type) => {
@@ -25,7 +25,7 @@ export const useModalHandlers = (defaultTab, fetchFunctions) => {
     setSelectedItem(null);
 
     if (isSuccess) {
-      switch(selectedTab) {
+      switch (selectedTab) {
         case "Galeri":
           fetchFunctions.fetchGaleri();
           break;
@@ -37,6 +37,9 @@ export const useModalHandlers = (defaultTab, fetchFunctions) => {
           break;
         case "Pengurus":
           fetchFunctions.fetchPengurus();
+          break;
+        case "Kas":
+          fetchFunctions.fetchKas();
           break;
         default:
           break;
@@ -81,7 +84,7 @@ export const useModalHandlers = (defaultTab, fetchFunctions) => {
     entityToEdit,
     editEntityType,
     selectedItem,
-    
+
     // Setters
     setIsModalOpen,
     setIsDeleteModalOpen,
@@ -93,13 +96,13 @@ export const useModalHandlers = (defaultTab, fetchFunctions) => {
     setEntityToEdit,
     setEditEntityType,
     setSelectedItem,
-    
+
     // Handlers
     openDeleteItemModal,
     handleModalClose,
     handleEdit,
     handleEditModal,
     handleAdd,
-    handleDeleteModalClose
+    handleDeleteModalClose,
   };
 };

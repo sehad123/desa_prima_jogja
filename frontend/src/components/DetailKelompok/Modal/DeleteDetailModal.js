@@ -1,12 +1,6 @@
 import React from "react";
 
-const DeleteDetailModal = ({
-  isOpen,
-  onClose,
-  onConfirm,
-  itemType,
-  itemName = "",
-}) => {
+const DeleteDetailModal = ({ isOpen, onClose, onConfirm, itemType, itemName = "" }) => {
   if (!isOpen) return null;
 
   const getItemTypeText = () => {
@@ -19,6 +13,8 @@ const DeleteDetailModal = ({
         return "produk";
       case "pengurus":
         return "pengurus";
+      case "kas":
+        return "kas";
       case "desa":
         return "desa";
       default:
@@ -35,16 +31,10 @@ const DeleteDetailModal = ({
           {itemName && ` "${itemName}"`}?
         </p>
         <div className="mt-4 flex justify-end gap-4">
-          <button
-            className="bg-gray-500 text-white py-2 px-4 rounded-md hover:bg-gray-600"
-            onClick={onClose}
-          >
+          <button className="bg-gray-500 text-white py-2 px-4 rounded-md hover:bg-gray-600" onClick={onClose}>
             Batal
           </button>
-          <button
-            className="bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600"
-            onClick={onConfirm}
-          >
+          <button className="bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600" onClick={onConfirm}>
             Hapus
           </button>
         </div>

@@ -2,6 +2,9 @@ const express = require("express");
 const multer = require("multer"); // Untuk menangani upload file
 const path = require("path");
 const {
+  addKasDesa,
+  editKasDesa,
+  getKasByDesaId,
   editPengurusDesa,
   editProdukDesa,
   addPengurusDesa,
@@ -59,11 +62,13 @@ const {
   countTotalProdukByKabupaten,
   getDesaByKabupaten,
   deleteMultipleItems,
+
   getTotalDesaCount,
   desaMaju,
   desaBerkembang,
   desaTumbuh,
   countTotalAndByKabupaten,
+  deleteKasDesa,
 } = require("../service/desaService");
 
 const router = express.Router();
@@ -220,9 +225,7 @@ router.get("/count/desa/berkembang", async (req, res) => {
     const count = await desaService.countAllDesaBerkembang();
     res.json({ kategori: "Berkembang", count });
   } catch (error) {
-    res
-      .status(500)
-      .json({ error: "Gagal menghitung desa kategori Berkembang" });
+    res.status(500).json({ error: "Gagal menghitung desa kategori Berkembang" });
   }
 });
 
@@ -387,21 +390,15 @@ const upload = multer({ storage: storage });
 
 // Routes untuk galeri
 // Menambahkan gambar ke galeri desa
-router.post(
-  "/:kelompokId/galeri",
-  upload.single("gambar"),
-  async (req, res) => {
-    try {
-      const imagePath = req.file ? `/uploads/${req.file.filename}` : null; // Mendapatkan nama file yang di-upload
-      const newImage = await addImageToGaleri(req.params.kelompokId, imagePath);
-      res.status(201).json(newImage);
-    } catch (error) {
-      res
-        .status(500)
-        .json({ error: "Gagal menambahkan gambar ke galeri desa" });
-    }
+router.post("/:kelompokId/galeri", upload.single("gambar"), async (req, res) => {
+  try {
+    const imagePath = req.file ? `/uploads/${req.file.filename}` : null; // Mendapatkan nama file yang di-upload
+    const newImage = await addImageToGaleri(req.params.kelompokId, imagePath);
+    res.status(201).json(newImage);
+  } catch (error) {
+    res.status(500).json({ error: "Gagal menambahkan gambar ke galeri desa" });
   }
-);
+});
 
 // Menghapus gambar dari galeri desa
 router.delete("/:kelompokId/galeri/:id", async (req, res) => {
@@ -422,7 +419,49 @@ router.get("/:kelompokId/produk", async (req, res) => {
     res.status(500).json({ error: "Gagal mengambil produk desa" });
   }
 });
+router.get("/:kelompokId/kas", async (req, res) => {
+  try {
+    const kas = await getKasByDesaId(req.params.kelompokId);
+    res.json(kas);
+  } catch (error) {
+    res.status(500).json({ error: "Gagal mengambil kas desa" });
+  }
+});
 
+router.post("/:kelompokId/kas", async (req, res) => {
+  try {
+    const { tgl_transaksi, jenis_transaksi, nama_transaksi, total_transaksi } = req.body;
+
+    const newKas = await addKasDesa(req.params.kelompokId, tgl_transaksi, jenis_transaksi, nama_transaksi, total_transaksi);
+
+    res.status(201).json(newKas);
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({
+      error: "Gagal menambahkan data kas desa",
+      details: error.message,
+    });
+  }
+});
+
+router.put("/:kelompokId/kas/:id", async (req, res) => {
+  try {
+    const updatedKas = await editKasDesa(req.params.id, req.params.kelompokId, {
+      nama_transaksi: req.body.nama_transaksi,
+      jenis_transaksi: req.body.jenis_transaksi,
+      total_transaksi: req.body.total_transaksi,
+      // Opsional: tgl_transaksi: req.body.tgl_transaksi
+    });
+
+    res.json(updatedKas);
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({
+      error: "Gagal mengedit data kas desa",
+      details: error.message,
+    });
+  }
+});
 // Route untuk mendapatkan semua pengurus desa berdasarkan kelompokId
 router.get("/:kelompokId/pengurus", async (req, res) => {
   try {
@@ -441,8 +480,7 @@ router.post("/:kelompokId/produk", upload.single("foto"), async (req, res) => {
     }
 
     const foto = req.file ? `/uploads/${req.file.filename}` : null;
-    const { nama, harga_awal, harga_akhir, pelaku_usaha, nohp, deskripsi } =
-      req.body;
+    const { nama, harga_awal, harga_akhir, pelaku_usaha, nohp, deskripsi } = req.body;
 
     const newProduk = await addProdukDesa(
       req.params.kelompokId,
@@ -466,26 +504,16 @@ router.post("/:kelompokId/produk", upload.single("foto"), async (req, res) => {
 });
 
 // Route untuk menambahkan pengurus desa
-router.post(
-  "/:kelompokId/pengurus",
-  upload.single("foto"),
-  async (req, res) => {
-    try {
-      const imagePath = req.file ? `/uploads/${req.file.filename}` : null;
-      const { nama, nohp, jabatan } = req.body;
-      const newPengurus = await addPengurusDesa(
-        req.params.kelompokId,
-        imagePath,
-        nama,
-        nohp,
-        jabatan
-      );
-      res.status(201).json(newPengurus);
-    } catch (error) {
-      res.status(500).json({ error: "Gagal menambahkan pengurus desa" });
-    }
+router.post("/:kelompokId/pengurus", upload.single("foto"), async (req, res) => {
+  try {
+    const imagePath = req.file ? `/uploads/${req.file.filename}` : null;
+    const { nama, nohp, jabatan } = req.body;
+    const newPengurus = await addPengurusDesa(req.params.kelompokId, imagePath, nama, nohp, jabatan);
+    res.status(201).json(newPengurus);
+  } catch (error) {
+    res.status(500).json({ error: "Gagal menambahkan pengurus desa" });
   }
-);
+});
 
 // Route untuk menghapus produk desa
 router.delete("/:kelompokId/produk/:id", async (req, res) => {
@@ -494,6 +522,14 @@ router.delete("/:kelompokId/produk/:id", async (req, res) => {
     res.json(deletedProduk);
   } catch (error) {
     res.status(500).json({ error: "Gagal menghapus produk desa" });
+  }
+});
+router.delete("/:kelompokId/kas/:id", async (req, res) => {
+  try {
+    const deleteKas = await deleteKasDesa(req.params.id);
+    res.json(deleteKas);
+  } catch (error) {
+    res.status(500).json({ error: "Gagal menghapus kas desa" });
   }
 });
 
@@ -508,96 +544,72 @@ router.delete("/:kelompokId/pengurus/:id", async (req, res) => {
 });
 
 // Route untuk mengedit produk desa
-router.put(
-  "/:kelompokId/produk/:id",
-  upload.single("foto"),
-  async (req, res) => {
-    console.log("Request body:", req.body);
-    console.log("File received:", req.file);
+router.put("/:kelompokId/produk/:id", upload.single("foto"), async (req, res) => {
+  console.log("Request body:", req.body);
+  console.log("File received:", req.file);
 
-    try {
-      const { nama, harga_awal, harga_akhir, pelaku_usaha, nohp, deskripsi } =
-        req.body;
+  try {
+    const { nama, harga_awal, harga_akhir, pelaku_usaha, nohp, deskripsi } = req.body;
 
-      // Handle file upload
-      const imagePath = req.file ? `/uploads/${req.file.filename}` : undefined;
+    // Handle file upload
+    const imagePath = req.file ? `/uploads/${req.file.filename}` : undefined;
 
-      // Prepare update data
-      const updateData = {
-        nama,
-        harga_awal: parseInt(harga_awal),
-        harga_akhir: parseInt(harga_akhir),
-        pelaku_usaha,
-        nohp,
-        deskripsi,
-      };
+    // Prepare update data
+    const updateData = {
+      nama,
+      harga_awal: parseInt(harga_awal),
+      harga_akhir: parseInt(harga_akhir),
+      pelaku_usaha,
+      nohp,
+      deskripsi,
+    };
 
-      // Only add foto if a new file was uploaded
-      if (imagePath) {
-        updateData.foto = imagePath;
-      }
-
-      const updatedProduk = await editProdukDesa(
-        req.params.id,
-        req.params.kelompokId,
-        updateData // Pass regular object instead of FormData
-      );
-
-      res.json(updatedProduk);
-    } catch (error) {
-      console.error("Error:", error);
-      res.status(500).json({
-        error: "Gagal mengedit produk desa",
-        details: error.message,
-      });
+    // Only add foto if a new file was uploaded
+    if (imagePath) {
+      updateData.foto = imagePath;
     }
+
+    const updatedProduk = await editProdukDesa(
+      req.params.id,
+      req.params.kelompokId,
+      updateData // Pass regular object instead of FormData
+    );
+
+    res.json(updatedProduk);
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({
+      error: "Gagal mengedit produk desa",
+      details: error.message,
+    });
   }
-);
+});
 
 // Route untuk mengedit pengurus desa
-router.put(
-  "/:kelompokId/pengurus/:id",
-  upload.single("foto"),
-  async (req, res) => {
-    console.log("File received:", req.file); // Debugging
-    try {
-      const imagePath = req.file ? `/uploads/${req.file.filename}` : null;
-      const { nama, jabatan, nohp } = req.body;
-      const updatedPengurus = await editPengurusDesa(
-        req.params.id,
-        req.params.kelompokId,
-        imagePath,
-        nama,
-        jabatan,
-        nohp
-      );
-      res.json(updatedPengurus);
-    } catch (error) {
-      res.status(500).json({ error: "Gagal mengedit pengurus desa" });
-    }
+router.put("/:kelompokId/pengurus/:id", upload.single("foto"), async (req, res) => {
+  console.log("File received:", req.file); // Debugging
+  try {
+    const imagePath = req.file ? `/uploads/${req.file.filename}` : null;
+    const { nama, jabatan, nohp } = req.body;
+    const updatedPengurus = await editPengurusDesa(req.params.id, req.params.kelompokId, imagePath, nama, jabatan, nohp);
+    res.json(updatedPengurus);
+  } catch (error) {
+    res.status(500).json({ error: "Gagal mengedit pengurus desa" });
   }
-);
+});
 
 // Routes untuk notulensi
 // Menambahkan file notulensi
-router.post(
-  "/:kelompokId/notulensi",
-  upload.single("file"),
-  async (req, res) => {
-    try {
-      const filePath = req.file.filename; // Mendapatkan nama file yang di-upload
-      const catatan = req.body.catatan || "";
-      const newNotulensi = await addFileNotulensi(
-        req.params.kelompokId,
-        filePath,
-        catatan
-      );
-      res.status(201).json(newNotulensi);
-    } catch (error) {
-      res.status(500).json({ error: "Gagal menambahkan file notulensi" });
-    }
+router.post("/:kelompokId/notulensi", upload.single("file"), async (req, res) => {
+  try {
+    const filePath = req.file.filename; // Mendapatkan nama file yang di-upload
+    const catatan = req.body.catatan || "";
+    const newNotulensi = await addFileNotulensi(req.params.kelompokId, filePath, catatan);
+    res.status(201).json(newNotulensi);
+  } catch (error) {
+    res.status(500).json({ error: "Gagal menambahkan file notulensi" });
   }
-);
+});
 
 // Menghapus file notulensi
 router.delete("/:kelompokId/notulensi/:id", async (req, res) => {
@@ -637,9 +649,7 @@ router.get("/", async (req, res) => {
     const kabupatenQuery = req.query.kabupaten; // Dapatkan nilai kabupaten dari URL query string
 
     // Jika ada parameter kabupaten, gunakan sebagai filter, jika tidak gunakan kabupatenFilter default
-    const kabupatenFilter = kabupatenQuery
-      ? [kabupatenQuery.toUpperCase()]
-      : null;
+    const kabupatenFilter = kabupatenQuery ? [kabupatenQuery.toUpperCase()] : null;
 
     const desa = await getAllDesa(kabupatenFilter);
     res.json(desa);
@@ -688,6 +698,18 @@ router.get("/:id", async (req, res) => {
   }
 });
 
+// router.get("/:id", async (req, res) => {
+//   try {
+//     const desa = await getDesaWithKasSummary(req.params.id);
+//     if (!desa) {
+//       return res.status(404).json({ error: "Desa tidak ditemukan" });
+//     }
+//     res.json(desa);
+//   } catch (error) {
+//     res.status(500).json({ error: error.message });
+//   }
+// });
+
 // Update status desa
 router.patch("/:id/status", async (req, res) => {
   const { status } = req.body;
@@ -727,10 +749,7 @@ router.delete("/:id", async (req, res) => {
   } catch (error) {
     console.error("Delete error:", error);
 
-    if (
-      error.code === "P2025" ||
-      error.message.includes("Record to delete does not exist")
-    ) {
+    if (error.code === "P2025" || error.message.includes("Record to delete does not exist")) {
       res.status(404).json({ error: "Desa tidak ditemukan" });
     } else {
       res.status(500).json({ error: error.message || "Gagal menghapus desa" });
@@ -760,7 +779,6 @@ router.get("/anggota/:kabupaten", async (req, res) => {
     });
   }
 });
-
 
 // Rute untuk menghitung jumlah produk tiap desa berdasarkan nama_kabupaten
 router.get("/produk-per-desa/:kabupaten", async (req, res) => {
@@ -796,10 +814,7 @@ router.get("/total-produk-per-kabupaten/:kabupaten", async (req, res) => {
       },
     });
   } catch (error) {
-    console.error(
-      "Error in /total-produk-per-kabupaten/:namaKabupaten route:",
-      error
-    );
+    console.error("Error in /total-produk-per-kabupaten/:namaKabupaten route:", error);
     res.status(500).json({
       success: false,
       message: "Gagal menghitung total produk per kabupaten",
@@ -811,62 +826,64 @@ router.get("/total-produk-per-kabupaten/:kabupaten", async (req, res) => {
 // Route untuk menghapus multiple items
 router.post("/:id/delete-multiple", async (req, res) => {
   try {
-    console.log('Incoming request:', {
+    console.log("Incoming request:", {
       params: req.params,
       body: req.body,
-      headers: req.headers
+      headers: req.headers,
     });
 
     // Validasi input
     const { type, ids } = req.body;
     const desaId = req.params.id;
 
-    if (!type || typeof type !== 'string') {
-      return res.status(400).json({ 
+    if (!type || typeof type !== "string") {
+      return res.status(400).json({
         error: "Parameter 'type' harus ada dan berupa string",
-        received: type
+        received: type,
       });
     }
 
     if (!ids || !Array.isArray(ids)) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         error: "Parameter 'ids' harus ada dan berupa array",
-        received: ids
+        received: ids,
       });
     }
 
     if (ids.length === 0) {
-      return res.status(400).json({ 
-        error: "Array 'ids' tidak boleh kosong"
+      return res.status(400).json({
+        error: "Array 'ids' tidak boleh kosong",
       });
     }
 
     // Eksekusi penghapusan
     const result = await deleteMultipleItems(desaId, type, ids);
-    
-    console.log('Delete successful:', result);
-    res.json(result);
 
+    console.log("Delete successful:", result);
+    res.json(result);
   } catch (error) {
-    console.error('Error in delete route:', {
+    console.error("Error in delete route:", {
       message: error.message,
       stack: error.stack,
       request: {
         params: req.params,
-        body: req.body
-      }
+        body: req.body,
+      },
     });
 
     res.status(500).json({
       error: error.message || "Gagal menghapus item",
       type: "server_error",
-      details: process.env.NODE_ENV === 'development' ? {
-        stack: error.stack,
-        receivedData: {
-          params: req.params,
-          body: req.body
-        }
-      } : undefined
+      details:
+        process.env.NODE_ENV === "development"
+          ? {
+              stack: error.stack,
+              receivedData: {
+                params: req.params,
+                body: req.body,
+              },
+            }
+          : undefined,
     });
   }
 });

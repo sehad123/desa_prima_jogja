@@ -25,15 +25,7 @@ const Modals = ({
 }) => {
   return (
     <>
-      {isDeleteModalOpen && (
-        <DeleteModal
-          isOpen={isDeleteModalOpen}
-          onClose={onDeleteModalClose}
-          onConfirm={onDelete}
-          itemType="desa"
-          itemName={desa?.namaDesa}
-        />
-      )}
+      {isDeleteModalOpen && <DeleteModal isOpen={isDeleteModalOpen} onClose={onDeleteModalClose} onConfirm={onDelete} itemType="desa" itemName={desa?.namaDesa} />}
 
       {isDeleteItemModalOpen && (
         <DeleteModal
@@ -41,41 +33,20 @@ const Modals = ({
           onClose={onDeleteItemModalClose}
           onConfirm={onDeleteItem}
           itemType={deleteItemType}
-          itemName={
-            deleteItemType === "galeri"
-              ? ""
-              : deleteItemType === "notulensi"
-              ? itemToDelete?.catatan
-              : itemToDelete?.nama
-          }
+          itemName={deleteItemType === "galeri" ? "" : deleteItemType === "notulensi" ? itemToDelete?.catatan : itemToDelete?.nama}
         />
       )}
 
-      {isDeleteMultipleModalOpen && (
-        <DeleteModal
-          isOpen={isDeleteMultipleModalOpen}
-          onClose={onDeleteMultipleModalClose}
-          onConfirm={onDeleteMultiple}
-          itemType={selectedTab.toLowerCase()}
-          itemName={`${selectedItems.length} item`}
-        />
-      )}
+      {isDeleteMultipleModalOpen && <DeleteModal isOpen={isDeleteMultipleModalOpen} onClose={onDeleteMultipleModalClose} onConfirm={onDeleteMultiple} itemType={selectedTab.toLowerCase()} itemName={`${selectedItems.length} item`} />}
 
-      {isModalOpen && modalType === "form" && (
-        <FormModal onClose={onModalClose} selectedDesa={desa} />
-      )}
+      {isModalOpen && modalType === "form" && <FormModal onClose={onModalClose} selectedDesa={desa} />}
 
       {isModalOpen && (
         <DetailModal
           isOpen={isModalOpen}
           onClose={onModalClose}
           selectedDesa={desa}
-          activeTab={
-            modalType === "notulensi" ? "notulensiMateri" :
-            modalType === "galeri" ? "galeriFoto" :
-            modalType === "produk" ? "uraianProduk" :
-            "pengurusDesa"
-          }
+          activeTab={modalType === "notulensi" ? "notulensiMateri" : modalType === "galeri" ? "galeriFoto" : modalType === "produk" ? "uraianProduk" : modalType === "kas" ? "kasDesa" : "pengurusDesa"}
           initialData={entityToEdit}
         />
       )}

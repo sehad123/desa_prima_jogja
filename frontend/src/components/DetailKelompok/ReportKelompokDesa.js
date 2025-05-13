@@ -1,40 +1,14 @@
 import React from "react";
-import {
-  Text,
-  View,
-  Page,
-  Document,
-  StyleSheet,
-  Image,
-} from "@react-pdf/renderer";
+import { Text, View, Page, Document, StyleSheet, Image } from "@react-pdf/renderer";
 
 const formatDate = (dateString) => {
   if (!dateString) return "Tidak tersedia";
-  const months = [
-    "Januari",
-    "Februari",
-    "Maret",
-    "April",
-    "Mei",
-    "Juni",
-    "Juli",
-    "Agustus",
-    "September",
-    "Oktober",
-    "November",
-    "Desember",
-  ];
+  const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
   const date = new Date(dateString);
   return `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`;
 };
 
-const ReportKelompokDesa = ({
-  desa,
-  profil,
-  galeri = [],
-  produk = [],
-  pengurus = [],
-}) => {
+const ReportKelompokDesa = ({ desa, profil, galeri = [], produk = [], pengurus = [], kas = [] }) => {
   const currentDate = new Date();
   const formattedDate = currentDate.toLocaleDateString("id-ID", {
     day: "numeric",
@@ -145,21 +119,21 @@ const ReportKelompokDesa = ({
       margin: 0,
     },
     productContainer: {
-      flexDirection: 'row',
-      border: '1px solid #ddd',
-      padding: 8
+      flexDirection: "row",
+      border: "1px solid #ddd",
+      padding: 8,
     },
     productImageColumn: {
-      width: '30%',
-      paddingRight: 8
+      width: "30%",
+      paddingRight: 8,
     },
     productInfoColumn: {
-      width: '70%'
+      width: "70%",
     },
     productImage: {
-      width: '100%',
+      width: "100%",
       height: 120,
-      objectFit: 'contain'
+      objectFit: "contain",
     },
     image: {
       width: 100,
@@ -225,9 +199,7 @@ const ReportKelompokDesa = ({
 
   const ReportTitle = () => (
     <View style={styles.titleContainer}>
-      <Text style={styles.reportTitle}>
-        Laporan Kegiatan Kelompok Desa {desa.nama}
-      </Text>
+      <Text style={styles.reportTitle}>Laporan Kegiatan Kelompok Desa {desa.nama}</Text>
       <View style={styles.underline} />
     </View>
   );
@@ -249,27 +221,20 @@ const ReportKelompokDesa = ({
       <View style={styles.detailRow}>
         <Text style={styles.detailTitle}>Nama Kelompok Desa</Text>
         <Text style={styles.detailText}>
-          : {desa.kabupatenNama}, Kec. {desa.kecamatanNama}, Kel.{" "}
-          {desa.kelurahanNama}
+          : {desa.kabupatenNama}, Kec. {desa.kecamatanNama}, Kel. {desa.kelurahanNama}
         </Text>
       </View>
       <View style={styles.detailRow}>
         <Text style={styles.detailTitle}>Tanggal Pembentukan</Text>
-        <Text style={styles.detailText}>
-          : {formatTanggal(desa.tanggal_pembentukan)}
-        </Text>
+        <Text style={styles.detailText}>: {formatTanggal(desa.tanggal_pembentukan)}</Text>
       </View>
       <View style={styles.detailRow}>
         <Text style={styles.detailTitle}>Jumlah Hibah Diterima</Text>
-        <Text style={styles.detailText}>
-          : {formatRupiah(desa.jumlah_hibah_diterima)}
-        </Text>
+        <Text style={styles.detailText}>: {formatRupiah(desa.jumlah_hibah_diterima)}</Text>
       </View>
       <View style={styles.detailRow}>
         <Text style={styles.detailTitle}>Jumlah Dana Sekarang</Text>
-        <Text style={styles.detailText}>
-          : {formatRupiah(desa.jumlah_dana_sekarang)}
-        </Text>
+        <Text style={styles.detailText}>: {formatRupiah(desa.jumlah_dana_sekarang)}</Text>
       </View>
       <View style={styles.detailRow}>
         <Text style={styles.detailTitle}>Jumlah Anggota Awal</Text>
@@ -310,32 +275,32 @@ const ReportKelompokDesa = ({
     <View>
       <Text style={styles.sectionTitle}> II. Produk</Text>
       {produk.length > 0 ? (
-        <View >
+        <View>
           {produk.map((item) => (
-            <View 
-              key={item.id} 
-              style={{ 
-                flexDirection: 'row', 
-                border: '1px solid #ddd',
+            <View
+              key={item.id}
+              style={{
+                flexDirection: "row",
+                border: "1px solid #ddd",
                 padding: 8,
-                breakInside: 'avoid', // Mencegah pemisahan di tengah elemen
+                breakInside: "avoid", // Mencegah pemisahan di tengah elemen
               }}
               wrap={false} // Mencegah wrapping ke halaman berikutnya
             >
               {/* Kolom Gambar */}
-              <View style={{ width: '30%', paddingRight: 8 }}>
+              <View style={{ width: "30%", paddingRight: 8 }}>
                 <Image
                   src={`http://localhost:5000${item.foto}`}
-                  style={{ 
-                    width: '100%', 
+                  style={{
+                    width: "100%",
                     height: 120,
-                    objectFit: 'contain'
+                    objectFit: "contain",
                   }}
                 />
               </View>
-              
+
               {/* Kolom Deskripsi */}
-              <View style={{ width: '70%' }}>
+              <View style={{ width: "70%" }}>
                 <View style={styles.detailRow}>
                   <Text style={[styles.detailTitle, { width: 80 }]}>Nama Produk</Text>
                   <Text style={styles.detailText}>: {item.nama}</Text>
@@ -394,9 +359,7 @@ const ReportKelompokDesa = ({
                   onError={(e) => console.log("Gagal memuat gambar:", e)}
                 />
               </View>
-              <Text style={styles.captionText}>
-                {formatTanggal(item.createdAt)}
-              </Text>
+              <Text style={styles.captionText}>{formatTanggal(item.createdAt)}</Text>
             </View>
           );
         })}
@@ -422,9 +385,7 @@ const ReportKelompokDesa = ({
           <View>
             {pengurus.length > 0 ? (
               <>
-                <Text style={styles.sectionTitle}>
-                  I. Rincian Pengurus Kelompok Desa
-                </Text>
+                <Text style={styles.sectionTitle}>I. Rincian Pengurus Kelompok Desa</Text>
                 <TableHeader />
                 {pengurus.map((item, index) => (
                   <TableRow key={index} item={item} />

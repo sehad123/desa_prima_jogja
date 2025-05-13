@@ -1,7 +1,7 @@
-import React from 'react';
-import DeleteDetailModal from './DeleteDetailModal';
+import React from "react";
+import DeleteDetailModal from "./DeleteDetailModal";
 import KelompokModal from "../../Modal/KelompokModal";
-import TabDetailModal from './TabDetailModal';
+import TabDetailModal from "./TabDetailModal";
 
 const ModalManager = ({
   // State modal
@@ -10,7 +10,7 @@ const ModalManager = ({
   isDeleteItemModalOpen,
   isModalOpen,
   setIsDeleteItemModalOpen,
-  
+
   // State data
   selectedTab,
   selectedItems,
@@ -21,7 +21,7 @@ const ModalManager = ({
   selectedDesa,
   modalType,
   entityToEdit,
-  
+
   // Handlers
   setSelectedItems,
   setIsDeleteMultipleModalOpen,
@@ -31,46 +31,42 @@ const ModalManager = ({
   handleDeleteDesa,
   handleDeleteItem,
   handleModalClose,
-  
+
   // Fetch functions
   fetchGaleri,
   fetchNotulensi,
   fetchProduk,
   fetchPengurus,
-  
+  fetchKas,
+
   // Loading states
   loadingDeleteActivity,
   loadingDelete,
 }) => {
-    const handleDeleteItemConfirmed = async () => {
-        try {
-          const success = await handleDeleteItem(
-            id,
-            deleteItemType,
-            itemToDelete,
-            { fetchGaleri, fetchNotulensi, fetchProduk, fetchPengurus }
-          );
-          
-          if (success) {
-            setIsDeleteItemModalOpen(false);
-            setSelectedItems([]);
-          }
-        } catch (error) {
-          console.error("Error dalam handleDeleteItemConfirmed:", error);
-        }
-      };
-      
-      const handleDeleteDesaConfirmed = async () => {
-        try {
-          const success = await handleDeleteDesa(id, desa);
-          if (success) {
-            setIsDeleteModalOpen(false);
-          }
-        } catch (error) {
-          console.error("Error dalam handleDeleteDesaConfirmed:", error);
-        }
-      };
-      
+  const handleDeleteItemConfirmed = async () => {
+    try {
+      const success = await handleDeleteItem(id, deleteItemType, itemToDelete, { fetchGaleri, fetchNotulensi, fetchProduk, fetchPengurus, fetchKas });
+
+      if (success) {
+        setIsDeleteItemModalOpen(false);
+        setSelectedItems([]);
+      }
+    } catch (error) {
+      console.error("Error dalam handleDeleteItemConfirmed:", error);
+    }
+  };
+
+  const handleDeleteDesaConfirmed = async () => {
+    try {
+      const success = await handleDeleteDesa(id, desa);
+      if (success) {
+        setIsDeleteModalOpen(false);
+      }
+    } catch (error) {
+      console.error("Error dalam handleDeleteDesaConfirmed:", error);
+    }
+  };
+
   return (
     <>
       {/* Delete Multiple Modal */}
@@ -86,16 +82,7 @@ const ModalManager = ({
       )}
 
       {/* Delete Desa Modal */}
-      {isDeleteModalOpen && (
-        <DeleteDetailModal
-          isOpen={isDeleteModalOpen}
-          onClose={handleDeleteModalClose}
-          onConfirm={handleDeleteDesa}
-          itemType="desa"
-          itemName={desa?.namaDesa}
-          isLoading={loadingDelete}
-        />
-      )}
+      {isDeleteModalOpen && <DeleteDetailModal isOpen={isDeleteModalOpen} onClose={handleDeleteModalClose} onConfirm={handleDeleteDesa} itemType="desa" itemName={desa?.namaDesa} isLoading={loadingDelete} />}
 
       {/* Delete Item Modal */}
       {isDeleteItemModalOpen && (
@@ -111,52 +98,26 @@ const ModalManager = ({
               ? itemToDelete?.catatan
               : deleteItemType === "produk"
               ? itemToDelete?.nama || itemToDelete?.namaProduk
+              : deleteItemType === "kas"
+              ? itemToDelete?.nama_transaksi || itemToDelete?.nama_transaksi
               : itemToDelete?.nama || itemToDelete?.namaPengurus
           }
         />
       )}
 
-
       {/* Form Modal */}
-      {isModalOpen && modalType === "form" && (
-        <KelompokModal 
-          onClose={handleModalClose} 
-          selectedDesa={selectedDesa}
-          isEdit={true}
+      {isModalOpen && modalType === "form" && <KelompokModal onClose={handleModalClose} selectedDesa={selectedDesa} isEdit={true} />}
+
+      {/* Tab Detail Modal */}
+      {isModalOpen && (modalType === "pengurus" || modalType === "produk" || modalType === "notulensi" || modalType === "galeri" || modalType === "kas") && (
+        <TabDetailModal
+          isOpen={isModalOpen}
+          onClose={handleModalClose}
+          selectedDesa={modalType === "notulensi" || modalType === "galeri" ? selectedDesa : desa}
+          activeTab={modalType === "notulensi" ? "notulensiMateri" : modalType === "galeri" ? "galeriFoto" : modalType === "produk" ? "uraianProduk" : modalType === "kas" ? "kasDesa" : "pengurusDesa"}
+          initialData={["produk", "pengurus", "kas"].includes(modalType) ? entityToEdit : undefined}
         />
       )}
-      
-      {/* Tab Detail Modal */}
-      {isModalOpen &&
-        (modalType === "pengurus" ||
-          modalType === "produk" ||
-          modalType === "notulensi" ||
-          modalType === "galeri") && (
-          <TabDetailModal
-            isOpen={isModalOpen}
-            onClose={handleModalClose}
-            selectedDesa={
-              modalType === "notulensi" || modalType === "galeri"
-                ? selectedDesa
-                : desa
-            }
-            activeTab={
-              modalType === "notulensi"
-                ? "notulensiMateri"
-                : modalType === "galeri"
-                ? "galeriFoto"
-                : modalType === "produk"
-                ? "uraianProduk"
-                : "pengurusDesa"
-            }
-            initialData={
-              ["produk", "pengurus"].includes(modalType)
-                ? entityToEdit
-                : undefined
-            }
-          />
-        )}
-      
     </>
   );
 };

@@ -7,29 +7,48 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Kabupaten {
-  id             Int              @id @default(autoincrement())
-  nama_kabupaten String           
-  jumlah_desa    Int
-  periode_awal   DateTime
-  periode_akhir  DateTime
-  ketua_forum    String
-  createdAt      DateTime         @default(now())
-  updatedAt      DateTime         @updatedAt
+model galeri {
+  id           Int          @id @default(autoincrement())
+  gambar       String
+  createdAt    DateTime     @default(now())
+  kelompokId   Int
+  kelompokdesa kelompokdesa @relation(fields: [kelompokId], references: [id], onDelete: Cascade, map: "Galeri_kelompokId_fkey")
 
-  User           User[]
-  KelompokDesa   KelompokDesa[]
+  @@index([kelompokId], map: "Galeri_kelompokId_idx")
 }
 
-model KelompokDesa {
+model kabupaten {
+  id             Int            @id @default(autoincrement())
+  nama_kabupaten String
+  jumlah_desa    Int
+  ketua_forum    String
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime
+  periode_akhir  DateTime
+  periode_awal   DateTime
+  kelompokdesa   kelompokdesa[]
+  user           user[]
+}
+
+model kas {
+  id              Int          @id @default(autoincrement())
+  tgl_transaksi   DateTime     @db.DateTime(0)
+  jenis_transaksi String
+  nama_transaksi  String
+  total_transaksi Int
+  kelompokId      Int
+  createdAt       DateTime     @default(now()) @db.DateTime(0)
+  kelompokdesa    kelompokdesa @relation(fields: [kelompokId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "Kas_kelompokId_fkey")
+
+  @@index([kelompokId], map: "Kas_kelompokId_idx")
+}
+
+model kelompokdesa {
   id                      Int         @id @default(autoincrement())
   nama                    String
-  kabupaten_kota          String  
+  kabupaten_kota          String
   kecamatan               String
   kelurahan               String
-  kabupatenNama           String?
-  kecamatanNama           String?
-  kelurahanNama           String
   tanggal_pembentukan     DateTime
   jumlah_dana_sekarang    Int
   jumlah_anggota_awal     Int
@@ -42,78 +61,73 @@ model KelompokDesa {
   longitude               Float?
   kabupatenId             Int?
   createdAt               DateTime    @default(now())
-  updatedAt               DateTime    @updatedAt
-  Kabupaten               Kabupaten?  @relation(fields: [kabupatenId], references: [id], onDelete: Cascade)
+  updatedAt               DateTime
+  kabupatenNama           String?
+  kecamatanNama           String?
+  kelurahanNama           String
+  galeri                  galeri[]
+  kas                     kas[]
+  kabupaten               kabupaten?  @relation(fields: [kabupatenId], references: [id], onDelete: Cascade, map: "KelompokDesa_kabupatenId_fkey")
+  notulensi               notulensi[]
+  pengurus                pengurus[]
+  produk                  produk[]
 
-  Galeri                  Galeri[]
-  Notulensi               Notulensi[]
-  Pengurus                Pengurus[]
-  Produk                  Produk[]
-
-  @@index([kabupatenId], name: "KelompokDesa_kabupatenId_idx")
+  @@index([kabupatenId], map: "KelompokDesa_kabupatenId_idx")
 }
 
-model Galeri {
-  id                Int      @id @default(autoincrement())
-  gambar            String
-  kelompokId        Int
-  createdAt         DateTime @default(now())
-  KelompokDesa      KelompokDesa @relation(fields: [kelompokId], references: [id], onDelete: Cascade)
+model notulensi {
+  id           Int          @id @default(autoincrement())
+  file         String
+  catatan      String
+  createdAt    DateTime     @default(now())
+  kelompokId   Int
+  kelompokdesa kelompokdesa @relation(fields: [kelompokId], references: [id], onDelete: Cascade, map: "Notulensi_kelompokId_fkey")
 
-  @@index([kelompokId], name: "Galeri_kelompokId_idx")
+  @@index([kelompokId], map: "Notulensi_kelompokId_idx")
 }
 
-model Notulensi {
-  id                Int      @id @default(autoincrement())
-  file              String
-  catatan           String
-  kelompokId        Int
-  createdAt         DateTime @default(now())
-  KelompokDesa      KelompokDesa @relation(fields: [kelompokId], references: [id], onDelete: Cascade)
+model pengurus {
+  id           Int          @id @default(autoincrement())
+  nama         String
+  jabatan      String
+  nohp         String?
+  createdAt    DateTime     @default(now())
+  foto         String?
+  kelompokId   Int
+  kelompokdesa kelompokdesa @relation(fields: [kelompokId], references: [id], onDelete: Cascade, map: "Pengurus_kelompokId_fkey")
 
-  @@index([kelompokId], name: "Notulensi_kelompokId_idx")
+  @@index([kelompokId], map: "Pengurus_kelompokId_idx")
 }
 
-model Pengurus {
-  id              Int      @id @default(autoincrement())
-  nama            String
-  foto            String?
-  jabatan         String
-  nohp            String?
-  kelompokId      Int
-  createdAt       DateTime @default(now())
-  KelompokDesa    KelompokDesa @relation(fields: [kelompokId], references: [id], onDelete: Cascade)
+model produk {
+  id           Int          @id @default(autoincrement())
+  nama         String
+  foto         String
+  deskripsi    String
+  createdAt    DateTime     @default(now())
+  nohp         String       @default("")
+  kelompokId   Int
+  updatedAt    DateTime
+  harga_akhir  Int
+  harga_awal   Int
+  pelaku_usaha String       @default("Tidak Diketahui")
+  kelompokdesa kelompokdesa @relation(fields: [kelompokId], references: [id], onDelete: Cascade, map: "Produk_kelompokId_fkey")
 
-  @@index([kelompokId], name: "Pengurus_kelompokId_idx")
+  @@index([kelompokId], map: "Produk_kelompokId_idx")
 }
 
-model Produk {
-  id              Int      @id @default(autoincrement())
-  nama            String
-  harga_awal       Int
-  harga_akhir      Int
-  foto            String
-  deskripsi       String
-  pelaku_usaha     String   @default("Tidak Diketahui")
-  nohp            String   @default("")
-  kelompokId      Int
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  KelompokDesa    KelompokDesa @relation(fields: [kelompokId], references: [id], onDelete: Cascade)
-
-  @@index([kelompokId], name: "Produk_kelompokId_idx")
-}
-
-model User {
+model user {
   id          Int        @id @default(autoincrement())
   name        String
+  role        String
   email       String     @unique
   password    String
-  role        String
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime
   nip         String?
   kabupatenId Int?
-  Kabupaten   Kabupaten? @relation(fields: [kabupatenId], references: [id])
   sendEmail   Boolean    @default(false)
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  kabupaten   kabupaten? @relation(fields: [kabupatenId], references: [id])
+
+  @@index([kabupatenId], map: "user_kabupatenId_fkey")
 }

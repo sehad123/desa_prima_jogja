@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 
 export const useTabHandler = (tabConfig, defaultTab, fetchFunctions) => {
   const [selectedTab, setSelectedTab] = useState(() => {
@@ -23,7 +23,7 @@ export const useTabHandler = (tabConfig, defaultTab, fetchFunctions) => {
 
   useEffect(() => {
     const loadData = async () => {
-      switch(selectedTab) {
+      switch (selectedTab) {
         case "Galeri":
           await fetchFunctions.fetchGaleri();
           setCurrentFiles(fetchFunctions.galeri);
@@ -40,6 +40,10 @@ export const useTabHandler = (tabConfig, defaultTab, fetchFunctions) => {
           await fetchFunctions.fetchPengurus();
           setCurrentFiles(fetchFunctions.pengurus);
           break;
+        case "Kas":
+          await fetchFunctions.fetchKas();
+          setCurrentFiles(fetchFunctions.kas);
+          break;
         default:
           break;
       }
@@ -53,6 +57,6 @@ export const useTabHandler = (tabConfig, defaultTab, fetchFunctions) => {
     setSelectedTab,
     currentFiles,
     setCurrentFiles,
-    tabs: tabConfig["Detail Kelompok"] || []
+    tabs: tabConfig["Detail Kelompok"] || [],
   };
 };

@@ -7,7 +7,6 @@ const path = require("path");
 //   return await prisma.kelompokDesa.findMany();
 // };
 
-
 const getAllDesa = async (kabupatenFilter = null) => {
   // Jika kabupatenFilter tidak diberikan, gunakan filter default
   const filter = kabupatenFilter || ["KAB. KULON PROGO", "KAB. SLEMAN", "KAB. BANTUL", "KOTA YOGYAKARTA", "KAB. GUNUNGKIDUL"];
@@ -167,6 +166,84 @@ const deletePengurusDesa = async (id) => {
     throw new Error("Gagal menghapus pengurus");
   }
 };
+const deleteKasDesa = async (id) => {
+  try {
+    // Cari data berdasarkan ID
+    const Kas = await prisma.kas.findUnique({
+      where: { id: parseInt(id) },
+    });
+
+    if (!Kas) {
+      throw new Error("Data kas tidak ditemukan");
+    }
+
+    // Hapus data dari database
+    return await prisma.kas.delete({
+      where: { id: parseInt(id) },
+    });
+  } catch (error) {
+    console.error("Error deleting kas:", error.message);
+    throw new Error("Gagal menghapus kas");
+  }
+};
+
+const addKasDesa = async (kelompokId, tgl_transaksi, jenis_transaksi, nama_transaksi, total_transaksi) => {
+  return await prisma.kas.create({
+    data: {
+      kelompokId: parseInt(kelompokId),
+      tgl_transaksi: new Date(tgl_transaksi),
+      jenis_transaksi: jenis_transaksi,
+      nama_transaksi: nama_transaksi,
+      total_transaksi: parseInt(total_transaksi),
+    },
+  });
+};
+
+const editKasDesa = async (id, kelompokId, updateData) => {
+  // Cari data kas berdasarkan ID
+  const kas = await prisma.kas.findUnique({
+    where: { id: parseInt(id) },
+  });
+
+  if (!kas) {
+    throw new Error("Data kas tidak ditemukan");
+  }
+
+  // Perbarui data kas
+  return await prisma.kas.update({
+    where: { id: parseInt(id) },
+    data: {
+      kelompokId: parseInt(kelompokId) || kas.kelompokId,
+      nama_transaksi: updateData.nama_transaksi || kas.nama_transaksi,
+      jenis_transaksi: updateData.jenis_transaksi || kas.jenis_transaksi,
+      tgl_transaksi: updateData.tgl_transaksi ? new Date(updateData.tgl_transaksi) : kas.tgl_transaksi,
+      total_transaksi: parseInt(updateData.total_transaksi) || kas.total_transaksi,
+    },
+  });
+};
+// const editKasDesa = async (id, kelompokId, updateData) => {
+//   try {
+//     const kasData = {
+//       tgl_transaksi: new Date(updateData.tgl_transaksi),
+//       jenis_transaksi: updateData.jenis_transaksi,
+//       nama_transaksi: updateData.nama_transaksi,
+//       total_transaksi: parseInt(updateData.total_transaksi),
+//     };
+
+//     const updatedKas = await prisma.kas.update({
+//       where: {
+//         id: parseInt(id),
+//         kelompokId: parseInt(kelompokId),
+//       },
+//       data: kasData,
+//     });
+
+//     return updatedKas;
+//   } catch (error) {
+//     console.error("Error in editKasDesa:", error);
+//     throw new Error(`Gagal mengupdate kas: ${error.message}`);
+//   }
+// };
 
 async function editProdukDesa(id, kelompokId, updateData) {
   try {
@@ -177,7 +254,7 @@ async function editProdukDesa(id, kelompokId, updateData) {
       harga_akhir: parseInt(updateData.harga_akhir),
       pelaku_usaha: updateData.pelaku_usaha,
       nohp: updateData.nohp,
-      deskripsi: updateData.deskripsi
+      deskripsi: updateData.deskripsi,
     };
 
     // Tambahkan foto jika ada
@@ -189,9 +266,9 @@ async function editProdukDesa(id, kelompokId, updateData) {
     const updatedProduk = await prisma.produk.update({
       where: {
         id: parseInt(id),
-        kelompokId: parseInt(kelompokId)
+        kelompokId: parseInt(kelompokId),
       },
-      data: produkData
+      data: produkData,
     });
 
     return updatedProduk;
@@ -200,6 +277,47 @@ async function editProdukDesa(id, kelompokId, updateData) {
     throw new Error(`Gagal mengupdate produk: ${error.message}`);
   }
 }
+
+const getKasByDesaId = async (kelompokId) => {
+  return await prisma.kas.findMany({
+    where: { kelompokId: parseInt(kelompokId) },
+  });
+};
+
+const getDesaWithKasSummary = async (id) => {
+  // Ambil data desa
+  const desa = await prisma.kelompokDesa.findUnique({
+    where: { id: parseInt(id) },
+  });
+
+  if (!desa) return null;
+
+  // Ambil semua transaksi kas untuk desa ini
+  const kasTransactions = await prisma.kas.findMany({
+    where: { kelompokId: parseInt(id) },
+  });
+
+  // Hitung total pemasukan dan pengeluaran
+  let totalPemasukan = 0;
+  let totalPengeluaran = 0;
+
+  kasTransactions.forEach((transaction) => {
+    if (transaction.jenis_transaksi === "Pemasukan") {
+      totalPemasukan += transaction.total_transaksi;
+    } else if (transaction.jenis_transaksi === "Pengeluaran") {
+      totalPengeluaran += transaction.total_transaksi;
+    }
+  });
+
+  // Hitung dana sekarang: hibah + pemasukan - pengeluaran
+  const danaSekarang = desa.jumlah_hibah_diterima + totalPemasukan - totalPengeluaran;
+
+  return {
+    ...desa,
+    jumlah_dana_sekarang: danaSekarang, // Timpa nilai yang ada dengan yang dihitung
+    kas: kasTransactions,
+  };
+};
 
 const editPengurusDesa = async (id, kelompokId, imagePath, nama, jabatan, nohp) => {
   // Cari pengurus berdasarkan ID
@@ -304,7 +422,7 @@ const deleteFileNotulensi = async (id) => {
 const getDesaByKabupaten = async (kabupaten) => {
   try {
     if (!kabupaten) throw new Error("Parameter kabupaten diperlukan");
-    
+
     // Decode URL dan standarisasi format
     const decodedKabupaten = decodeURIComponent(kabupaten)
       .toUpperCase()
@@ -317,9 +435,9 @@ const getDesaByKabupaten = async (kabupaten) => {
         OR: [
           { kabupaten_kota: decodedKabupaten },
           { kabupaten_kota: decodedKabupaten.replace("KAB. ", "KAB.") }, // Format alternatif
-          { kabupaten: decodedKabupaten } // Jika kolom bernama 'kabupaten'
-        ]
-      }
+          { kabupaten: decodedKabupaten }, // Jika kolom bernama 'kabupaten'
+        ],
+      },
     });
 
     if (desa.length === 0) {
@@ -343,24 +461,21 @@ const countAnggotaByKabupaten = async (kabupaten) => {
     throw new Error(`Parameter 'kabupaten' harus string. Diterima: ${kabupaten}`);
   }
 
-  const kabupatenQuery = kabupaten.toUpperCase() === "YOGYAKARTA" 
-    ? "KOTA YOGYAKARTA" 
-    : `KAB. ${kabupaten.toUpperCase()}`;
+  const kabupatenQuery = kabupaten.toUpperCase() === "YOGYAKARTA" ? "KOTA YOGYAKARTA" : `KAB. ${kabupaten.toUpperCase()}`;
 
   const result = await prisma.kelompokDesa.aggregate({
     where: {
       kabupaten_kota: {
-        equals: kabupaten
-      }
+        equals: kabupaten,
+      },
     },
     _sum: {
-      jumlah_anggota_sekarang: true
-    }
+      jumlah_anggota_sekarang: true,
+    },
   });
 
   return result._sum.jumlah_anggota_sekarang || 0;
 };
-
 
 const countByKabupatenAndKategori = async (kabupaten, kategori) => {
   try {
@@ -374,11 +489,8 @@ const countByKabupatenAndKategori = async (kabupaten, kategori) => {
 
     const count = await prisma.kelompokDesa.count({
       where: {
-        AND: [
-          { kategori: kategori.toUpperCase() },
-          { kabupaten_kota: kabupatenQuery }
-        ]
-      }
+        AND: [{ kategori: kategori.toUpperCase() }, { kabupaten_kota: kabupatenQuery }],
+      },
     });
 
     return count;
@@ -494,11 +606,8 @@ const countByKabupatenAndStatus = async (kabupaten, status) => {
 
     const count = await prisma.kelompokDesa.count({
       where: {
-        AND: [
-          { status: status },
-          { kabupaten_kota: kabupatenQuery }
-        ]
-      }
+        AND: [{ status: status }, { kabupaten_kota: kabupatenQuery }],
+      },
     });
 
     return count;
@@ -604,28 +713,28 @@ const countTotalProdukByKabupaten = async (namaKabupaten) => {
   try {
     // 1. Normalisasi input namaKabupaten
     const normalizedInput = namaKabupaten.trim().toUpperCase();
-    
+
     // 2. Format nama kabupaten/kota
     let formattedKabupaten;
-    if (normalizedInput === 'YOGYAKARTA' || normalizedInput === 'KOTA YOGYAKARTA') {
-      formattedKabupaten = 'KOTA YOGYAKARTA';
+    if (normalizedInput === "YOGYAKARTA" || normalizedInput === "KOTA YOGYAKARTA") {
+      formattedKabupaten = "KOTA YOGYAKARTA";
     } else {
       // Hilangkan 'KAB.' jika sudah ada di input, lalu tambahkan dengan format konsisten
-      const cleanedName = normalizedInput.replace(/^KAB\.\s*/i, '');
-      formattedKabupaten = `KAB. ${cleanedName}`; 
+      const cleanedName = normalizedInput.replace(/^KAB\.\s*/i, "");
+      formattedKabupaten = `KAB. ${cleanedName}`;
     }
-    
+
     // 3. Cari desa dengan query yang lebih robust
     const desaList = await prisma.kelompokDesa.findMany({
       where: {
         kabupaten_kota: {
           // Gunakan contains untuk fleksibilitas pencarian
-          contains: formattedKabupaten.replace('KAB. ', '')
-        }
+          contains: formattedKabupaten.replace("KAB. ", ""),
+        },
       },
       select: {
-        id: true
-      }
+        id: true,
+      },
     });
 
     if (!desaList.length) {
@@ -637,9 +746,9 @@ const countTotalProdukByKabupaten = async (namaKabupaten) => {
     const totalProduk = await prisma.produk.count({
       where: {
         kelompokId: {
-          in: desaList.map(desa => desa.id)
+          in: desaList.map((desa) => desa.id),
         },
-      }
+      },
     });
 
     return totalProduk;
@@ -653,51 +762,51 @@ const deleteMultipleItems = async (desaId, type, ids) => {
   try {
     // Validasi parameter
     if (!desaId || isNaN(desaId)) {
-      throw new Error('ID desa tidak valid');
+      throw new Error("ID desa tidak valid");
     }
 
     if (!Array.isArray(ids)) {
-      throw new Error('Parameter ids harus berupa array');
+      throw new Error("Parameter ids harus berupa array");
     }
 
     if (ids.length === 0) {
-      throw new Error('Tidak ada ID yang diberikan');
+      throw new Error("Tidak ada ID yang diberikan");
     }
 
     // Validasi semua ID (untuk Prisma yang menggunakan Int ID)
-    const invalidIds = ids.filter(id => isNaN(id));
+    const invalidIds = ids.filter((id) => isNaN(id));
     if (invalidIds.length > 0) {
-      throw new Error(`ID tidak valid: ${invalidIds.join(', ')}`);
+      throw new Error(`ID tidak valid: ${invalidIds.join(", ")}`);
     }
 
     // Pemilihan model dengan error handling
     let modelConfig;
     const normalizedType = type.toLowerCase().trim();
-    
+
     switch (normalizedType) {
-      case 'produk':
+      case "produk":
         modelConfig = {
           model: prisma.produk,
-          relationField: 'kelompokId'
+          relationField: "kelompokId",
         };
         break;
-      case 'pengurus':
+      case "pengurus":
         modelConfig = {
           model: prisma.pengurus,
-          relationField: 'kelompokId'
+          relationField: "kelompokId",
         };
         break;
-      case 'notulensi':
-      case 'materi':
+      case "notulensi":
+      case "materi":
         modelConfig = {
           model: prisma.notulensi,
-          relationField: 'kelompokId'
+          relationField: "kelompokId",
         };
         break;
-      case 'galeri':
+      case "galeri":
         modelConfig = {
           model: prisma.galeri,
-          relationField: 'kelompokId'
+          relationField: "kelompokId",
         };
         break;
       default:
@@ -707,57 +816,57 @@ const deleteMultipleItems = async (desaId, type, ids) => {
     // Eksekusi penghapusan dengan Prisma
     const deleteResult = await modelConfig.model.deleteMany({
       where: {
-        id: { in: ids.map(id => parseInt(id)) },
-        [modelConfig.relationField]: parseInt(desaId)
-      }
+        id: { in: ids.map((id) => parseInt(id)) },
+        [modelConfig.relationField]: parseInt(desaId),
+      },
     });
 
     if (deleteResult.count === 0) {
-      throw new Error('Tidak ada dokumen yang terhapus (mungkin tidak ditemukan)');
+      throw new Error("Tidak ada dokumen yang terhapus (mungkin tidak ditemukan)");
     }
 
     // Hapus file-file terkait jika ada
-if (['galeri', 'pengurus', 'produk', 'notulensi'].includes(normalizedType)) {
-  // Tentukan field yang akan dipilih berdasarkan tipe
-  const fieldMap = {
-    'galeri': 'gambar',
-    'pengurus': 'foto',
-    'produk': 'foto',
-    'notulensi': 'file'
-  };
-  
-  const fieldToSelect = fieldMap[normalizedType];
-  
-  const items = await modelConfig.model.findMany({
-    where: { id: { in: ids.map(id => parseInt(id)) } },
-    select: { [fieldToSelect]: true }
-  });
+    if (["galeri", "pengurus", "produk", "notulensi"].includes(normalizedType)) {
+      // Tentukan field yang akan dipilih berdasarkan tipe
+      const fieldMap = {
+        galeri: "gambar",
+        pengurus: "foto",
+        produk: "foto",
+        notulensi: "file",
+      };
 
-  for (const item of items) {
-    const filePath = item[fieldToSelect];
-    if (filePath) {
-      try {
-        const fullPath = path.join(__dirname, 'uploads', filePath);
-        if (fs.existsSync(fullPath)) {
-          fs.unlinkSync(fullPath);
+      const fieldToSelect = fieldMap[normalizedType];
+
+      const items = await modelConfig.model.findMany({
+        where: { id: { in: ids.map((id) => parseInt(id)) } },
+        select: { [fieldToSelect]: true },
+      });
+
+      for (const item of items) {
+        const filePath = item[fieldToSelect];
+        if (filePath) {
+          try {
+            const fullPath = path.join(__dirname, "uploads", filePath);
+            if (fs.existsSync(fullPath)) {
+              fs.unlinkSync(fullPath);
+            }
+          } catch (fileError) {
+            console.error(`Gagal menghapus file ${filePath}:`, fileError);
+          }
         }
-      } catch (fileError) {
-        console.error(`Gagal menghapus file ${filePath}:`, fileError);
       }
     }
-  }
-}
 
     return {
       success: true,
       message: `Berhasil menghapus ${deleteResult.count} item`,
-      deletedCount: deleteResult.count
+      deletedCount: deleteResult.count,
     };
   } catch (error) {
-    console.error('Error in deleteMultipleItems:', {
+    console.error("Error in deleteMultipleItems:", {
       message: error.message,
       stack: error.stack,
-      inputParams: { desaId, type, ids }
+      inputParams: { desaId, type, ids },
     });
     throw error;
   }
@@ -828,5 +937,9 @@ module.exports = {
   countAnggotaByKabupaten,
   countProdukByDesaPerKabupaten,
   countTotalProdukByKabupaten,
-  deleteMultipleItems
+  deleteMultipleItems,
+  getKasByDesaId,
+  addKasDesa,
+  editKasDesa,
+  deleteKasDesa,
 };

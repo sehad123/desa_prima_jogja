@@ -5,16 +5,16 @@ import { faDownload, faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import ReportKelompokDesa from "./ReportKelompokDesa";
 
-const DetailInfoSection = ({
-  desa,
-  profil,
-  galeri,
-  produk,
-  pengurus,
-  onEdit,
-  onDelete,
-}) => {
+const DetailInfoSection = ({ desa, profil, galeri, produk, pengurus, kas, onEdit, onDelete }) => {
   const [isHovered, setIsHovered] = useState(false);
+
+  // Hitung dana sekarang berdasarkan transaksi kas
+  // Hitung dana sekarang secara dinamis
+  const totalPemasukan = (kas ?? []).filter((item) => item.jenis_transaksi === "Pemasukan").reduce((acc, curr) => acc + curr.total_transaksi, 0);
+
+  const totalPengeluaran = (kas ?? []).filter((item) => item.jenis_transaksi === "Pengeluaran").reduce((acc, curr) => acc + curr.total_transaksi, 0);
+
+  const danaSekarang = desa.jumlah_hibah_diterima + totalPemasukan - totalPengeluaran;
 
   // Function to determine category color
   const getCategoryColor = (kategori) => {
@@ -36,17 +36,10 @@ const DetailInfoSection = ({
       <div className="bg-gradient-to-r from-purple-800 to-purple-500 p-6">
         <div className="flex justify-between items-start">
           <h1 className="text-2xl font-bold text-white">{desa.nama}</h1>
-          <span
-            className={`px-3 py-1 rounded-full text-md font-large ${getCategoryColor(
-              desa.kategori
-            )}`}
-          >
-            {desa.kategori}
-          </span>
+          <span className={`px-3 py-1 rounded-full text-md font-large ${getCategoryColor(desa.kategori)}`}>{desa.kategori}</span>
         </div>
         <p className="text-purple-100 mt-1">
-          {desa.kabupatenNama}, Kec. {desa.kecamatanNama}, Kel.{" "}
-          {desa.kelurahanNama}
+          {desa.kabupatenNama}, Kec. {desa.kecamatanNama}, Kel. {desa.kelurahanNama}
         </p>
       </div>
 
@@ -58,36 +51,19 @@ const DetailInfoSection = ({
           <div className="space-y-4">
             <div className="flex items-start">
               <div className="bg-purple-50 p-2 rounded-lg mr-4">
-                <svg
-                  className="w-7 h-7 text-purple-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                  />
+                <svg className="w-7 h-7 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
               </div>
               <div>
                 <p className="text-sm text-gray-500">Tanggal Pembentukan</p>
-                <p className="font-medium">
-                  {formatTanggal(desa.tanggal_pembentukan)}
-                </p>
+                <p className="font-medium">{formatTanggal(desa.tanggal_pembentukan)}</p>
               </div>
             </div>
 
             <div className="flex items-start">
               <div className="bg-purple-50 p-2 rounded-lg mr-4">
-                <svg
-                  className="w-7 h-7 text-purple-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
+                <svg className="w-7 h-7 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -98,33 +74,19 @@ const DetailInfoSection = ({
               </div>
               <div>
                 <p className="text-sm text-gray-500">Hibah Diterima</p>
-                <p className="font-medium">
-                  {formatRupiah(desa.jumlah_hibah_diterima)}
-                </p>
+                <p className="font-medium">{formatRupiah(desa.jumlah_hibah_diterima)}</p>
               </div>
             </div>
 
             <div className="flex items-start">
               <div className="bg-purple-50 p-2 rounded-lg mr-4">
-                <svg
-                  className="w-7 h-7 text-purple-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"
-                  />
+                <svg className="w-7 h-7 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
                 </svg>
               </div>
               <div>
                 <p className="text-sm text-gray-500">Dana Sekarang</p>
-                <p className="font-medium">
-                  {formatRupiah(desa.jumlah_dana_sekarang)}
-                </p>
+                <p className="font-medium">{formatRupiah(danaSekarang)}</p>
               </div>
             </div>
           </div>
@@ -133,18 +95,8 @@ const DetailInfoSection = ({
           <div className="space-y-4">
             <div className="flex items-start">
               <div className="bg-purple-50 p-2 rounded-lg mr-4">
-                <svg
-                  className="w-7 h-7 text-purple-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
-                  />
+                <svg className="w-7 h-7 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                 </svg>
               </div>
               <div>
@@ -155,12 +107,7 @@ const DetailInfoSection = ({
 
             <div className="flex items-start">
               <div className="bg-purple-50 p-2 rounded-lg mr-4">
-                <svg
-                  className="w-7 h-7 text-purple-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
+                <svg className="w-7 h-7 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -171,7 +118,7 @@ const DetailInfoSection = ({
               </div>
               <div>
                 <p className="text-sm text-gray-500">Anggota Sekarang</p>
-                <p className="font-medium">{desa.jumlah_anggota_sekarang}</p>
+                <p className="font-medium">{pengurus.length}</p>
               </div>
             </div>
           </div>
@@ -180,15 +127,7 @@ const DetailInfoSection = ({
         {/* Action Buttons */}
         <div className="mt-5 flex flex-wrap justify-end gap-3">
           <PDFDownloadLink
-            document={
-              <ReportKelompokDesa
-                desa={desa}
-                profil={profil}
-                galeri={galeri}
-                produk={produk}
-                pengurus={pengurus}
-              />
-            }
+            document={<ReportKelompokDesa desa={desa} profil={profil} galeri={galeri} produk={produk} pengurus={pengurus} kas={kas} />}
             fileName={`laporan-desa-${desa.nama}.pdf`}
             className="flex items-center px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-lg hover:from-emerald-600 hover:to-teal-700 transition-all shadow-md"
           >
@@ -198,18 +137,12 @@ const DetailInfoSection = ({
 
           {profil?.role === "Ketua Forum" && (
             <>
-              <button
-                onClick={onEdit}
-                className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-md"
-              >
+              <button onClick={onEdit} className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-md">
                 <FontAwesomeIcon icon={faEdit} className="mr-2" />
                 <span>Edit</span>
               </button>
 
-              <button
-                onClick={onDelete}
-                className="flex items-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors shadow-md"
-              >
+              <button onClick={onDelete} className="flex items-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors shadow-md">
                 <FontAwesomeIcon icon={faTrash} className="mr-2" />
                 <span>Hapus</span>
               </button>

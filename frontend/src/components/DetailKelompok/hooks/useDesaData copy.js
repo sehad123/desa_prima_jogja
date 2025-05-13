@@ -9,6 +9,7 @@ const useDesaData = (kabupatenName) => {
   const [loadingData, setLoadingData] = useState(true);
   const [galeri, setGaleri] = useState([]);
   const [produk, setProduk] = useState([]);
+  const [kas, setKas] = useState([]);
   const [pengurus, setPengurus] = useState([]);
   const [notulensi, setNotulensi] = useState([]);
   const [error, setError] = useState(null);
@@ -34,13 +35,10 @@ const useDesaData = (kabupatenName) => {
 
       let response;
       if (kabupatenName) {
-        response = await axios.get(
-          `http://localhost:5000/api/desa/kabupaten/${kabupatenName}`,
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
+        response = await axios.get(`http://localhost:5000/api/desa/kabupaten/${kabupatenName}`, { headers: { Authorization: `Bearer ${token}` } });
       } else {
         response = await axios.get("http://localhost:5000/api/desa", {
-          headers: { Authorization: `Bearer ${token}` }
+          headers: { Authorization: `Bearer ${token}` },
         });
       }
 
@@ -48,13 +46,16 @@ const useDesaData = (kabupatenName) => {
         response.data.map(async (desa) => {
           const [produk, pengurus] = await Promise.all([
             axios.get(`http://localhost:5000/api/desa/${desa.id}/produk`, {
-              headers: { Authorization: `Bearer ${token}` }
+              headers: { Authorization: `Bearer ${token}` },
             }),
             axios.get(`http://localhost:5000/api/desa/${desa.id}/pengurus`, {
-              headers: { Authorization: `Bearer ${token}` }
+              headers: { Authorization: `Bearer ${token}` },
+            }),
+            axios.get(`http://localhost:5000/api/desa/${desa.id}/kas`, {
+              headers: { Authorization: `Bearer ${token}` },
             }),
           ]);
-          return { ...desa, produk: produk.data, pengurus: pengurus.data };
+          return { ...desa, produk: produk.data, pengurus: pengurus.data, kas: kas.data };
         })
       );
 
@@ -71,23 +72,18 @@ const useDesaData = (kabupatenName) => {
   const fetchAllData = async () => {
     try {
       setLoadingData(true);
-      
+
       // Fetch profil dan data desa terlebih dahulu
       await Promise.all([fetchDesaData()]);
-      
+
       if (id) {
         const desaResponse = await axios.get(`http://localhost:5000/api/desa/${id}`);
         setDesa(desaResponse.data);
-        
+
         // Fetch data lainnya secara paralel
-        await Promise.all([
-          fetchData('galeri', setGaleri),
-          fetchData('produk', setProduk),
-          fetchData('pengurus', setPengurus),
-          fetchData('notulensi', setNotulensi)
-        ]);
+        await Promise.all([fetchData("galeri", setGaleri), fetchData("produk", setProduk), fetchData("pengurus", setPengurus), fetchData("notulensi", setNotulensi), fetchData("kas", setKas)]);
       }
-      
+
       setLoading(false);
     } catch (err) {
       setError(err.message);
@@ -100,16 +96,19 @@ const useDesaData = (kabupatenName) => {
   const fetchDataByTab = async (tab) => {
     switch (tab) {
       case "Galeri":
-        await fetchData('galeri', setGaleri);
+        await fetchData("galeri", setGaleri);
         break;
       case "Notulensi / Materi":
-        await fetchData('notulensi', setNotulensi);
+        await fetchData("notulensi", setNotulensi);
         break;
       case "Produk":
-        await fetchData('produk', setProduk);
+        await fetchData("produk", setProduk);
         break;
       case "Pengurus":
-        await fetchData('pengurus', setPengurus);
+        await fetchData("pengurus", setPengurus);
+        break;
+      case "Kas":
+        await fetchData("kas", setKas);
         break;
       default:
         break;
@@ -121,24 +120,26 @@ const useDesaData = (kabupatenName) => {
     fetchAllData();
   }, [id]);
 
-  return { 
+  return {
     desa,
     desaList,
     galeri,
     produk,
     pengurus,
+    kas,
     notulensi,
     loading,
     loadingData,
     error,
     fetchDesaData,
-    fetchDesaDetail: () => fetchData('', setDesa),
-    fetchGaleri: () => fetchData('galeri', setGaleri),
-    fetchProduk: () => fetchData('produk', setProduk),
-    fetchPengurus: () => fetchData('pengurus', setPengurus),
-    fetchNotulensi: () => fetchData('notulensi', setNotulensi),
+    fetchDesaDetail: () => fetchData("", setDesa),
+    fetchGaleri: () => fetchData("galeri", setGaleri),
+    fetchProduk: () => fetchData("produk", setProduk),
+    fetchPengurus: () => fetchData("pengurus", setPengurus),
+    fetchkas: () => fetchData("kas", setKas),
+    fetchNotulensi: () => fetchData("notulensi", setNotulensi),
     fetchDataByTab,
-    refetchAll: fetchAllData
+    refetchAll: fetchAllData,
   };
 };
 
